@@ -4,6 +4,12 @@ using UnityEditor.Rendering;
 using UnityEngine;
 using System;
 
+/// <summary>
+/// 硬件其实又改了，这里的计算是为挂在屏幕上的定位器设计的，不过现在还能跑就先不改了<para></para>
+/// 而且做到后面才发现图像同时包含了俩东西，要准确的位置就只能插值啥的去估计<para></para>
+/// 而且因为这种定位器不像VR那样子可以在头部挂个摄像头,导致这些位置只能以很别扭的方式估计出来
+/// </summary>
+
 public class FUKYMouse_MathBase : MonoBehaviour
 {
     #region 下级组件
@@ -15,19 +21,28 @@ public class FUKYMouse_MathBase : MonoBehaviour
     [Tooltip("第一人称相机\r\n目前只考虑第一人称")]
     public Camera RefCamera;
     #endregion
-    #region 输出值
+    #region 调参的地方
     [Header("浮奇鼠—FUKYMOUSE")]
     [Tooltip("浮奇手的位置")]
     public Vector3 FukyHandPos;
+    [Tooltip("浮奇手的旋转")]
+    public Quaternion FukyHandRotate;
     [Tooltip("浮奇手的往前伸的灵敏度")]
-    [Range(0f,2f)]
-    public float FukySens = 1;
-    #endregion
+    [Range(0f, 2f)]
+    public float FukySens = 0.4f;
+    [Tooltip("浮奇手的深度偏移")]
+    [Range(0f, 2f)]
+    public float UIDist = 0.6f;
+    [Tooltip("浮奇手的起始旋转")]
+    public Vector3 MouseRotateAdj = Vector3.zero;
+    [Tooltip("浮奇手的旋转灵敏度")]
+    public float RotateSens = 0.33f;
 
+    #endregion
     #region 数学模型控制
     [Header("数学模型控制")]
     [Tooltip("通过偏移的方式推测手心在图像上的坐标\r\n越大越激进，越小越接近灯的坐标")]
-    [Range(0.0f,2.0f)]
+    [Range(0.0f, 2.0f)]
     public float est_Offset = 0.5f;
     [Tooltip("允许的估计偏移量\r\n越大对激进的估计越宽容\r\n如果陀螺仪失常，该值过大会导致手乱飞")]
     [Range(0.0f, 1.0f)]
@@ -36,7 +51,6 @@ public class FUKYMouse_MathBase : MonoBehaviour
     public bool IsUnStable = true;
     #endregion
     #region 可调参数
-    public Vector3 MouseRotateAdj = Vector3.zero;
     [Header("调试用对象")]
     public Transform sim;
     #endregion
@@ -81,6 +95,19 @@ public class FUKYMouse_MathBase : MonoBehaviour
     [Tooltip("掌心的估计坐标")]
     public Vector3 M_estPos;
     #endregion
+    #region 滤波器
+    //位置信息更新
+    private OneEuroFilter<Vector3> PosFilter;
+    //旋转信息更新
+    private OneEuroFilter<Quaternion> RotationFilter;
+    [Header("OneEuro滤波器设置")]
+    [Tooltip("较高minCutoff值会导致更多的高频噪声通过，而较低的值则会使输出更加平滑")]
+    public float minCutoff = 0.2f;
+    [Tooltip("增加beta会使滤波器在快速移动时更加响应，但也可能引入更多的高频噪声。\r\n减小beta则会使滤波器更加平滑，但可能导致在快速移动时响应滞后。")]
+    public float beta = 0.2f;
+    [Tooltip("较高的dCutoff值会使滤波器对速度变化更加敏感，而较低的值则会使输出在速度变化时更加平滑")]
+    public float dCutoff = 0.6f;
+    #endregion
 
 
     #region 一些隐式转换
@@ -93,6 +120,9 @@ public class FUKYMouse_MathBase : MonoBehaviour
         LocatorY = LocatorRotation * OriginY;
         LocatorZ = LocatorRotation * OriginZ;
         LampOriginRotation = Quaternion.Euler(0, -38.9f, 0);
+        
+        RotationFilter = new OneEuroFilter<Quaternion>(50);
+        PosFilter = new OneEuroFilter<Vector3>(50);
         //UpdatePrjRatio();
     }
 
@@ -118,29 +148,33 @@ public class FUKYMouse_MathBase : MonoBehaviour
         //Debug.DrawLine(sim.position, sim.position + DO, Color.white);
         //Debug.DrawLine(this.transform.position, this.transform.position + M_LampMidOffset, Color.black);
         #endregion
-        M_estLampMid = new(_mouseState.Raw_LampPos.x - Projection_MLOffsetX * M_estLampLength, 
-            _mouseState.Raw_LampPos.y - Projection_MLOffsetZ * M_estLampLength);
-        //检查下LampPos偏移量有没有爆炸
+        M_estLampMid = new(_mouseState.Raw_LampPos.x - Projection_MLOffsetX * M_estLampLength,
+        _mouseState.Raw_LampPos.y - Projection_MLOffsetZ * M_estLampLength);//检查下LampPos偏移量有没有爆炸
         IsUnStable = CheckEstValue();
         if (IsUnStable)
         {
             M_estLampMid = _mouseState.Raw_LampPos;
             M_estLampLength = M_RawLampLength;
         }
-        //估算角度然后估计深度
-        M_estLineAngle = (M_estLampLength / _mouseState.ImgResolution.x) * _mouseState.Hfov;
-        if (M_estLineAngle < 53.2f)
+        M_estLineAngle = (M_estLampLength / _mouseState.ImgResolution.x) * _mouseState.Hfov;//估算角度然后估计深度
+        if (M_estLineAngle < 53.2f)//固定定位器的近似
         {
             M_estDept = Mathf.Tan((M_estLineAngle / 2) * (Mathf.PI / 180.0f)) * (M_estLampLength / 2);
         }
-        //固定定位器的近似
         float SC_PrjEstPosX = (M_estLampMid.x / _mouseState.ImgResolution.x) * Camera.main.pixelWidth;
         float SC_PrjEstPosY = (M_estLampMid.y / _mouseState.ImgResolution.y) * Camera.main.pixelHeight;
         //PrjImgResolution = new Vector3(SC_PrjEstPosX, SC_PrjEstPosY, 0f);
 
-        FukyHandPos = RefCamera.ScreenToWorldPoint( new(SC_PrjEstPosX, SC_PrjEstPosY, Mathf.Max(0,M_estDept * FukySens + RefCamera.nearClipPlane)));
+        FukyHandPos = RefCamera.ScreenToWorldPoint(new(SC_PrjEstPosX, SC_PrjEstPosY, Mathf.Max(0, M_estDept * FukySens + RefCamera.nearClipPlane)));
+        
+        RotationFilter.UpdateParams(_mouseState.RotateFreq, minCutoff, beta, dCutoff);
+        PosFilter.UpdateParams(_mouseState.PosFreq, minCutoff, beta, dCutoff);
 
-        DebugDraw();
+
+        FukyHandPos = PosFilter.Filter(FukyHandPos);
+        FukyHandRotate = AdjustQuaternion(RotationFilter.Filter(_mouseState.Float_MRotation));
+
+        //DebugDraw();
     }
 
     /// <summary>
@@ -149,14 +183,14 @@ public class FUKYMouse_MathBase : MonoBehaviour
     /// <returns></returns>
     private bool CheckEstValue()
     {
-        return (M_estLampMid- _mouseState.Raw_LampPos).magnitude > _mouseState.ImgResolution.magnitude * est_Range;
+        return (M_estLampMid - _mouseState.Raw_LampPos).magnitude > _mouseState.ImgResolution.magnitude * est_Range;
     }
     private void DebugDraw()
     {
         DebugToolDrawCoordLine(LocatorRotation, sim);//调试
         DebugToolDrawCoordLine(M_LampRotation, this.transform);//调试
     }
-    private void DebugToolDrawCoordLine(Quaternion DebugQ,Transform ShowPos)
+    private void DebugToolDrawCoordLine(Quaternion DebugQ, Transform ShowPos)
     {
         Vector3 X = DebugQ * Vector3.right;
         Vector3 Y = DebugQ * Vector3.up;
@@ -187,6 +221,11 @@ public class FUKYMouse_MathBase : MonoBehaviour
         PrjLampDispRatioX = PrjImgResolution.x / _mouseState.ImgResolution.x;
         PrjLampDispRatioY = PrjImgResolution.y / _mouseState.ImgResolution.y;
         PrjLampDispRatioZ = Mathf.Abs(1f / PrjImgResolution.z);
+    }
+
+    private Quaternion AdjustQuaternion(Quaternion Input)
+    {
+        return Quaternion.Euler(Input.eulerAngles * (90 * RotateSens / 15));
     }
 
 }

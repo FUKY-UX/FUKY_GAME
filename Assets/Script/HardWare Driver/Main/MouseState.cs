@@ -38,6 +38,10 @@ public class MouseState : MonoBehaviour
     public bool GyroWork;
     [Tooltip("陀螺仪是不是坏了\r\n如果坏了，需要重启")]
     public bool GyroBroken;
+    [Tooltip("位置数据的更新频率")]
+    public float PosFreq = 0.02f;//数据的更新频率
+    [Tooltip("旋转数据的更新频率")]
+    public float RotateFreq = 0.02f;//数据的更新频率
     #endregion
     #region 定位器设置
     [Header("定位器设置")]
@@ -78,6 +82,8 @@ public class MouseState : MonoBehaviour
     private Vector2 PrevFoat_LampPos;//灯珠在鼠标刚Float时的位置信息
     private Quaternion PrevFoat_MRotation; //鼠标刚Float时的旋转信息
     private Vector3 LastMousePos = Vector3.zero;//上一帧鼠标原生输入的屏幕Pos
+    public float LastPosUpdateTime = 0.00f;//数据的更新频率
+    public float LastRotateUpdateTime = 0.00f;//数据的更新频率
     #endregion
 
 
@@ -110,6 +116,7 @@ public class MouseState : MonoBehaviour
         if (Input.mousePosition != LastMousePos)
         {
             mouseState = CurrMouseState.Moving;
+
         }
         else if (mouseState != CurrMouseState.Floating)
         {
@@ -150,15 +157,30 @@ public class MouseState : MonoBehaviour
         {
             LostTrackTime += Time.deltaTime;
         }
-        if(LostTrackTime >= Thr_ReSetTime){IsTracked = false;}
-        else{IsTracked = true;}
-        
+        if (LostTrackTime >= Thr_ReSetTime) { IsTracked = false; }
+        else { IsTracked = true; }
+
+        if (Raw_MRotation != Last_MRotation)
+        {
+            RotateFreq = 1 / LastRotateUpdateTime;
+            RotateFreq = Mathf.Clamp(RotateFreq, 0.01F, 1);
+            LastRotateUpdateTime = 0f;
+        }
+        if (Raw_LampPos != Last_LampPos)
+        {
+            PosFreq = 1 / LastPosUpdateTime;
+            RotateFreq = Mathf.Clamp(PosFreq, 0.01F, 1);
+            LastPosUpdateTime = 0f;
+        }
+
         LastMousePos = Input.mousePosition;
         Delta_LampPos = Raw_LampPos - Last_LampPos;
         Delta_MRotation = Raw_MRotation * Quaternion.Inverse(Last_MRotation);
         Last_LampPos = Raw_LampPos;
         Last_MRotation = Raw_MRotation;
-    }
+        LastPosUpdateTime += Time.deltaTime;
+        LastRotateUpdateTime += Time.deltaTime;
+    }    
     /// <summary>
     /// 检测丢追踪的逻辑
     /// </summary>

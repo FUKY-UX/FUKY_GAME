@@ -1,7 +1,9 @@
 ﻿using System;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.TextCore.LowLevel;
 
-public class OneEuroFilter : MonoBehaviour
+public class OneEuroFilter_Sample : MonoBehaviour
 {
     private float minCutoff;
     private float beta;
@@ -9,6 +11,8 @@ public class OneEuroFilter : MonoBehaviour
     private float xPrev;
     private float dxPrev;
     private float tPrev;
+    private Vector3 prevVector = Vector3.one;
+    private Quaternion prevQuat = Quaternion.identity;
     /// <summary>
     /// <para>使用该方法调整滤波效果</para>在需要快速响应的应用中，可能需要增加beta和/或dCutoff的值；<para></para>而在需要高度平滑输出的应用中，可能需要增加minCutoff的值
     /// </summary>
@@ -22,7 +26,7 @@ public class OneEuroFilter : MonoBehaviour
         dCutoff = _dCutoff;
     }
 
-    public OneEuroFilter(float t0, float x0, float dx0 = 0.0f, float minCutoff = 1.0f, float beta = 0.0f, float dCutoff = 1.0f)
+    public OneEuroFilter_Sample(float t0, float x0, float dx0 = 0.0f, float minCutoff = 0.5f, float beta = 0.5f, float dCutoff = 0.5f)
     {
         // The parameters.
         this.minCutoff = minCutoff;
@@ -38,8 +42,8 @@ public class OneEuroFilter : MonoBehaviour
     /// </summary>
     /// <param name="Dt"></param>
     /// <param name="x"></param>
-    /// <returns></returns>
-    public float Compute(float Dt, float x)
+    /// <returns>平滑后的数</returns>
+    public float SmoothCurve_F(float Dt, float x)
     {
         float tE = Dt;
 
@@ -58,6 +62,37 @@ public class OneEuroFilter : MonoBehaviour
         dxPrev = dxHat;
 
         return xHat;
+    }
+
+    /// <summary>
+    /// Dt是Δtime，V是当前采样值的Vector3
+    /// </summary>
+    /// <param name="Dt">时间间隔</param>
+    /// <param name="V">当前向量</param>
+    /// <returns>平滑后的向量</returns>
+    public Vector3 SmoothCurve_V3(float Dt, Vector3 V)
+    {
+        float tE = Dt;
+        float x =V.magnitude;
+        // The filtered derivative of the signal.
+        float aD = SmoothingFactor(tE, dCutoff);
+        float dx = (x - xPrev) / tE;
+        float dxHat = ExponentialSmoothing(aD, dx, dxPrev);
+
+        // The filtered signal.
+        float cutoff = minCutoff + beta * Math.Abs(dxHat);
+        float a = SmoothingFactor(tE, cutoff);
+        float xHat = ExponentialSmoothing(a, x, xPrev);
+
+        // Memorize the previous values.
+        xPrev = xHat;
+        float OD = Mathf.Abs(prevVector.magnitude - V.magnitude);
+        float SD = Mathf.Abs(prevVector.magnitude - xHat);
+        Vector3 SmoothV3 = Vector3.Lerp(prevVector,V, SD / OD); 
+        prevVector = V;
+        dxPrev = dxHat;
+        
+        return SmoothV3;
     }
 
     private float SmoothingFactor(float tE, float cutoff)

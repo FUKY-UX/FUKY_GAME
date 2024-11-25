@@ -10,7 +10,7 @@ public class MRotateReciver : MonoBehaviour
     //public Transform TestObj;
     //public TextMeshProUGUI DebugThing;
     public const float fetchInterval = 0.02f;
-    public string MURL = "http://10.20.13.100/floatsM";// 鼠标陀螺仪数据的URL    
+    public string MURL = "http://10.20.13.100";// 鼠标陀螺仪数据的URL    
     //原生鼠标陀螺仪输入
     public Quaternion RawMouseRotation = Quaternion.identity; //=> Quaternion.Euler(RawMouseEulerRotate);
     public Vector3 RawMouseEulerRotate => RawMouseRotation.eulerAngles;//会实时接收来自陀螺仪的数据并转换成Unity可以解释的欧拉旋转
@@ -23,6 +23,7 @@ public class MRotateReciver : MonoBehaviour
 
     void Start()
     {
+        MURL = MURL + "/floatsM";
         StartCoroutine(FetchMouseCoroutine());
     }
 

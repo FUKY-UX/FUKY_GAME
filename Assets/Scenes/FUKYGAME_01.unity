@@ -1398,7 +1398,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63ade7c840d5a2340893980ba60dd38c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MURL: http://10.20.13.1/floatsM
+  MURL: http://10.20.13.41
   RawMouseRotation: {x: 0, y: 0, z: 0, w: 1}
 --- !u!114 &1423251706
 MonoBehaviour:
@@ -1454,6 +1454,8 @@ MonoBehaviour:
   IsTracked: 0
   GyroWork: 0
   GyroBroken: 0
+  PosFreq: 0.02
+  RotateFreq: 0.02
   Thr_Float: 1
   Thr_ReSetTime: 2
   Thr_TrackPos: 0
@@ -1465,6 +1467,8 @@ MonoBehaviour:
   GyroMaxWorkTime: 10
   _TrackZone: {x: 30, y: 270, z: 20, w: 220}
   _TrackRotate: {x: 20, y: 30}
+  LastPosUpdateTime: 0
+  LastRotateUpdateTime: 0
   Delta_LampPos: {x: 0, y: 0}
   Delta_MRotation: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &1423251709
@@ -1483,11 +1487,14 @@ MonoBehaviour:
   _mouseState: {fileID: 1423251708}
   RefCamera: {fileID: 603840097}
   FukyHandPos: {x: 0, y: 0, z: 0}
-  FukySens: 0.3
-  est_Offset: 0.5
-  est_Range: 0.3
-  IsUnStable: 1
+  FukyHandRotate: {x: 0, y: 0, z: 0, w: 0}
+  FukySens: 0.4
+  UIDist: 0.6
   MouseRotateAdj: {x: 0, y: 0, z: 0}
+  RotateSens: 0.33
+  est_Offset: 0
+  est_Range: 0
+  IsUnStable: 1
   sim: {fileID: 661731270}
   PrjImgResolution: {x: 0, y: 0, z: 0}
   PrjLampDispRatioX: 0
@@ -1498,6 +1505,9 @@ MonoBehaviour:
   M_estLineAngle: 0
   M_estDept: 0
   M_estPos: {x: 0, y: 0, z: 0}
+  minCutoff: 0.2
+  beta: 0.2
+  dCutoff: 0.2
 --- !u!1001 &1634356190
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2050,6 +2060,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2498716878485398965, guid: 66df9452b08d79e45af5d805ddf7b37d,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5264989581885598558, guid: 66df9452b08d79e45af5d805ddf7b37d,
         type: 3}
       propertyPath: m_Name
@@ -2058,7 +2073,7 @@ PrefabInstance:
     - target: {fileID: 5684850926008886750, guid: 66df9452b08d79e45af5d805ddf7b37d,
         type: 3}
       propertyPath: beta
-      value: 0.8
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 5684850926008886750, guid: 66df9452b08d79e45af5d805ddf7b37d,
         type: 3}
@@ -2068,7 +2083,7 @@ PrefabInstance:
     - target: {fileID: 5684850926008886750, guid: 66df9452b08d79e45af5d805ddf7b37d,
         type: 3}
       propertyPath: dCutoff
-      value: 0.1
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 5684850926008886750, guid: 66df9452b08d79e45af5d805ddf7b37d,
         type: 3}
@@ -2078,7 +2093,7 @@ PrefabInstance:
     - target: {fileID: 5684850926008886750, guid: 66df9452b08d79e45af5d805ddf7b37d,
         type: 3}
       propertyPath: minCutoff
-      value: 0.3
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 5684850926008886750, guid: 66df9452b08d79e45af5d805ddf7b37d,
         type: 3}
