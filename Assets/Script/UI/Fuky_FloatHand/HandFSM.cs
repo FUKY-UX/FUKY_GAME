@@ -1,75 +1,89 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-public enum HandState_Type
+using System;
+namespace Hand_FSM
 {
-    Default,
-    Grab
-}
-
-public class HandState
-{
-
-}
-
-
-
-public class HandFSM : MonoBehaviour
-{
-    public HandState CurrentState { get; private set; }
-    public FUKYMouse_MathBase FUKY_GAME;
-    public ItemBase Object;
-    private void Start()
+    public enum HandState_Type
     {
-        CurrentState = HandState.Default;
-        EnterState(CurrentState);
+        Default,
+        Grab
     }
 
-    void Update()
+    public interface HandState
     {
-        this.transform.position = FUKY_GAME.FukyHandPos;
-        this.transform.rotation = Camera.main.transform.rotation * FUKY_GAME.FukyHandRotate;
-        // 根据当前状态执行相应的更新逻辑
+        void OnEnter();
+        void OnExit();
+        void OnUpdate();
+        void OnFixUpdate();
 
-        switch (CurrentState)
-        {
-            case HandState.Default:
-                UpdateIdleState();
-                break;
+    }
+    [Serializable]
+    public class AttributeBoard
+    {
 
-            case HandState.Grab:
-                UpdateWalkingState();
-                break;
+    }
 
-             default: break;
-
+    public class HandFSM
+    {
+        public HandState CurrentState { get; private set; }
+        public Dictionary<HandState_Type, HandState> States;
+        public AttributeBoard Board;
+        public HandFSM(AttributeBoard _Board) 
+        { 
+            this.States = new Dictionary<HandState_Type, HandState>();
+            this.Board = _Board;
         }
-    }
-
-    // 进入状态时调用
-    private void EnterState(HandState newState)
-    {
-        Debug.Log("Entering state: " + newState);
-        // 可以在这里执行进入状态时需要的一些初始化操作
-    }
-
-    // 退出状态时调用
-    private void ExitState(HandState oldState)
-    {
-        Debug.Log("Exiting state: " + oldState);
-        // 可以在这里执行退出状态时需要的一些清理操作
-    }
-
-    // 切换状态的方法
-    private void TransitionToState(HandState newState)
-    {
-        if (CurrentState != newState)
+        public void AddState(HandState_Type StateType,HandState State)
         {
-            ExitState(CurrentState);
-            CurrentState = newState;
-            EnterState(CurrentState);
+            if (States.ContainsKey(StateType)) { return; }
+            States.Add(StateType, State);
         }
-    }
+        public void SwitchState(HandState_Type NewState_Type)
+        {
+            if (!States.ContainsKey(NewState_Type)){return;}
+            if (CurrentState != null) 
+            { 
+                CurrentState.OnExit();
+            }
+            CurrentState = States[NewState_Type];
+            CurrentState.OnEnter();
+        }
+        public void OnUpdate()
+        {
+            CurrentState.OnUpdate();
+        }
+        public void OnFixUpdate()
+        {
+            CurrentState.OnFixUpdate();
+        }
 
+
+    }
 
 }
+
+//public FUKYMouse_MathBase FUKY_GAME;
+//public ItemBase Object;
+//private void Start()
+//{
+//    CurrentState = HandState_Type.Default;
+//    EnterState(CurrentState);
+//}
+//void Update()
+//{
+//    //this.transform.position = FUKY_GAME.FukyHandPos;
+//    //this.transform.rotation = Camera.main.transform.rotation * FUKY_GAME.FukyHandRotate;
+//    // 根据当前状态执行相应的更新逻辑
+//}
+
+//private void TransitionToState(HandState newState)
+//{
+//    if (CurrentState != newState)
+//    {
+//        ExitState(CurrentState);
+//        CurrentState = newState;
+//        EnterState(CurrentState);
+//    }
+//}
+// 切换状态的方法

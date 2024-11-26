@@ -17,7 +17,6 @@ public class ScrewDriver_FlyMouse : MonoBehaviour
     public MRotateReciver _MRotateReciver;
     public Vector2 RealCamP= new(320,240);
     private float HFov = 53.2f;
-    private float VFov = 39.9f;
     private Quaternion LocatorRotation = new Quaternion(-0.8675f, -0.085f, 0.1175f, 0.4675f);//RawMouseRotation = new Quaternion(y, z, x, w);
     public Vector3 MouseEulerOffset = Vector3.zero;
     public Quaternion MouseEulerOffsetQ => Quaternion.Euler(MouseEulerOffset);

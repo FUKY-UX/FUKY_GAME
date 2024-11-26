@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using UnityEngine;
 
 public class TempRoleControl : MonoBehaviour
@@ -15,7 +16,8 @@ public class TempRoleControl : MonoBehaviour
     public float MoveSpeed = 10;
     public float rotatespeed = 1;
     public float JumpForce = 1;
-
+    public float squatSpeed = 0.2f;
+    public bool LockMouse;
     private Vector3 previousMousePosition;
 
     void Start()
@@ -25,7 +27,26 @@ public class TempRoleControl : MonoBehaviour
     }
     void Update()
     {
-        Cursor.visible = false;
+
+        // 获取鼠标的屏幕坐标
+        Vector3 mousePosition = Input.mousePosition;
+
+        // 检查鼠标是否在游戏窗口内
+        if (mousePosition.x >= 0 && mousePosition.x <= Screen.width &&
+            mousePosition.y >= 0 && mousePosition.y <= Screen.height)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+
         updateRotateOffset();
         updateMovingDeirection();
         Cam.rotation *= Rotation_Value_x;
@@ -34,19 +55,8 @@ public class TempRoleControl : MonoBehaviour
         {
             BodyPos.AddForce(Vector3.up * JumpForce);
         }
-
-        if (Input.GetKey(KeyCode.LeftControl) && BodyPos.velocity.y < 0.1f)
-        {
-            BodyCol.height = 2;
-        }
-        else if(BodyCol.height < 4)
-        {
-            this.transform.position += Vector3.up * 2f;
-            BodyCol.height = 4;
-        }
-
-
     }
+
 
     private void FixedUpdate()
     {   
@@ -55,6 +65,17 @@ public class TempRoleControl : MonoBehaviour
         if(Trans_MoveDierction.magnitude <= 0.1f&& BodyPos.velocity.y < 0.1f && BodyPos.velocity.y > -0.1f)
         {
             BodyPos.velocity = new Vector3(0f, BodyPos.velocity.y, 0f);
+        }
+
+        if (Input.GetKey(KeyCode.LeftControl) && BodyPos.velocity.y < 0.1f)
+        {
+            if (2 - BodyCol.height < 0.01) { BodyCol.height = 2; }
+            else { BodyCol.height = Mathf.Lerp(BodyCol.height, 2f, squatSpeed); }
+        }
+        else if (BodyCol.height < 4)
+        {
+            if (4 - BodyCol.height < 0.01f) { BodyCol.height = 4;}
+            else { BodyCol.height = Mathf.Lerp(BodyCol.height, 4f, squatSpeed);  }
         }
     }
 

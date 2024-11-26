@@ -14,8 +14,6 @@ public class FUKYMouse_MathBase : MonoBehaviour
 {
     #region 下级组件
     [Header("依赖项")]
-    [Tooltip("用来查看估计矫正的效果")]
-    public LampDebugUICtrol _lampDebugUICtrol;
     [Tooltip("鼠标输入系统的所有状态汇总")]
     public MouseState _mouseState;
     [Tooltip("第一人称相机\r\n目前只考虑第一人称")]
@@ -37,7 +35,19 @@ public class FUKYMouse_MathBase : MonoBehaviour
     public Vector3 MouseRotateAdj = Vector3.zero;
     [Tooltip("浮奇手的旋转灵敏度")]
     public float RotateSens = 0.33f;
-
+    #endregion
+    #region 滤波器
+    //位置信息更新
+    private OneEuroFilter<Vector3> PosFilter;
+    //旋转信息更新
+    private OneEuroFilter<Quaternion> RotationFilter;
+    [Header("OneEuro滤波器设置")]
+    [Tooltip("较高minCutoff值会导致更多的高频噪声通过，而较低的值则会使输出更加平滑")]
+    public float minCutoff = 0.2f;
+    [Tooltip("增加beta会使滤波器在快速移动时更加响应，但也可能引入更多的高频噪声。\r\n减小beta则会使滤波器更加平滑，但可能导致在快速移动时响应滞后。")]
+    public float beta = 0.2f;
+    [Tooltip("较高的dCutoff值会使滤波器对速度变化更加敏感，而较低的值则会使输出在速度变化时更加平滑")]
+    public float dCutoff = 0.6f;
     #endregion
     #region 数学模型控制
     [Header("数学模型控制")]
@@ -49,10 +59,6 @@ public class FUKYMouse_MathBase : MonoBehaviour
     public float est_Range = 0.3f;
     [Tooltip("如果估计值过于离谱，该值就为False\r\n避免陀螺仪失常造成物体乱飞")]
     public bool IsUnStable = true;
-    #endregion
-    #region 可调参数
-    [Header("调试用对象")]
-    public Transform sim;
     #endregion
     #region L1已知量
     //private Quaternion LocatorRotation = new Quaternion(-0.8675f, -0.085f, 0.1175f, 0.4675f);//旧近似定位器旋转
@@ -76,39 +82,30 @@ public class FUKYMouse_MathBase : MonoBehaviour
     /// XY是左右和上下移动的比率，Z值为前后移动的比率
     /// </summary>
     #region 非固定定位器考虑因素(暂时不开发)
-    [Obsolete] public Vector3 PrjImgResolution;//分辨率也需要投影才能得到映射值
-    [Obsolete] public float PrjLampDispRatioX;
-    [Obsolete] public float PrjLampDispRatioY;
-    [Obsolete] public float PrjLampDispRatioZ;
+    [Obsolete] private Vector3 PrjImgResolution;//分辨率也需要投影才能得到映射值
+    [Obsolete] private float PrjLampDispRatioX;
+    [Obsolete] private float PrjLampDispRatioY;
+    [Obsolete] private float PrjLampDispRatioZ;
     #endregion
     #endregion
     #region Debug 的临时值
-    [Header("监测值")]
+    [Header("输出值")]
+    [SerializeField]
     [Tooltip("估计出的免去透视旋转影响的红外灯线长\r\n(陀螺仪失灵的话该值会炸)")]
     public float M_estLampLength;
+    [SerializeField]
     [Tooltip("根据灯线长度估计出的掌心位置\r\n(陀螺仪失灵的话该值会炸)")]
     public Vector2 M_estLampMid;
+    [SerializeField]
     [Tooltip("根据灯线长度估算的角度，用来求距离相机的深度\r\n(陀螺仪失灵的话该值会炸)")]
     public float M_estLineAngle;
-    [Tooltip("估算的掌心距离相机的深度，越大越远，越小越进")]
+    [SerializeField]
+    [Tooltip("估算的掌心距离相机的深度，越大越远，越小越近")]
     public float M_estDept;
+    [SerializeField]
     [Tooltip("掌心的估计坐标")]
     public Vector3 M_estPos;
     #endregion
-    #region 滤波器
-    //位置信息更新
-    private OneEuroFilter<Vector3> PosFilter;
-    //旋转信息更新
-    private OneEuroFilter<Quaternion> RotationFilter;
-    [Header("OneEuro滤波器设置")]
-    [Tooltip("较高minCutoff值会导致更多的高频噪声通过，而较低的值则会使输出更加平滑")]
-    public float minCutoff = 0.2f;
-    [Tooltip("增加beta会使滤波器在快速移动时更加响应，但也可能引入更多的高频噪声。\r\n减小beta则会使滤波器更加平滑，但可能导致在快速移动时响应滞后。")]
-    public float beta = 0.2f;
-    [Tooltip("较高的dCutoff值会使滤波器对速度变化更加敏感，而较低的值则会使输出在速度变化时更加平滑")]
-    public float dCutoff = 0.6f;
-    #endregion
-
 
     #region 一些隐式转换
     public Quaternion MouseRotateAdjQ => Quaternion.Euler(MouseRotateAdj);
@@ -187,7 +184,7 @@ public class FUKYMouse_MathBase : MonoBehaviour
     }
     private void DebugDraw()
     {
-        DebugToolDrawCoordLine(LocatorRotation, sim);//调试
+        //DebugToolDrawCoordLine(LocatorRotation, sim);//调试
         DebugToolDrawCoordLine(M_LampRotation, this.transform);//调试
     }
     private void DebugToolDrawCoordLine(Quaternion DebugQ, Transform ShowPos)
