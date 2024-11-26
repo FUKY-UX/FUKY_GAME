@@ -10,7 +10,8 @@ public class HandAttributeBoard : AttributeBoard
     public MeshRenderer _HandRender;
     public Collider _HandCollider;
     public Collider Touchthing;
-    public ItemBase TouchThingItemBase;
+    public InteractedItemBase TouchThingItemBase;
+    public InteractedItem interactedItem;
     public FUKYMouse_MathBase FukyGameBase;
     public Camera RefCamera;
     public float HandSize;
@@ -43,7 +44,6 @@ public class DefaultHand : HandState
     public void OnFixUpdate()
     {
     }
-
     public void OnUpdate()
     {
         _SBoard._Hand.transform.position = _SBoard.FukyGameBase.FukyHandPos;
@@ -54,10 +54,11 @@ public class DefaultHand : HandState
             _SBoard.Touchthing = Physics.OverlapSphere(_SBoard._Hand.transform.position, _SBoard.HandSize, _SBoard.HandCanDoLayerMask)[0];
         }
         else{_SBoard._HandCollider.enabled = true;}
-        if (_SBoard.Touchthing != null) { _SBoard.TouchThingItemBase = _SBoard.Touchthing.GetComponentInParent<ItemBase>(); } 
+        if (_SBoard.Touchthing != null) { _SBoard.TouchThingItemBase = _SBoard.Touchthing.GetComponentInParent<InteractedItemBase>(); } 
         if (Input.GetMouseButtonDown(0) && _SBoard.TouchThingItemBase != null)
         {
-            if (_SBoard.TouchThingItemBase.ISgrab) {_ShandFsm.SwitchState(HandState_Type.Grab);}
+            _SBoard.interactedItem = _SBoard.TouchThingItemBase as InteractedItem;
+            _ShandFsm.SwitchState(HandState_Type.Grab);
         }
 
     }
@@ -75,6 +76,7 @@ public class GrabHand : HandState
     }
     public void OnEnter()
     {
+        _SBoard.interactedItem.OnGrab();
         _SBoard._HandRender.enabled = false;
         _SBoard.TouchThingItemBase._rigidbody.useGravity = false;
         _SBoard.TouchThingItemBase._rigidbody.isKinematic = true;
@@ -82,6 +84,7 @@ public class GrabHand : HandState
 
     public void OnExit()
     {
+        _SBoard.interactedItem.OnRelease();
         _SBoard._HandRender.enabled = true;
         _SBoard.TouchThingItemBase._rigidbody.useGravity = true;
         _SBoard._HandCollider.enabled = false;

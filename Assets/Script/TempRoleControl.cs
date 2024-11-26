@@ -8,6 +8,7 @@ public class TempRoleControl : MonoBehaviour
     public Rigidbody BodyPos;
     public CapsuleCollider BodyCol;
     public Transform Cam;
+    public AudioSource HeadSoundSouece;
     public Vector3 MoveDierction = Vector3.zero;
     public Vector3 Trans_MoveDierction = Vector3.zero;
     public Vector3 Rotation_Input = Vector3.zero;
@@ -27,7 +28,6 @@ public class TempRoleControl : MonoBehaviour
     }
     void Update()
     {
-
         // 获取鼠标的屏幕坐标
         Vector3 mousePosition = Input.mousePosition;
 
