@@ -5,8 +5,9 @@ using UnityEngine;
 public class Meet : InteractedItemBase
 {
     private string[] MeetGrabSound;
-    private string[] MeetDropSound;
-    public bool AfterGrab =false;
+    private string[] MeetDropSound; 
+
+
 
     private void Start()
     {
