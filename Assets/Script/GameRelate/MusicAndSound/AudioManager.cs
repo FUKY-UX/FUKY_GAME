@@ -15,7 +15,11 @@ public class AudioManager : MonoBehaviour
         instance = this;
         dictAudio = new Dictionary<string, AudioClip>();
     }
+    private void Start()
+    {
+        PlayBGM(MusicAndSound_Path.instance.BGM);
 
+    }
     private AudioClip LoadAudio(string path)
     {
         //Debug.Log((AudioClip)Resources.Load(path));

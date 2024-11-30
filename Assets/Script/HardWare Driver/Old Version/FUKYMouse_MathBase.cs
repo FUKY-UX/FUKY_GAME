@@ -26,7 +26,7 @@ public class FUKYMouse_MathBase : MonoBehaviour
     [Tooltip("浮奇手的旋转")]
     public Quaternion FukyHandRotate;
     [Tooltip("浮奇手的往前伸的灵敏度")]
-    [Range(0f, 2f)]
+    [Range(0f, 10f)]
     public float FukySens = 0.4f;
     [Tooltip("浮奇手的深度偏移")]
     [Range(0f, 2f)]

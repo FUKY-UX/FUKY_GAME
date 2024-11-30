@@ -308,8 +308,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 030745d36fb79d049bda13e77173fb02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _rigidbody: {fileID: 3301436096539850557}
-  _audiosource: {fileID: 6318212258203924467}
-  V_CoolDown: 1
-  V_Voulme: 1
-  AfterGrab: 0
+  _DefaultAttrBoard:
+    _rigidbody: {fileID: 3301436096539850557}
+    _collider: {fileID: 1424965945993485788}
+    _audiosource: {fileID: 6318212258203924467}
+    V_CoolDown: 1
+    V_Voulme: 1
+    V_Playable: 1
+    V_CoolDownOffset: 1
+    V_LastSoundPlay: 0
+  _WoodPlateAttrBoard:
+    WoodPlateSound:
+    - Game/Audio/WoodPlateDrop
+    - Game/Audio/WoodPlateGrab

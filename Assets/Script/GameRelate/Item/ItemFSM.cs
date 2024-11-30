@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using static InteractedItemOrigin;
 namespace Item_FSM
 {
     public enum ItemState_Type
@@ -23,20 +22,22 @@ namespace Item_FSM
         public void OnGrab();
         public void OnRelease();
         public void OnFixUpdate();
-
+        public void OnColliderEnter();
+        public void Grabing();
+        public void OnColliderStay();
+        public void OnColliderExit();
     }
     [Serializable]
-    public class ItemAttrBoard
+    public class AttrBoard
     {
 
     }
-
-    public class ItemFSM :MonoBehaviour
+    public class ItemFSM
     {
         public InteractedItem CurrentState { get; private set; }
         public Dictionary<ItemState_Type, InteractedItem> States;
-        public ItemAttrBoard AttrBoard;
-        public ItemFSM(ItemAttrBoard _Board)
+        public DefaultItemAttrBoard AttrBoard;
+        public ItemFSM(DefaultItemAttrBoard _Board)
         {
             this.States = new Dictionary<ItemState_Type, InteractedItem>();
             this.AttrBoard = _Board;
@@ -64,31 +65,29 @@ namespace Item_FSM
         {
             CurrentState.OnFixUpdate();
         }
+        public void OnColliderEnter()
+        {
+            CurrentState.OnColliderEnter();
+        }
+        public void OnGrab()
+        {
+            CurrentState.OnGrab();
+        }
+        public void Grabing()
+        {
+            CurrentState.Grabing();
+        }
+        public void OnRelease()
+        {
+            CurrentState.OnRelease();
+        }
+        public void OnColliderStay()
+        {
+            CurrentState.OnColliderStay();
+        }
+        public void OnColliderExit()
+        {
+        }
     }
 
 }
-
-//public FUKYMouse_MathBase FUKY_GAME;
-//public ItemBase Object;
-//private void Start()
-//{
-//    CurrentState = HandState_Type.Default;
-//    EnterState(CurrentState);
-//}
-//void Update()
-//{
-//    //this.transform.position = FUKY_GAME.FukyHandPos;
-//    //this.transform.rotation = Camera.main.transform.rotation * FUKY_GAME.FukyHandRotate;
-//    // 根据当前状态执行相应的更新逻辑
-//}
-
-//private void TransitionToState(HandState newState)
-//{
-//    if (CurrentState != newState)
-//    {
-//        ExitState(CurrentState);
-//        CurrentState = newState;
-//        EnterState(CurrentState);
-//    }
-//}
-// 切换状态的方法

@@ -83,7 +83,7 @@ public class MouseState : MonoBehaviour
     private Quaternion PrevFoat_MRotation; //鼠标刚Float时的旋转信息
     private Vector3 LastMousePos = Vector3.zero;//上一帧鼠标原生输入的屏幕Pos
     public float LastPosUpdateTime = 0.00f;//数据的更新频率
-    public float LastRotateUpdateTime = 0.00f;//数据的更新频率
+    public float LastRotateUpdateTime = 0.02f;//数据的更新频率
     #endregion
 
 

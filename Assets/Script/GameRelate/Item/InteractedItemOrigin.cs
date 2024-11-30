@@ -1,16 +1,21 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Item_FSM;
 using System;
 
-
 [Serializable]
-public class DefaultItemBoard : ItemAttrBoard 
+public class DefaultItemAttrBoard : AttrBoard
 {
-    #region 音效相关
-    [Header("物品音效")]
+    #region 物品的引擎属性
+    [Header("物品引擎属性")]
     public Rigidbody _rigidbody;
+    public Collider _collider;
+    public Collision HitMe;
+    public float GrabTimeFactor = 1f;
+    public Vector3 RubFactor;
+    public float RubStrength = 1f;
+    #endregion
+    #region 音效播放基础
+    [Header("物品音效")]
     public AudioSource _audiosource;
     public float V_CoolDown = 1f;
     public float V_Voulme = 1f;
@@ -18,67 +23,96 @@ public class DefaultItemBoard : ItemAttrBoard
     public float V_CoolDownOffset = 1f;
     public float V_LastSoundPlay;
     #endregion
-};
+}
 
-public class DefaultItemState : Item_FSM.InteractedItem
+public abstract class DefaultItemState : Item_FSM.InteractedItem
 {
-    private ItemFSM _MyFsm;
-    public DefaultItemBoard _AttrBoard;
-    public DefaultItemState(ItemFSM in_Fsm, ItemAttrBoard in_Board)
-    {
-        _MyFsm = in_Fsm;
-        _AttrBoard = in_Board as DefaultItemBoard;
-    }
-    public void OnEnter()
+    public virtual void OnEnter()
     {
     }
-    public void OnExit()
+    public virtual void OnExit()
     {
 
     }
-    public void OnFixUpdate()
+    public virtual void OnFixUpdate()
     {
     }
-    public void OnUpdate()
+    public virtual void OnUpdate()
     {
-        if (!_AttrBoard.V_Playable)
-        {
-            if (_AttrBoard.V_LastSoundPlay > _AttrBoard.V_CoolDownOffset)
-            {
-                _AttrBoard.V_Playable = true;
-                _AttrBoard.V_CoolDownOffset = _AttrBoard.V_CoolDown + UnityEngine.Random.Range(-0.5f, 0.5f);
-            }
-            _AttrBoard.V_LastSoundPlay += Time.deltaTime;
-            return;
-        }
 
     }
-    public void OnGrab()
+    public virtual void OnGrab()
     {
     }
-    public void OnRelease()
+    public virtual void OnRelease()
+    {
+    }
+    public virtual void OnColliderEnter()
+    {
+    }
+    public virtual void OnColliderStay()
+    {
+    }
+    public virtual void OnColliderExit()
+    {
+    }
+    public virtual void Grabing()
     {
     }
 }
 
-
-public abstract class InteractedItemOrigin : MonoBehaviour
+public class InteractedItemOrigin : MonoBehaviour
 {
     public ItemFSM _MyFsm;
-    [SerializeField]
-    private DefaultItemBoard _MyAttrBoard;
-    private void Start()
+    public DefaultItemAttrBoard _DefaultAttrBoard;
+    private void Awake()
     {
-        _MyFsm = new ItemFSM(_MyAttrBoard);
-        _MyFsm.AddState(ItemState_Type.Default, new DefaultItemState(_MyFsm, _MyAttrBoard));
-        _MyFsm.SwitchState(ItemState_Type.Default);
+        _MyFsm = new ItemFSM(_DefaultAttrBoard);
     }
-    private void Update()
+    public void Update()
     {
-        _MyFsm.OnUpdate();
+        if (!_DefaultAttrBoard.V_Playable)
+        {
+            if (_DefaultAttrBoard.V_LastSoundPlay > _DefaultAttrBoard.V_CoolDownOffset)
+            {
+                _DefaultAttrBoard.V_Playable = true;
+                _DefaultAttrBoard.V_CoolDownOffset = _DefaultAttrBoard.V_CoolDown + UnityEngine.Random.Range(-0.5f, 0.5f);
+            }
+            _DefaultAttrBoard.V_LastSoundPlay += Time.deltaTime;
+            return;
+        }
+        if (_MyFsm.CurrentState != null)
+        {
+            _MyFsm.OnUpdate();
+        }
     }
-    private void FixedUpdate()
+    public void FixedUpdate()
     {
-        _MyFsm.OnFixUpdate();
+        if (_MyFsm.CurrentState != null)
+        {
+
+            _MyFsm.OnFixUpdate();
+        }
     }
+    public void OnCollisionEnter(Collision collision)
+    {
+        _DefaultAttrBoard.HitMe = collision;
+        if (_MyFsm.CurrentState != null)
+        {
+            _MyFsm.OnColliderEnter();
+        }
+    }
+
+    private void OnCollisionStay(Collision collision)
+    {
+        _DefaultAttrBoard.HitMe = collision;
+        _MyFsm.OnColliderStay();
+    }
+
+    public void OnCollisionExit(Collision collision)
+    {
+        _DefaultAttrBoard.HitMe = collision;
+        _MyFsm.OnColliderExit();
+    }
+
 }

@@ -72,10 +72,10 @@ public class TempRoleControl : MonoBehaviour
             if (2 - BodyCol.height < 0.01) { BodyCol.height = 2; }
             else { BodyCol.height = Mathf.Lerp(BodyCol.height, 2f, squatSpeed); }
         }
-        else if (BodyCol.height < 4)
+        else if (BodyCol.height < 6)
         {
-            if (4 - BodyCol.height < 0.01f) { BodyCol.height = 4;}
-            else { BodyCol.height = Mathf.Lerp(BodyCol.height, 4f, squatSpeed);  }
+            if (6 - BodyCol.height < 0.01f) { BodyCol.height = 6;}
+            else { BodyCol.height = Mathf.Lerp(BodyCol.height, 6f, squatSpeed);  }
         }
     }
 

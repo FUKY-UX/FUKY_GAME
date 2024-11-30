@@ -43,7 +43,7 @@ public class MusicAndSound_Path :MonoBehaviour
     public string WoodPlateDrop = "Game/Audio/WoodPlateDrop";
     public string WoodPlateGrab = "Game/Audio/WoodPlateGrab";
     #endregion
-
+    public string BGM = "Game/Audio/BGM/MIRWHITE_TIME_TO_COOK";
     #endregion
 
 

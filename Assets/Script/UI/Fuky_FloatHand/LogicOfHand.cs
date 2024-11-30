@@ -1,25 +1,35 @@
 using UnityEngine;
 using Hand_FSM;
 using System;
-
+using Item_FSM;
 [Serializable]
 public class HandAttributeBoard : AttributeBoard
 {
-    public GameObject _Hand;
+    [Header("依赖项")]
     public Rigidbody _HandRigidbody;
     public MeshRenderer _HandRender;
     public Collider _HandCollider;
-    public Collider Touchthing;
-    public InteractedItemBase TouchThingItemBase;
-    public InteractedItem interactedItem;
     public FUKYMouse_MathBase FukyGameBase;
     public Camera RefCamera;
+    [Header("运行时手触摸到的物体")]
+    public Collider TouchCollider;
+    public InteractedItemOrigin TouchItem;
+    public ItemFSM TouchItemFSM;
+    [Header("调试参数")]
+    public bool ShowGizmo;
     public float HandSize;
-    public float GrabingSmooth = 0.1f;
+    public float DragStrength = 100f;
+    [Range(0,100)]
+    public float RotateSmooth = 10f;
+    [Range(0, 2f)]
+    public Vector3 _LastHandPos = Vector3.zero;
     public LayerMask HandCanDoLayerMask;
+    [Header("物体抓取用时")]
+    public float _GrabTranslateTime = 0.5f;
+    public float _TranslateUsingTime;
+    public bool IsCaught = false;
 
 }
-
 public class DefaultHand : HandState
 {
     private HandFSM _ShandFsm;
@@ -30,39 +40,39 @@ public class DefaultHand : HandState
         _ShandFsm = in_handFsm;
         _SBoard = in_Board as HandAttributeBoard;
     }
-
     public void OnEnter()
     {
-        _SBoard.Touchthing = null;
-        _SBoard.TouchThingItemBase = null;
     }
-
     public void OnExit()
     {
 
     }
     public void OnFixUpdate()
     {
+        Vector3 ForceDir = _SBoard.FukyGameBase.FukyHandPos - _SBoard._LastHandPos;
+        Quaternion CurrRotate = Quaternion.Euler(0f, _SBoard.RefCamera.transform.rotation.eulerAngles.y, 0f) * _SBoard.FukyGameBase.FukyHandRotate;
+
+        _SBoard._HandRigidbody.AddForce(ForceDir * _SBoard.DragStrength * Time.deltaTime);
+        _SBoard._HandRigidbody.transform.rotation = Quaternion.Lerp(_SBoard._HandRigidbody.transform.rotation, CurrRotate, _SBoard.RotateSmooth * Time.deltaTime);
+
+        _SBoard._LastHandPos = _SBoard._HandRigidbody.transform.position;
     }
+
     public void OnUpdate()
     {
-        _SBoard._Hand.transform.position = _SBoard.FukyGameBase.FukyHandPos;
-        _SBoard._Hand.transform.rotation = Quaternion.Euler(0f, _SBoard.RefCamera.transform.rotation.eulerAngles.y, 0f)
-            * _SBoard.FukyGameBase.FukyHandRotate;
-        if (Physics.OverlapSphere(_SBoard._Hand.transform.position, _SBoard.HandSize, _SBoard.HandCanDoLayerMask).Length > 0)
+
+        if (Physics.OverlapSphere(_SBoard._HandRigidbody.transform.position, _SBoard.HandSize, _SBoard.HandCanDoLayerMask).Length > 0)
         {
-            _SBoard.Touchthing = Physics.OverlapSphere(_SBoard._Hand.transform.position, _SBoard.HandSize, _SBoard.HandCanDoLayerMask)[0];
+            _SBoard.TouchCollider = Physics.OverlapSphere(_SBoard._HandRigidbody.transform.position, _SBoard.HandSize, _SBoard.HandCanDoLayerMask)[0];
         }
-        else{_SBoard._HandCollider.enabled = true;}
-        if (_SBoard.Touchthing != null) { _SBoard.TouchThingItemBase = _SBoard.Touchthing.GetComponentInParent<InteractedItemBase>(); } 
-        if (Input.GetMouseButtonDown(0) && _SBoard.TouchThingItemBase != null)
+        else{_SBoard._HandCollider.isTrigger = false; _SBoard.TouchItem = null; _SBoard.TouchCollider = null;}
+        if (_SBoard.TouchCollider != null) { _SBoard.TouchItem = _SBoard.TouchCollider.GetComponentInParent<InteractedItemOrigin>(); } 
+        if (Input.GetMouseButtonDown(0) && _SBoard.TouchItem != null)
         {
-            _SBoard.interactedItem = _SBoard.TouchThingItemBase as InteractedItem;
+            _SBoard.TouchItemFSM = _SBoard.TouchItem._MyFsm;
             _ShandFsm.SwitchState(HandState_Type.Grab);
         }
-
     }
-
 }
 public class GrabHand : HandState
 {
@@ -76,44 +86,69 @@ public class GrabHand : HandState
     }
     public void OnEnter()
     {
-        _SBoard.interactedItem.OnGrab();
+        _SBoard._HandCollider.isTrigger = true;
+        _SBoard.TouchItem._DefaultAttrBoard._rigidbody.velocity = Vector3.zero;
+        _SBoard.TouchItem._DefaultAttrBoard._rigidbody.freezeRotation = true;
+        _SBoard.TouchItem._DefaultAttrBoard._rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         _SBoard._HandRender.enabled = false;
-        _SBoard.TouchThingItemBase._rigidbody.useGravity = false;
-        _SBoard.TouchThingItemBase._rigidbody.isKinematic = true;
+
     }
 
     public void OnExit()
     {
-        _SBoard.interactedItem.OnRelease();
+        _SBoard.TouchItem._DefaultAttrBoard._rigidbody.isKinematic = false;
+        _SBoard.TouchItem._DefaultAttrBoard._rigidbody.freezeRotation = false;
         _SBoard._HandRender.enabled = true;
-        _SBoard.TouchThingItemBase._rigidbody.useGravity = true;
-        _SBoard._HandCollider.enabled = false;
-        _SBoard.TouchThingItemBase._rigidbody.isKinematic = false;
+        _SBoard.IsCaught = false;
+        _SBoard.TouchItem._DefaultAttrBoard._rigidbody.velocity = _SBoard._HandRigidbody.velocity;
+        _SBoard.TouchItemFSM.OnRelease();
     }
 
     public void OnFixUpdate()
     {
-        _SBoard.TouchThingItemBase._rigidbody.velocity = Vector3.zero;
-        
-        _SBoard.TouchThingItemBase.transform.position = Vector3.Lerp(_SBoard.TouchThingItemBase.transform.position, _SBoard.FukyGameBase.FukyHandPos, _SBoard.GrabingSmooth * Time.deltaTime);
+        float ItemGrabFactor = _SBoard.TouchItem._DefaultAttrBoard.GrabTimeFactor;
 
-        _SBoard.TouchThingItemBase.transform.rotation = Quaternion.Lerp(_SBoard.TouchThingItemBase.transform.rotation, _SBoard._Hand.transform.rotation, _SBoard.GrabingSmooth * Time.deltaTime);
+        Vector3 TouchingItemRigiPos = _SBoard.TouchItem._DefaultAttrBoard._rigidbody.transform.position;
+        Vector3 HandOriRigiPos = _SBoard._HandRigidbody.transform.position;
+        Quaternion ItemQuat = _SBoard.TouchItem._DefaultAttrBoard._rigidbody.transform.rotation;
+
+        Vector3 ForceDir = _SBoard.FukyGameBase.FukyHandPos - _SBoard._LastHandPos;
+        Quaternion CurrRotate = Quaternion.Euler(0f, _SBoard.RefCamera.transform.rotation.eulerAngles.y, 0f) * _SBoard.FukyGameBase.FukyHandRotate;
+
+        _SBoard._HandRigidbody.AddForce(ForceDir * _SBoard.DragStrength * Time.deltaTime);
+        _SBoard._HandRigidbody.transform.rotation = Quaternion.Lerp(_SBoard._HandRigidbody.transform.rotation, CurrRotate, _SBoard.RotateSmooth * Time.deltaTime);
+
+        if (!_SBoard.IsCaught)
+        {
+            _SBoard.TouchItem._DefaultAttrBoard._rigidbody.transform.rotation = Quaternion.Lerp(_SBoard.TouchItem._DefaultAttrBoard._rigidbody.transform.rotation,
+                CurrRotate, _SBoard._TranslateUsingTime / _SBoard._GrabTranslateTime * ItemGrabFactor);// 旋转对象的插值直接转成触摸对象
+            _SBoard.TouchItem._DefaultAttrBoard._rigidbody.transform.position = Vector3.Lerp(TouchingItemRigiPos, HandOriRigiPos, _SBoard._TranslateUsingTime/_SBoard._GrabTranslateTime * ItemGrabFactor);
+            
+            _SBoard._TranslateUsingTime += Time.deltaTime;
+            if (_SBoard._TranslateUsingTime > _SBoard._GrabTranslateTime) 
+            { 
+                _SBoard.IsCaught = true; 
+                _SBoard._TranslateUsingTime = 0;
+                _SBoard.TouchItem._DefaultAttrBoard._rigidbody.isKinematic = true;
+                _SBoard.TouchItemFSM.OnGrab();
+            }
+            _SBoard._LastHandPos = _SBoard._HandRigidbody.transform.position;
+            return;
+        }
+        
+        _SBoard.TouchItem._DefaultAttrBoard.RubFactor = ForceDir;
+        _SBoard.TouchItem._DefaultAttrBoard._rigidbody.transform.rotation = _SBoard._HandRigidbody.transform.rotation;
+        _SBoard.TouchItem._DefaultAttrBoard._rigidbody.transform.position = _SBoard._HandRigidbody.transform.position;
+        _SBoard._LastHandPos = _SBoard._HandRigidbody.transform.position;
 
     }
-
     public void OnUpdate()
     {
-        _SBoard._Hand.transform.position = _SBoard.FukyGameBase.FukyHandPos;
-        _SBoard._Hand.transform.rotation = Quaternion.Euler(0f,_SBoard.RefCamera.transform.rotation.eulerAngles.y,0f)
-            * _SBoard.FukyGameBase.FukyHandRotate;
-
-        if (Input.GetMouseButtonUp(0))
+        if (Input.GetMouseButtonDown(0))
         {
             _ShandFsm.SwitchState(HandState_Type.Default);
         }
-
     }
-
 }
 
 public class LogicOfHand : MonoBehaviour
@@ -140,6 +175,6 @@ public class LogicOfHand : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawSphere(_board._Hand.transform.position, _board.HandSize);
+        if(_board.ShowGizmo) Gizmos.DrawSphere(_board._HandRigidbody.transform.position, _board.HandSize);
     }
 }
