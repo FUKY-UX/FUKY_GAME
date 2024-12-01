@@ -1,6 +1,5 @@
 using UnityEngine;
 using System;
-using Item_FSM;
 
 [Serializable]
 public class WoodPlateAttrBoard : AttrBoard
@@ -35,7 +34,7 @@ public class WoodPlateDefState : DefaultItemState
     {
         AudioManager.instance.PlayRamSound(_DefAttrBoard._audiosource, _WoodPlateAttrBoard.WoodPlateSound, _DefAttrBoard.V_Voulme, 2);
     }
-    public override void OnColliderEnter()
+    public override void OnRidigibodyEnter(Collision collision)
     {
         if (_DefAttrBoard.V_Playable)
         {

@@ -2,8 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-namespace Item_FSM
-{
     public enum ItemState_Type
     {
         Default,
@@ -22,10 +20,20 @@ namespace Item_FSM
         public void OnGrab();
         public void OnRelease();
         public void OnFixUpdate();
-        public void OnColliderEnter();
         public void Grabing();
-        public void OnColliderStay();
-        public void OnColliderExit();
+        public void OnRidigibodyEnter(Collision collision);
+        public void OnRidigibodyStay(Collision collision);
+        public void OnRidigibodyExit(Collision collision);
+        public void OnTriggerEnter(Collider collider)
+        {
+        }
+        public void OnTriggerExit(Collider collider)
+        {
+        }
+        public void OnTriggerStay(Collider collider)
+        {
+        }
+
     }
     [Serializable]
     public class AttrBoard
@@ -65,10 +73,6 @@ namespace Item_FSM
         {
             CurrentState.OnFixUpdate();
         }
-        public void OnColliderEnter()
-        {
-            CurrentState.OnColliderEnter();
-        }
         public void OnGrab()
         {
             CurrentState.OnGrab();
@@ -81,13 +85,31 @@ namespace Item_FSM
         {
             CurrentState.OnRelease();
         }
-        public void OnColliderStay()
+        public void OnRidigibodyStay(Collision collision)
         {
-            CurrentState.OnColliderStay();
+            CurrentState.OnRidigibodyStay(collision);
         }
-        public void OnColliderExit()
+        public void OnRidigibodyEnter(Collision collision)
         {
+            CurrentState.OnRidigibodyEnter(collision);
+        }
+        public void OnRidigibodyExit(Collision collision)
+        {
+            CurrentState.OnRidigibodyExit(collision);
+
+        }
+        public void OnTriggerEnter(Collider collider)
+        {
+            CurrentState.OnTriggerEnter(collider);
+        }
+        public void OnTriggerExit(Collider collider)
+        {
+            CurrentState.OnTriggerExit(collider);
+        }
+        public void OnTriggerStay(Collider collider)
+        {
+            CurrentState.OnTriggerStay(collider);
+
         }
     }
 
-}

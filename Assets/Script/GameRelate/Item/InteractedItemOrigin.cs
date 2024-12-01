@@ -1,5 +1,4 @@
 using UnityEngine;
-using Item_FSM;
 using System;
 
 [Serializable]
@@ -9,7 +8,6 @@ public class DefaultItemAttrBoard : AttrBoard
     [Header("物品引擎属性")]
     public Rigidbody _rigidbody;
     public Collider _collider;
-    public Collision HitMe;
     public float GrabTimeFactor = 1f;
     public Vector3 RubFactor;
     public float RubStrength = 1f;
@@ -25,7 +23,7 @@ public class DefaultItemAttrBoard : AttrBoard
     #endregion
 }
 
-public abstract class DefaultItemState : Item_FSM.InteractedItem
+public abstract class DefaultItemState : InteractedItem
 {
     public virtual void OnEnter()
     {
@@ -44,21 +42,15 @@ public abstract class DefaultItemState : Item_FSM.InteractedItem
     public virtual void OnGrab()
     {
     }
-    public virtual void OnRelease()
-    {
-    }
-    public virtual void OnColliderEnter()
-    {
-    }
-    public virtual void OnColliderStay()
-    {
-    }
-    public virtual void OnColliderExit()
-    {
-    }
-    public virtual void Grabing()
-    {
-    }
+    public virtual void OnRelease() { }
+    public virtual void Grabing() { }
+    public virtual void OnRidigibodyEnter(Collision collision) { }
+    public virtual void OnRidigibodyStay(Collision collision) { }
+    public virtual void OnRidigibodyExit(Collision collision) { }
+    public virtual void OnTriggerEnter(Collider collider) { }
+    public virtual void OnTriggerExit(Collider collider) { }
+    public virtual void OnTriggerStay(Collider collider) { }
+
 }
 
 public class InteractedItemOrigin : MonoBehaviour
@@ -71,6 +63,7 @@ public class InteractedItemOrigin : MonoBehaviour
     }
     public void Update()
     {
+        _MyFsm.OnUpdate();
         if (!_DefaultAttrBoard.V_Playable)
         {
             if (_DefaultAttrBoard.V_LastSoundPlay > _DefaultAttrBoard.V_CoolDownOffset)
@@ -81,38 +74,34 @@ public class InteractedItemOrigin : MonoBehaviour
             _DefaultAttrBoard.V_LastSoundPlay += Time.deltaTime;
             return;
         }
-        if (_MyFsm.CurrentState != null)
-        {
-            _MyFsm.OnUpdate();
-        }
     }
     public void FixedUpdate()
     {
-        if (_MyFsm.CurrentState != null)
-        {
-
-            _MyFsm.OnFixUpdate();
-        }
+        _MyFsm.OnFixUpdate();
     }
     public void OnCollisionEnter(Collision collision)
     {
-        _DefaultAttrBoard.HitMe = collision;
-        if (_MyFsm.CurrentState != null)
-        {
-            _MyFsm.OnColliderEnter();
-        }
+        _MyFsm.OnRidigibodyEnter(collision);
     }
-
     private void OnCollisionStay(Collision collision)
     {
-        _DefaultAttrBoard.HitMe = collision;
-        _MyFsm.OnColliderStay();
+        _MyFsm.OnRidigibodyStay(collision);
     }
-
     public void OnCollisionExit(Collision collision)
     {
-        _DefaultAttrBoard.HitMe = collision;
-        _MyFsm.OnColliderExit();
+        _MyFsm.OnRidigibodyExit(collision);
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        _MyFsm.OnTriggerEnter(other);
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        _MyFsm.OnTriggerExit(other);
+    }
+    private void OnTriggerStay(Collider other)
+    {
+        _MyFsm.OnTriggerStay(other);
     }
 
 }

@@ -2,8 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-namespace Hand_FSM
-{
     public enum HandState_Type
     {
         Default,
@@ -59,8 +57,6 @@ namespace Hand_FSM
         }
 
     }
-
-}
 
 //public FUKYMouse_MathBase FUKY_GAME;
 //public ItemBase Object;

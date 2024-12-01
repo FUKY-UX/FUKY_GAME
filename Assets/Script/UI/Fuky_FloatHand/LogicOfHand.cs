@@ -1,7 +1,5 @@
 using UnityEngine;
-using Hand_FSM;
 using System;
-using Item_FSM;
 [Serializable]
 public class HandAttributeBoard : AttributeBoard
 {
@@ -57,7 +55,6 @@ public class DefaultHand : HandState
 
         _SBoard._LastHandPos = _SBoard._HandRigidbody.transform.position;
     }
-
     public void OnUpdate()
     {
 
@@ -103,7 +100,6 @@ public class GrabHand : HandState
         _SBoard.TouchItem._DefaultAttrBoard._rigidbody.velocity = _SBoard._HandRigidbody.velocity;
         _SBoard.TouchItemFSM.OnRelease();
     }
-
     public void OnFixUpdate()
     {
         float ItemGrabFactor = _SBoard.TouchItem._DefaultAttrBoard.GrabTimeFactor;
@@ -140,10 +136,10 @@ public class GrabHand : HandState
         _SBoard.TouchItem._DefaultAttrBoard._rigidbody.transform.rotation = _SBoard._HandRigidbody.transform.rotation;
         _SBoard.TouchItem._DefaultAttrBoard._rigidbody.transform.position = _SBoard._HandRigidbody.transform.position;
         _SBoard._LastHandPos = _SBoard._HandRigidbody.transform.position;
-
     }
     public void OnUpdate()
     {
+        _SBoard.TouchItemFSM.Grabing();
         if (Input.GetMouseButtonDown(0))
         {
             _ShandFsm.SwitchState(HandState_Type.Default);

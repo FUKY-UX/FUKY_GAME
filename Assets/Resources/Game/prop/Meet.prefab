@@ -85,8 +85,8 @@ MonoBehaviour:
     V_Playable: 1
     V_CoolDownOffset: 1
     V_LastSoundPlay: 0
-  _MeetAttrBoard:
-    MeetGrabSound:
+  _MeatAttr:
+    MeatGrabSound:
     - Game/Audio/MeetGrab1
     - Game/Audio/MeetGrab2
     - Game/Audio/MeetGrab3
@@ -94,15 +94,20 @@ MonoBehaviour:
     - Game/Audio/MeetGrab5
     - Game/Audio/MeetGrab6
     - Game/Audio/MeetGrab7
-    MeetDropSound:
+    MeatDropSound:
     - Game/Audio/MeetDrop1
     - Game/Audio/MeetDrop2
-    Pot_On: {fileID: 0}
-    IsLeaveing: 0
-    Meat_Rotate: {x: 0, y: 0, z: 0, w: 1}
+    _CookMePot: {fileID: 0}
+    IsCooking: 0
+    Meat_Mat: {fileID: 2100000, guid: f257b650600ded443943c7d5067afe00, type: 2}
+    Meat_Temperature: 0
+    Meat_TCR: 0.2
     Meat_Stickiness: 1
     Meat_JumpStren: 1
     Meat_RotateStren: 0.1
+    LastPotInf: 0
+    CurrPotInf: 0
+    Meat_Rotate: {x: 0, y: 0, z: 0, w: 1}
 --- !u!1001 &62780961877463508
 PrefabInstance:
   m_ObjectHideFlags: 0

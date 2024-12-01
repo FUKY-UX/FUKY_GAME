@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class CookingMechanism : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public CookingMechanism instance;
+    public Pot _pot;
+    public FoodItemBase _meet;
+    private void Awake()
     {
-        
+        instance = this;
     }
-
     // Update is called once per frame
     void Update()
     {
