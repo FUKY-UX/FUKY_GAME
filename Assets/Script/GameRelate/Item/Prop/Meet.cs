@@ -99,6 +99,7 @@ public class MeetDefaultState : DefaultItemState
             if (_MeetAttrBoard.IsLeaveing)
             {
                 _DefAttrBoard._rigidbody.angularVelocity = _MeetAttrBoard.Meat_Rotate.eulerAngles * _MeetAttrBoard.Meat_RotateStren;
+                _MeetAttrBoard.IsLeaveing = false;   
             }
         }
     }

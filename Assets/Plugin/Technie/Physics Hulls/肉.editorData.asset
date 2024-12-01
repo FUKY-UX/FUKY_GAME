@@ -1,0 +1,182 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d507e28e164ca43927bfa73379f646, type: 3}
+  m_Name: "\u8089.editorData"
+  m_EditorClassIdentifier: 
+  runtimeData: {fileID: 11400000, guid: a202e9efc53c4684893b1ab128783541, type: 2}
+  defaultAddRigidbody: 0
+  defaultMass: 1
+  defaultLinearDrag: 0
+  defaultAngularDrag: 0.05
+  defaultLinearDamping: 0
+  defaultAngularDamping: 0
+  defaultMaterial: {fileID: 0}
+  defaultColliderType: 0
+  defaultIsTrigger: 0
+  defaultMaxPlanes: 255
+  boneData:
+  - targetBoneName: BoneLeftHead
+    addRigidbody: 0
+    mass: 1
+    linearDrag: 0
+    angularDrag: 0.05
+    isKinematic: 1
+    addJoint: 0
+    jointType: 2
+    primaryAxis: {x: 0, y: 0, z: 1}
+    secondaryAxis: {x: 0, y: 1, z: 0}
+    primaryLowerAngularLimit: 0
+    primaryUpperAngularLimit: 0
+    secondaryAngularLimit: 0
+    tertiaryAngularLimit: 0
+    translationLimit: 0
+    linearDamping: 0
+    angularDamping: 0
+  - targetBoneName: BoneL
+    addRigidbody: 0
+    mass: 1
+    linearDrag: 0
+    angularDrag: 0.05
+    isKinematic: 1
+    addJoint: 0
+    jointType: 2
+    primaryAxis: {x: 0, y: 0, z: 1}
+    secondaryAxis: {x: 0, y: 1, z: 0}
+    primaryLowerAngularLimit: 0
+    primaryUpperAngularLimit: 0
+    secondaryAngularLimit: 0
+    tertiaryAngularLimit: 0
+    translationLimit: 0
+    linearDamping: 0
+    angularDamping: 0
+  - targetBoneName: BoneRighthead
+    addRigidbody: 0
+    mass: 1
+    linearDrag: 0
+    angularDrag: 0.05
+    isKinematic: 1
+    addJoint: 0
+    jointType: 2
+    primaryAxis: {x: 0, y: 0, z: 1}
+    secondaryAxis: {x: 0, y: 1, z: 0}
+    primaryLowerAngularLimit: 0
+    primaryUpperAngularLimit: 0
+    secondaryAngularLimit: 0
+    tertiaryAngularLimit: 0
+    translationLimit: 0
+    linearDamping: 0
+    angularDamping: 0
+  - targetBoneName: BoneR1
+    addRigidbody: 0
+    mass: 1
+    linearDrag: 0
+    angularDrag: 0.05
+    isKinematic: 1
+    addJoint: 0
+    jointType: 2
+    primaryAxis: {x: 0, y: 0, z: 1}
+    secondaryAxis: {x: 0, y: 1, z: 0}
+    primaryLowerAngularLimit: 0
+    primaryUpperAngularLimit: 0
+    secondaryAngularLimit: 0
+    tertiaryAngularLimit: 0
+    translationLimit: 0
+    linearDamping: 0
+    angularDamping: 0
+  - targetBoneName: BoneR2
+    addRigidbody: 0
+    mass: 1
+    linearDrag: 0
+    angularDrag: 0.05
+    isKinematic: 1
+    addJoint: 0
+    jointType: 2
+    primaryAxis: {x: 0, y: 0, z: 1}
+    secondaryAxis: {x: 0, y: 1, z: 0}
+    primaryLowerAngularLimit: 0
+    primaryUpperAngularLimit: 0
+    secondaryAngularLimit: 0
+    tertiaryAngularLimit: 0
+    translationLimit: 0
+    linearDamping: 0
+    angularDamping: 0
+  boneHullData:
+  - targetBoneName: BoneLeftHead
+    type: 0
+    colliderType: 0
+    previewColour: {r: 0, g: 1, b: 1, a: 0.7}
+    hullMesh: {fileID: 478709891348891516, guid: a202e9efc53c4684893b1ab128783541,
+      type: 2}
+    material: {fileID: 0}
+    isTrigger: 0
+    maxPlanes: 255
+    minThreshold: 0.4
+    maxThreshold: 1
+    selectedFaces: 
+    cachedTriangleVertices: []
+  - targetBoneName: BoneL
+    type: 0
+    colliderType: 0
+    previewColour: {r: 1, g: 0, b: 1, a: 0.7}
+    hullMesh: {fileID: -327723140385385675, guid: a202e9efc53c4684893b1ab128783541,
+      type: 2}
+    material: {fileID: 0}
+    isTrigger: 0
+    maxPlanes: 255
+    minThreshold: 0.4
+    maxThreshold: 1
+    selectedFaces: 
+    cachedTriangleVertices: []
+  - targetBoneName: BoneRighthead
+    type: 0
+    colliderType: 0
+    previewColour: {r: 1, g: 1, b: 0, a: 0.7}
+    hullMesh: {fileID: -1508106054474291592, guid: a202e9efc53c4684893b1ab128783541,
+      type: 2}
+    material: {fileID: 0}
+    isTrigger: 0
+    maxPlanes: 255
+    minThreshold: 0.4
+    maxThreshold: 1
+    selectedFaces: 
+    cachedTriangleVertices: []
+  - targetBoneName: BoneR1
+    type: 0
+    colliderType: 0
+    previewColour: {r: 1, g: 0, b: 0, a: 0.7}
+    hullMesh: {fileID: -6345883630554930768, guid: a202e9efc53c4684893b1ab128783541,
+      type: 2}
+    material: {fileID: 0}
+    isTrigger: 0
+    maxPlanes: 255
+    minThreshold: 0.4
+    maxThreshold: 1
+    selectedFaces: 
+    cachedTriangleVertices: []
+  - targetBoneName: BoneR2
+    type: 0
+    colliderType: 0
+    previewColour: {r: 0, g: 1, b: 0, a: 0.7}
+    hullMesh: {fileID: 2736199104231549847, guid: a202e9efc53c4684893b1ab128783541,
+      type: 2}
+    material: {fileID: 0}
+    isTrigger: 0
+    maxPlanes: 255
+    minThreshold: 0.4
+    maxThreshold: 1
+    selectedFaces: 
+    cachedTriangleVertices: []
+  sourceMesh: {fileID: -8245062004112519257, guid: 38faadaddfaa66c418b374fb937c7299,
+    type: 3}
+  sourceMeshHash:
+    data: 9314401a8830515c00904b593615ca18bd29a743
+  suppressMeshModificationWarning: 0

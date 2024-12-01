@@ -2,10 +2,16 @@ using UnityEngine;
 using System;
 using Item_FSM;
 using System.Collections.Generic;
+using Unity.IO.LowLevel.Unsafe;
 
 [Serializable]
 public class PotAttrBoard : AttrBoard
 {
+    [Header("游戏机制")]
+    public LayerMask CookFireOn;
+    public float HeatRange=0.5f;
+
+    public FireEffect[] Fires;
     [Header("铁锅物理")]
     public MeshCollider CookCollider;
     public Transform PotCenter;
@@ -60,6 +66,8 @@ public class PotDefaultState : DefaultItemState
     }
     public override void OnColliderEnter()
     {
+        Collider[] colliders = Physics.OverlapSphere(_DefAttrBoard._rigidbody.transform.position, _PotAttrBoard.HeatRange, _PotAttrBoard.CookFireOn);
+        if (colliders.Length > 0) { _PotAttrBoard.Fires = colliders[0].GetComponentsInChildren<FireEffect>(); }
         if (_DefAttrBoard.V_Playable)
         {
             AudioManager.instance.PlayRamSound(_DefAttrBoard._audiosource, _PotAttrBoard.PotKnockSound, _DefAttrBoard.V_Voulme, 3);
@@ -67,6 +75,12 @@ public class PotDefaultState : DefaultItemState
             _DefAttrBoard.V_LastSoundPlay = 0;
         }
     }
+    public override void Grabing()
+    {
+        Collider[] colliders = Physics.OverlapSphere(_DefAttrBoard._rigidbody.transform.position, _PotAttrBoard.HeatRange, _PotAttrBoard.CookFireOn);
+        if (colliders.Length > 0){_PotAttrBoard.Fires = colliders[0].GetComponentsInChildren<FireEffect>();}
+    }
+
 }
 
 public class Pot : InteractedItemOrigin
