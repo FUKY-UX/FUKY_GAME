@@ -15,7 +15,9 @@ public class PotAttrBoard : AttrBoard
     [Header("铁锅物理")]
     public MeshCollider CookCollider;
     public Transform PotCenter;
-    #region 音效相关
+    [Tooltip("调小这个值火焰会隐藏得更快")]
+    [Range(0,1)]
+    public float PotVsFire=0.7f;
     [Header("铁锅音效")]
     public string[] PotKnockSound = new string[]
         {
@@ -38,7 +40,9 @@ public class PotAttrBoard : AttrBoard
             MusicAndSound_Path.instance.PotDrop2,
             MusicAndSound_Path.instance.PotDrop3
         };
-    #endregion
+    [Header("调试参数")]
+    public bool ShowGizmo;
+
 };
 
 public class PotDefaultState : DefaultItemState
@@ -80,7 +84,19 @@ public class PotDefaultState : DefaultItemState
         Collider[] colliders = Physics.OverlapSphere(_DefAttrBoard._rigidbody.transform.position, _PotAttrBoard.HeatRange, _PotAttrBoard.CookFireOn);
         if (colliders.Length > 0){_PotAttrBoard.Fires = colliders[0].GetComponentsInChildren<FireEffect>();}
     }
-
+    public override void OnUpdate()
+    {
+        if (_PotAttrBoard.Fires != null && _PotAttrBoard.Fires.Length>0)
+        {
+            Transform EffectParent = _PotAttrBoard.Fires[0].transform.parent;
+            float Y =Mathf.Clamp((_DefAttrBoard._rigidbody.position - EffectParent.position).y,0,1);
+            foreach (FireEffect fire in _PotAttrBoard.Fires)
+            {
+                fire.Opacity = Y * _PotAttrBoard.PotVsFire;
+            }
+            _PotAttrBoard.Fires = null;
+        }
+    }
 }
 
 public class Pot : InteractedItemOrigin
@@ -90,5 +106,12 @@ public class Pot : InteractedItemOrigin
     {
         _MyFsm.AddState(ItemState_Type.Default,new PotDefaultState(_MyFsm, _DefaultAttrBoard, _potAttrBoard));
         _MyFsm.SwitchState(ItemState_Type.Default);
+    }
+    public void OnDrawGizmos()
+    {
+        if (_potAttrBoard.ShowGizmo)
+        {
+            Gizmos.DrawSphere(_DefaultAttrBoard._rigidbody.transform.position, _potAttrBoard.HeatRange);
+        }
     }
 }

@@ -2600,6 +2600,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9120864304232944962, guid: c206bfc0f01b70a4a9ba89417cbcb58a,
         type: 3}
+      propertyPath: _potAttrBoard.HeatRange
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 9120864304232944962, guid: c206bfc0f01b70a4a9ba89417cbcb58a,
+        type: 3}
+      propertyPath: _potAttrBoard.PotVsFire
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9120864304232944962, guid: c206bfc0f01b70a4a9ba89417cbcb58a,
+        type: 3}
       propertyPath: _potAttrBoard.CookFireOn.m_Bits
       value: 2
       objectReference: {fileID: 0}
