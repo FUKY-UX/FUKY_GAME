@@ -46,5 +46,7 @@ public class MusicAndSound_Path :MonoBehaviour
     public string BGM = "Game/Audio/BGM/MIRWHITE_TIME_TO_COOK";
     #endregion
 
+    #region »‚¿‡≈Î‚ø“Ù–ß
 
+    #endregion
 }

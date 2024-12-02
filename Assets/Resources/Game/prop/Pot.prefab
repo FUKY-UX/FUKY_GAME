@@ -117,12 +117,13 @@ MonoBehaviour:
     V_CoolDownOffset: 1
     V_LastSoundPlay: 0
   _potAttrBoard:
+    Me: {fileID: 0}
+    Heating: 0
     CookFireOn:
       serializedVersion: 2
       m_Bits: 0
-    HeatRange: 0.5
-    Heating: 0
     Fires: []
+    HeatingRange: 1
     CookCollider: {fileID: 7339517088069652747}
     PotCenter: {fileID: 8384147251759110672}
     PotVsFire: 0.7
@@ -414,7 +415,7 @@ MeshCollider:
   m_Material: {fileID: 13400000, guid: 7a236158db6a6174f8df90724e854163, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 72
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -436,10 +437,10 @@ MeshCollider:
   m_Material: {fileID: 13400000, guid: 7a236158db6a6174f8df90724e854163, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 72
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 66
+    m_Bits: 2
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0

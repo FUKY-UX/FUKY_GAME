@@ -90,13 +90,12 @@ public class GrabHand : HandState
         _SBoard._HandRender.enabled = false;
 
     }
-
     public void OnExit()
     {
-        _SBoard.TouchItem._DefaultAttrBoard._rigidbody.isKinematic = false;
         _SBoard.TouchItem._DefaultAttrBoard._rigidbody.freezeRotation = false;
         _SBoard._HandRender.enabled = true;
         _SBoard.IsCaught = false;
+        _SBoard.TouchItem._DefaultAttrBoard._rigidbody.isKinematic = false;
         _SBoard.TouchItem._DefaultAttrBoard._rigidbody.velocity = _SBoard._HandRigidbody.velocity;
         _SBoard.TouchItemFSM.OnRelease();
     }
@@ -122,10 +121,10 @@ public class GrabHand : HandState
             
             _SBoard._TranslateUsingTime += Time.deltaTime;
             if (_SBoard._TranslateUsingTime > _SBoard._GrabTranslateTime) 
-            { 
+            {
+                _SBoard.TouchItem._DefaultAttrBoard._rigidbody.isKinematic = true;
                 _SBoard.IsCaught = true; 
                 _SBoard._TranslateUsingTime = 0;
-                _SBoard.TouchItem._DefaultAttrBoard._rigidbody.isKinematic = true;
                 _SBoard.TouchItemFSM.OnGrab();
             }
             _SBoard._LastHandPos = _SBoard._HandRigidbody.transform.position;

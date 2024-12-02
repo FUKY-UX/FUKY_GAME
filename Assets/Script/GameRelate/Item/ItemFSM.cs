@@ -57,10 +57,11 @@ using System;
         }
         public void SwitchState(ItemState_Type NewState_Type)
         {
-            if (!States.ContainsKey(NewState_Type)) { return; }
+            if (!States.ContainsKey(NewState_Type)) { Debug.LogError("物品没有这种状态"); return; }
             if (CurrentState != null)
             {
                 CurrentState.OnExit();
+                
             }
             CurrentState = States[NewState_Type];
             CurrentState.OnEnter();
