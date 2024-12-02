@@ -9,11 +9,23 @@ public interface I_EdibleFood
 
 }
 
+public struct DefaultFoodPartState
+{
+    public DefaultFoodPartState(float InitCookValue, float InitOverCookValue)
+    {
+        CookValue = InitCookValue;
+        SuperMoment = InitOverCookValue;
+    }
+    public float CookValue{get; set; }
+    public float SuperMoment{ get; set; }
+}
+
+
 [Serializable]
 public class MeetAttrBoard : AttrBoard
 {
     #region 音效相关
-    [Header("烹饪音效")]
+    [Header("普通音效")]
     public string[] MeatGrabSound = new string[]
         {
             MusicAndSound_Path.instance.MeetGrab1,
@@ -29,28 +41,37 @@ public class MeetAttrBoard : AttrBoard
         MusicAndSound_Path.instance.MeetDrop1,
         MusicAndSound_Path.instance.MeetDrop2,
         };
-
     #endregion
     #region 烹饪机制
     [Header("烹饪机制")]
     public Pot _CookMePot;
     public Collider _CookedPart;
     public bool IsLeavingPot;
-    public float Food_Temperature = 0f;
+    public float Food_TotalCook = 0f;
     [Tooltip("变温速度")]
     public float Food_TCR = 0.2f;
     [SerializeField]
-    public Dictionary<Collider,float> Food_PartState;
+    public Dictionary<Collider, DefaultFoodPartState> Food_PartState;
     [Tooltip("肉的各部分，用来模拟了食材各部分的温度情况")]
     public Collider[] Food_Part;
-
     #endregion
+    #region 烹饪音效
+    [Header("烹饪音效变化")]
+    public AudioSource CookStateSound;
+    public AudioSource SuperStateSound;
 
+    public string[] CookingSound= 
+    {
+            MusicAndSound_Path.instance.MeatCook1,
+            MusicAndSound_Path.instance.MeatCook_S,
+            MusicAndSound_Path.instance.MeatCook_Syes,
+            MusicAndSound_Path.instance.MeatCook_Bad
+    };    // 音效数组
+    #endregion
     #region 烹饪视觉
     [Header("烹饪视觉")]
     public Material Meat_Mat;
     #endregion
-    
     #region 烹饪物理
     [Header("烹饪物理")]
     public float Meat_Stickiness = 0.04f;
@@ -87,7 +108,7 @@ public class FoodDefaultState : DefaultItemState
     }
     public override void OnRidigibodyEnter(Collision collision)
     {
-        if (_FoodAttr.Food_Temperature > 0f) { _DefAttrBoard._rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; }
+        if (_FoodAttr.Food_TotalCook > 0f) { _DefAttrBoard._rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; }
         else { _DefAttrBoard._rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete; }
         //音效
         if (_DefAttrBoard.V_Playable)
@@ -115,8 +136,9 @@ public class FoodDefaultState : DefaultItemState
         if (_FoodAttr.IsLeavingPot)
         {
             float Temperature_Delta = Time.deltaTime * _FoodAttr.Food_TCR;
-            if (_FoodAttr.Food_Temperature > 0 && _FoodAttr.Food_Temperature < 1) { _FoodAttr.Food_Temperature -= Temperature_Delta; } else { _FoodAttr.Meat_Mat.color = Color.white; return; }
-            _FoodAttr.Meat_Mat.color = new(1, 1 - _FoodAttr.Food_Temperature, 1 - _FoodAttr.Food_Temperature, 1);
+            if (_FoodAttr.Food_TotalCook > 0 && _FoodAttr.Food_TotalCook < 1) { _FoodAttr.Food_TotalCook -= Temperature_Delta; } else { _FoodAttr.Meat_Mat.color = Color.white; return; }
+            _FoodAttr.Meat_Mat.color = new(1, 1 - _FoodAttr.Food_TotalCook, 1 - _FoodAttr.Food_TotalCook, 1);
+            AudioManager.instance.FadeOut(_FoodAttr.CookStateSound, 2f, _FoodAttr.CookStateSound.volume);
         }
     }
 }
@@ -135,20 +157,35 @@ public class FoodCookingState : DefaultItemState
     }
     public override void OnEnter()
     {
+        #region 参数和烹饪物理
         _FoodAttr.IsLeavingPot = false;
         _FoodAttr.FloatingTime = 0f;
         _FoodAttr.Meat_Rotate = _DefAttrBoard._rigidbody.rotation;
         Vector3 ForceDir = _FoodAttr._CookMePot._potAttrBoard.PotCenter.position - _DefAttrBoard._rigidbody.transform.position;
         _DefAttrBoard._rigidbody.AddForce(ForceDir * _FoodAttr.Meat_Stickiness / _FoodAttr.Food_Part.Length);
         _DefAttrBoard._rigidbody.AddForce(Vector3.up * _FoodAttr._CookMePot._DefaultAttrBoard.RubFactor.y * _FoodAttr.Meat_JumpStren / _FoodAttr.Food_Part.Length);
-        if (_FoodAttr.Food_PartState[_FoodAttr._CookedPart] < 1)
+        #endregion
+
+        #region 食物烹饪数据更新
+        if (_FoodAttr._CookMePot._potAttrBoard.Heating) 
         {
-            _FoodAttr.Food_PartState[_FoodAttr._CookedPart] += Time.deltaTime * _FoodAttr.Food_TCR /_FoodAttr.Food_Part.Length;
-            if (_FoodAttr.Food_PartState[_FoodAttr._CookedPart] > 1)
-            {
-                Debug.Log("食物的" + _FoodAttr._CookedPart + "部分煮熟了");
-            }
+            DefaultFoodPartState _FoodPartState = _FoodAttr.Food_PartState[_FoodAttr._CookedPart];
+            float CookValue = Time.deltaTime * _FoodAttr.Food_TCR / _FoodAttr.Food_Part.Length;
+            _FoodPartState.CookValue += CookValue;
+            _FoodPartState.SuperMoment += CookValue;
+            _FoodAttr.Food_TotalCook += CookValue;
+            _FoodAttr.Food_PartState[_FoodAttr._CookedPart] = _FoodPartState;
         }
+        #endregion
+        if (_FoodAttr.Food_TotalCook >= 0)
+        {
+            AudioManager.instance.FadeIn(_FoodAttr.CookStateSound, 1f, _FoodAttr.CookStateSound.volume, 2f);
+        }
+        else
+        {
+            AudioManager.instance.FadeOut(_FoodAttr.CookStateSound, 2f, _FoodAttr.CookStateSound.volume);
+        }
+
         _MyFsm.SwitchState(ItemState_Type.Default);
     }
 }
@@ -164,11 +201,16 @@ public class FoodItemBase : InteractedItemOrigin
         _MyFsm.AddState(ItemState_Type.State1, new FoodCookingState(_MyFsm, _DefaultAttrBoard, _MeatAttr));
         _MyFsm.SwitchState(ItemState_Type.Default);
         _MeatAttr.Food_Part = GetComponentsInChildren<Collider>();
-        _MeatAttr.Food_PartState = new Dictionary<Collider, float>();
+        _MeatAttr.Food_PartState = new Dictionary<Collider, DefaultFoodPartState>();
         foreach (Collider FoodPart in _MeatAttr.Food_Part)
         {
-            _MeatAttr.Food_PartState.Add(FoodPart, 0.0f);
+            DefaultFoodPartState FoodPartState = new DefaultFoodPartState(0f,0f);
+            _MeatAttr.Food_PartState.Add(FoodPart, FoodPartState);
         }
+        _MeatAttr.CookStateSound.loop = true;
+        _MeatAttr.SuperStateSound.loop = true;
+        AudioManager.instance.PlaySound(_MeatAttr.CookStateSound, MusicAndSound_Path.instance.MeatCook1, 0);
+        AudioManager.instance.PlaySound(_MeatAttr.SuperStateSound, MusicAndSound_Path.instance.MeatCook_S, 0);
     }
 
 }

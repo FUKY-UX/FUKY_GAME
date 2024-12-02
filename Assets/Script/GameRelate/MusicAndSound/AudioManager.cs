@@ -45,7 +45,14 @@ public class AudioManager : MonoBehaviour
     public void PlaySound(AudioSource _audioSource,string path,float volume = 1.0f)
     {
         _audioSource.PlayOneShot(LoadAudio(path), volume * AudioSoundStrength);
-
+    }
+    public void CrossSound(AudioSource _CurrAudioSource, AudioSource _DestAudioSource, float volume = 1.0f,float UsingTime = 1f)
+    {
+        if (_CurrAudioSource.isPlaying)
+        {
+            FadeOut(_CurrAudioSource, UsingTime, _CurrAudioSource.volume);
+            FadeIn(_DestAudioSource, UsingTime, _DestAudioSource.volume, volume * AudioSoundStrength);
+        }
     }
 
     public void PlayRamMixSound(AudioSource _audioSource, string MainPath, string[] SecPath, float volume = 1.0f)
@@ -75,4 +82,29 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+
+
+    public void FadeIn(AudioSource _audioSource, float fadeInDuration,float Currvolume, float Destvolume)
+    {
+        StartCoroutine(FadeVolume(_audioSource, Currvolume, Destvolume, fadeInDuration));
+    }
+
+    public void FadeOut(AudioSource _audioSource, float fadeOutDuration, float Currvolume)
+    {
+        StartCoroutine(FadeVolume(_audioSource, Currvolume, 0f, fadeOutDuration));
+    }
+
+    private IEnumerator FadeVolume(AudioSource source, float startVolume, float targetVolume, float duration)
+    {
+        float elapsedTime = 0f;
+        while (elapsedTime < duration)
+        {
+            float t = elapsedTime / duration;
+            source.volume = Mathf.Lerp(startVolume, targetVolume, t);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        source.volume = targetVolume;
+    }
 }
+

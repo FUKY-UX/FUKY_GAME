@@ -47,6 +47,9 @@ public class MusicAndSound_Path :MonoBehaviour
     #endregion
 
     #region »‚¿‡≈Î‚ø“Ù–ß
-
+    public string MeatCook1 = "Game/Audio/MeetCooking/MeatCook1";
+    public string MeatCook_Bad = "Game/Audio/MeetCooking/MeatCook_Bad";
+    public string MeatCook_S = "Game/Audio/MeetCooking/MeatCook_S";
+    public string MeatCook_Syes = "Game/Audio/MeetCooking/MeatCook_Syes";
     #endregion
 }
