@@ -68,7 +68,29 @@ public class MusicAndSound_Path :MonoBehaviour
     //普通区主音混合
     public string RandomMainMix_Normal_Core = "Game/Audio/MeetCooking/RandomMainMix_Normal_Core";//主音-4.29秒
     public string RandomMainMix_Normal_1 = "Game/Audio/MeetCooking/RandomMainMix_Normal_1";//加入气泡音
+    public string RandomMainMix_Normal_2 = "Game/Audio/MeetCooking/RandomMainMix_Normal_2";//加入摩擦颗粒
+    public string RandomMainMix_Normal_3 = "Game/Audio/MeetCooking/RandomMainMix_Normal_3";//混合其他烹饪声音
+    public string RandomMainMix_Normal_4 = "Game/Audio/MeetCooking/RandomMainMix_Normal_4";//混合其他烹饪声音
+    public string RandomMainMix_Normal_5 = "Game/Audio/MeetCooking/RandomMainMix_Normal_5";//混合其他烹饪声音
     //绿区主音混合
+    public string RandomMainMix_Green_Core = "Game/Audio/MeetCooking/RandomMainMix_Green_Core";//主音-2秒
+    public string RandomMainMix_Green_1 = "Game/Audio/MeetCooking/RandomMainMix_Green_1";
+    public string RandomMainMix_Green_2 = "Game/Audio/MeetCooking/RandomMainMix_Green_2";
+    public string RandomMainMix_Green_3 = "Game/Audio/MeetCooking/RandomMainMix_Green_3";
+    public string RandomMainMix_Green_4 = "Game/Audio/MeetCooking/RandomMainMix_Green_4";
+    public string RandomMainMix_Green_5 = "Game/Audio/MeetCooking/RandomMainMix_Green_5";
     //红区主音混合
+    public string RandomMainMix_Red_Core = "Game/Audio/MeetCooking/RandomMainMix_Red_Core";//主音-2秒
+    public string RandomMainMix_Red_1 = "Game/Audio/MeetCooking/RandomMainMix_Red_1";
+    public string RandomMainMix_Red_2 = "Game/Audio/MeetCooking/RandomMainMix_Red_2";
+    public string RandomMainMix_Red_3 = "Game/Audio/MeetCooking/RandomMainMix_Red_3";
+    public string RandomMainMix_Red_4 = "Game/Audio/MeetCooking/RandomMainMix_Red_4";
+    public string RandomMainMix_Red_5 = "Game/Audio/MeetCooking/RandomMainMix_Red_5";
     #endregion
+
+    #region 胜利/失败结算音乐
+    public string Victory_Song = "Game/Audio/Victory_Song";//胜利
+    public string Fail_Song = "Game/Audio/Fail_Song";//失败
+    #endregion
+
 }
