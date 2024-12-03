@@ -202,7 +202,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &170348617
 Transform:
   m_ObjectHideFlags: 0
@@ -750,6 +750,12 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: eaa776df1bf54664590fd9846d4a04db, type: 3}
+--- !u!82 &735198183 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 9075662290674269816, guid: 66df9452b08d79e45af5d805ddf7b37d,
+    type: 3}
+  m_PrefabInstance: {fileID: 5255362366400722318}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &766358613
 GameObject:
   m_ObjectHideFlags: 0
@@ -1579,9 +1585,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db34c7031833be14b8aa8185ef5c295f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CamAudioSource: {fileID: 5255362366400722330}
-  AudioSoundStrength: 4
-  BgmSoundStrength: 0.1
+  CamAudioSource: {fileID: 735198183}
+  BGM:
+    Source: {fileID: 735198183}
+    Volume: 1
+    Style: 1
+    Type: 2
+    Sounds:
+    - {fileID: 8300000, guid: 725703828abc8a949a36a77279809f93, type: 3}
+    Time: 10
+    SoundsOneTime: 3
+  MainVolume: 1
 --- !u!114 &2039363914
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2242,17 +2256,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 9075662290674269816, guid: 66df9452b08d79e45af5d805ddf7b37d,
+        type: 3}
+      propertyPath: m_audioClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 3acc68976629a7a4f8e6a0e36274ef3f, type: 3}
+    - target: {fileID: 9075662290674269816, guid: 66df9452b08d79e45af5d805ddf7b37d,
+        type: 3}
+      propertyPath: m_PlayOnAwake
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 66df9452b08d79e45af5d805ddf7b37d, type: 3}
---- !u!82 &5255362366400722330 stripped
-AudioSource:
-  m_CorrespondingSourceObject: {fileID: 1290761066413288217, guid: 66df9452b08d79e45af5d805ddf7b37d,
-    type: 3}
-  m_PrefabInstance: {fileID: 5255362366400722318}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6023491317369399682 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 481154374789485398, guid: 34ce8853709585d4780b05d976c38173,
@@ -2304,8 +2322,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
         type: 3}
+      propertyPath: CookAttr.Sound.Sounds.list.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
+        type: 3}
       propertyPath: _MeatAttr.Say._Sounds.list.Array.size
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
+        type: 3}
+      propertyPath: CookAttr.Sound._Sounds.list.Array.size
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
         type: 3}
