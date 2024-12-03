@@ -1581,6 +1581,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CamAudioSource: {fileID: 5255362366400722330}
   AudioSoundStrength: 4
+  BgmSoundStrength: 0.1
 --- !u!114 &2039363914
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1617,6 +1618,10 @@ MonoBehaviour:
   WoodPlateDrop: Game/Audio/WoodPlateDrop
   WoodPlateGrab: Game/Audio/WoodPlateGrab
   BGM: Game/Audio/BGM/MIRWHITE_TIME_TO_COOK
+  MeatCook1: Game/Audio/MeetCooking/MeatCook1
+  MeatCook_Bad: Game/Audio/MeetCooking/MeatCook_Bad
+  MeatCook_S: Game/Audio/MeetCooking/MeatCook_S
+  MeatCook_Syes: Game/Audio/MeetCooking/MeatCook_Syes
 --- !u!1001 &122111678782006219
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2195,7 +2200,7 @@ PrefabInstance:
     - target: {fileID: 3395081941515509492, guid: 66df9452b08d79e45af5d805ddf7b37d,
         type: 3}
       propertyPath: m_Interpolate
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3395081941515509492, guid: 66df9452b08d79e45af5d805ddf7b37d,
         type: 3}
@@ -2267,41 +2272,81 @@ PrefabInstance:
       propertyPath: m_Name
       value: Meet
       objectReference: {fileID: 0}
-    - target: {fileID: 987267713808046638, guid: 4e5a367ca7a19204794b51dd94c48b07,
+    - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
         type: 3}
-      propertyPath: m_ExcludeLayers.m_Bits
+      propertyPath: _MeatAttr.IsLeavingPot
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 987267713808046638, guid: 4e5a367ca7a19204794b51dd94c48b07,
-        type: 3}
-      propertyPath: m_IncludeLayers.m_Bits
-      value: 72
-      objectReference: {fileID: 0}
-    - target: {fileID: 1146778783568607017, guid: 4e5a367ca7a19204794b51dd94c48b07,
-        type: 3}
-      propertyPath: m_ExcludeLayers.m_Bits
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1146778783568607017, guid: 4e5a367ca7a19204794b51dd94c48b07,
-        type: 3}
-      propertyPath: m_IncludeLayers.m_Bits
-      value: 72
       objectReference: {fileID: 0}
     - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
         type: 3}
-      propertyPath: _MeatAttr.LeavingMoment
-      value: 0.35
+      propertyPath: _MeatAttr.Food_TotalCook
+      value: 0.68
       objectReference: {fileID: 0}
-    - target: {fileID: 3266438355921805180, guid: 4e5a367ca7a19204794b51dd94c48b07,
+    - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
         type: 3}
-      propertyPath: m_ExcludeLayers.m_Bits
+      propertyPath: _MeatAttr._CookingMoment
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3266438355921805180, guid: 4e5a367ca7a19204794b51dd94c48b07,
+    - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
         type: 3}
-      propertyPath: m_IncludeLayers.m_Bits
-      value: 72
+      propertyPath: _MeatAttr.SuperMomentTime
+      value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
+        type: 3}
+      propertyPath: _MeatAttr.SuperMomentSpeed
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
+        type: 3}
+      propertyPath: _MeatAttr.Say._Sounds.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
+        type: 3}
+      propertyPath: _MeatAttr.Say._Sounds.list.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
+        type: 3}
+      propertyPath: _DefaultAttrBoard._Sounds.list.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
+        type: 3}
+      propertyPath: _MeatAttr.Say._Sounds.list.Array.data[1].Key
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
+        type: 3}
+      propertyPath: _DefaultAttrBoard.Sound._Sounds.list.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
+        type: 3}
+      propertyPath: _DefaultAttrBoard.Sound._Sounds.list.Array.data[0].Key
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
+        type: 3}
+      propertyPath: _DefaultAttrBoard.Sound._Sounds.list.Array.data[0].Value.Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
+        type: 3}
+      propertyPath: _DefaultAttrBoard.Sound._Sounds.list.Array.data[0].Value.SoundsOneTime
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
+        type: 3}
+      propertyPath: _DefaultAttrBoard.Sound._Sounds.list.Array.data[0].Value.Sounds.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
+        type: 3}
+      propertyPath: _DefaultAttrBoard.Sound._Sounds.list.Array.data[0].Value.Sounds.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 497b5d591128bc44aac0fff10e49db1e, type: 3}
     - target: {fileID: 4845238648382698350, guid: 4e5a367ca7a19204794b51dd94c48b07,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2352,17 +2397,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 71.945
       objectReference: {fileID: 0}
-    - target: {fileID: 5843178525551416918, guid: 4e5a367ca7a19204794b51dd94c48b07,
-        type: 3}
-      propertyPath: m_ExcludeLayers.m_Bits
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5843178525551416918, guid: 4e5a367ca7a19204794b51dd94c48b07,
-        type: 3}
-      propertyPath: m_IncludeLayers.m_Bits
-      value: 72
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5563562986921393163, guid: 4e5a367ca7a19204794b51dd94c48b07, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -2444,6 +2480,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_ExcludeLayers.m_Bits
       value: 117
+      objectReference: {fileID: 0}
+    - target: {fileID: 7607992424404560545, guid: c206bfc0f01b70a4a9ba89417cbcb58a,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 125
+      objectReference: {fileID: 0}
+    - target: {fileID: 7607992424404560545, guid: c206bfc0f01b70a4a9ba89417cbcb58a,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 125
+      objectReference: {fileID: 0}
+    - target: {fileID: 7607992424404560545, guid: c206bfc0f01b70a4a9ba89417cbcb58a,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 7607992424404560545, guid: c206bfc0f01b70a4a9ba89417cbcb58a,
         type: 3}
