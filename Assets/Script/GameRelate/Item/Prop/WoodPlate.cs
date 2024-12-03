@@ -28,19 +28,19 @@ public class WoodPlateDefState : DefaultItemState
     }
     public override void OnGrab()
     {
-        AudioManager.instance.PlayRamSound(_DefAttrBoard._audiosource, _WoodPlateAttrBoard.WoodPlateSound, _DefAttrBoard.V_Voulme, 2);
+        AudioManager.instance.PlayRamSound(_DefAttrBoard.Sound.AudioSource, _WoodPlateAttrBoard.WoodPlateSound, _DefAttrBoard.Sound.Volume, 2);
     }
     public override void OnRelease()
     {
-        AudioManager.instance.PlayRamSound(_DefAttrBoard._audiosource, _WoodPlateAttrBoard.WoodPlateSound, _DefAttrBoard.V_Voulme, 2);
+        AudioManager.instance.PlayRamSound(_DefAttrBoard.Sound.AudioSource, _WoodPlateAttrBoard.WoodPlateSound, _DefAttrBoard.Sound.Volume, 2);
     }
     public override void OnRidigibodyEnter(Collision collision)
     {
-        if (_DefAttrBoard.V_Playable)
+        if (_DefAttrBoard.Sound.V_Playable)
         {
-            AudioManager.instance.PlayRamSound(_DefAttrBoard._audiosource, _WoodPlateAttrBoard.WoodPlateSound, _DefAttrBoard.V_Voulme, 2);
-            _DefAttrBoard.V_Playable = false;
-            _DefAttrBoard.V_LastSoundPlay = 0;
+            AudioManager.instance.PlayRamSound(_DefAttrBoard.Sound.AudioSource, _WoodPlateAttrBoard.WoodPlateSound, _DefAttrBoard.Sound.Volume, 2);
+            _DefAttrBoard.Sound.V_Playable = false;
+            _DefAttrBoard.Sound.V_LastSoundPlay = 0;
         }
     }
 }
@@ -50,7 +50,7 @@ public class WoodPlate : InteractedItemOrigin
     public WoodPlateAttrBoard _WoodPlateAttrBoard;
     private void Start()
     {
-        _MyFsm.AddState(ItemState_Type.Default, new WoodPlateDefState(_MyFsm, _DefaultAttrBoard, _WoodPlateAttrBoard));
+        _MyFsm.AddState(ItemState_Type.Default, new WoodPlateDefState(_MyFsm, Default, _WoodPlateAttrBoard));
         _MyFsm.SwitchState(ItemState_Type.Default);
     }
 }

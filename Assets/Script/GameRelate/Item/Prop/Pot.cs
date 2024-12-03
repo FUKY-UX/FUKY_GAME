@@ -65,24 +65,24 @@ public class PotDefaultState : DefaultItemState
     }
     public override void OnGrab()
     {
-        _DefAttrBoard._collider.isTrigger=true;
+        _DefAttrBoard.Phy._collider.isTrigger=true;
         _PotAttrBoard.CookCollider.enabled = true;
-        AudioManager.instance.PlayRamSound(_DefAttrBoard._audiosource, _PotAttrBoard.PotGrabSound, _DefAttrBoard.V_Voulme, 2);
+        AudioManager.instance.PlayRamSound(_DefAttrBoard.Sound.AudioSource, _PotAttrBoard.PotGrabSound, _DefAttrBoard.Sound.Volume, 2);
     }
     public override void OnRelease()
     {
-        _DefAttrBoard._collider.isTrigger = false;
+        _DefAttrBoard.Phy._collider.isTrigger = false;
         _PotAttrBoard.CookCollider.enabled = false;
-        AudioManager.instance.PlayRamSound(_DefAttrBoard._audiosource, _PotAttrBoard.PotDropSound, _DefAttrBoard.V_Voulme, 2);
+        AudioManager.instance.PlayRamSound(_DefAttrBoard.Sound.AudioSource, _PotAttrBoard.PotDropSound, _DefAttrBoard.Sound.Volume, 2);
     }
     public override void OnRidigibodyEnter(Collision collision)
     {
         //音效
-        if (_DefAttrBoard.V_Playable)
+        if (_DefAttrBoard.Sound.V_Playable)
         {
-            AudioManager.instance.PlayRamSound(_DefAttrBoard._audiosource, _PotAttrBoard.PotKnockSound, _DefAttrBoard.V_Voulme / 2, 3);
-            _DefAttrBoard.V_Playable = false;
-            _DefAttrBoard.V_LastSoundPlay = 0;
+            AudioManager.instance.PlayRamSound(_DefAttrBoard.Sound.AudioSource, _PotAttrBoard.PotKnockSound, _DefAttrBoard.Sound.Volume / 2, 3);
+            _DefAttrBoard.Sound.V_Playable = false;
+            _DefAttrBoard.Sound.V_LastSoundPlay = 0;
         }
     }
     public override void OnRidigibodyStay(Collision collision)
@@ -91,8 +91,8 @@ public class PotDefaultState : DefaultItemState
         FoodItemBase Food = collision.collider.GetComponentInParent<FoodItemBase>();
         if (Food != null) 
         {
-            Food._MeatAttr._CookMePot = _PotAttrBoard.Me;
-            Food._MeatAttr._CookedPart = collision.collider;
+            Food.CookAttr.Cook._CookMePot = _PotAttrBoard.Me;
+            Food.CookAttr.Cook._CookedPart = collision.collider;
             Food._MyFsm.SwitchState(ItemState_Type.State1); 
         }//执行在锅上食物的烹饪行为
     }
@@ -113,14 +113,14 @@ public class PotHeatingState : DefaultItemState
     public override void OnUpdate()
     {
         Transform EffectParent = _PotAttrBoard.Fires[0].transform.parent;
-        float Y = Mathf.Clamp((_DefAttrBoard._rigidbody.position - EffectParent.position).y, 0, 1);
+        float Y = Mathf.Clamp((_DefAttrBoard.Phy._rigidbody.position - EffectParent.position).y, 0, 1);
         Y *= _PotAttrBoard.PotVsFire;
         foreach (FireEffect fire in _PotAttrBoard.Fires)
         {
             fire.Opacity = Y;
         }
 
-        Collider[] colliders = Physics.OverlapSphere(_DefAttrBoard._rigidbody.position, _PotAttrBoard.HeatingRange, _PotAttrBoard.CookFireOn);
+        Collider[] colliders = Physics.OverlapSphere(_DefAttrBoard.Phy._rigidbody.position, _PotAttrBoard.HeatingRange, _PotAttrBoard.CookFireOn);
         if(colliders.Length ==0)
         {
             _PotAttrBoard.Fires = null;
@@ -130,24 +130,24 @@ public class PotHeatingState : DefaultItemState
     }
     public override void OnGrab()
     {
-        _DefAttrBoard._collider.isTrigger = true;
+        _DefAttrBoard.Phy._collider.isTrigger = true;
         _PotAttrBoard.CookCollider.enabled = true;
-        AudioManager.instance.PlayRamSound(_DefAttrBoard._audiosource, _PotAttrBoard.PotGrabSound, _DefAttrBoard.V_Voulme, 2);
+        AudioManager.instance.PlayRamSound(_DefAttrBoard.Sound.AudioSource, _PotAttrBoard.PotGrabSound, _DefAttrBoard.Sound.Volume, 2);
     }
     public override void OnRelease()
     {
-        _DefAttrBoard._collider.isTrigger = false;
+        _DefAttrBoard.Phy._collider.isTrigger = false;
         _PotAttrBoard.CookCollider.enabled = false;
-        AudioManager.instance.PlayRamSound(_DefAttrBoard._audiosource, _PotAttrBoard.PotDropSound, _DefAttrBoard.V_Voulme, 2);
+        AudioManager.instance.PlayRamSound(_DefAttrBoard.Sound.AudioSource, _PotAttrBoard.PotDropSound, _DefAttrBoard.Sound.Volume, 2);
     }
     public override void OnRidigibodyEnter(Collision collision)
     {
         //音效
-        if (_DefAttrBoard.V_Playable)
+        if (_DefAttrBoard.Sound.V_Playable)
         {
-            AudioManager.instance.PlayRamSound(_DefAttrBoard._audiosource, _PotAttrBoard.PotKnockSound, _DefAttrBoard.V_Voulme/2, 3);
-            _DefAttrBoard.V_Playable = false;
-            _DefAttrBoard.V_LastSoundPlay = 0;
+            AudioManager.instance.PlayRamSound(_DefAttrBoard.Sound.AudioSource, _PotAttrBoard.PotKnockSound, _DefAttrBoard.Sound.Volume /2, 3);
+            _DefAttrBoard.Sound.V_Playable = false;
+            _DefAttrBoard.Sound.V_LastSoundPlay = 0;
         }
     }
     public override void OnRidigibodyStay(Collision collision)
@@ -156,8 +156,8 @@ public class PotHeatingState : DefaultItemState
         FoodItemBase Food = collision.collider.GetComponentInParent<FoodItemBase>();
         if (Food != null)
         {
-            Food._MeatAttr._CookMePot = _PotAttrBoard.Me;
-            Food._MeatAttr._CookedPart = collision.collider;
+            Food.CookAttr.Cook._CookMePot = _PotAttrBoard.Me;
+            Food.CookAttr.Cook._CookedPart = collision.collider;
             Food._MyFsm.SwitchState(ItemState_Type.State1);
         }//执行在锅上食物的烹饪行为
     }
@@ -167,11 +167,10 @@ public class PotHeatingState : DefaultItemState
         FoodItemBase Food = collider.GetComponentInParent<FoodItemBase>();
         if (Food != null)
         {
-            Food._MeatAttr._CookMePot = _PotAttrBoard.Me;
-            Food._MeatAttr._CookedPart = collider;
+            Food.CookAttr.Cook._CookMePot = _PotAttrBoard.Me;
+            Food.CookAttr.Cook._CookedPart = collider;
             Food._MyFsm.SwitchState(ItemState_Type.State1);
         }//执行在锅上食物的烹饪行为
-
     }
 
 
@@ -183,14 +182,14 @@ public class Pot : InteractedItemOrigin
     private void Start()
     {
         _potAttrBoard.Me = this;
-        _MyFsm.AddState(ItemState_Type.Default,new PotDefaultState(_MyFsm, _DefaultAttrBoard, _potAttrBoard));
-        _MyFsm.AddState(ItemState_Type.State1, new PotHeatingState(_MyFsm, _DefaultAttrBoard, _potAttrBoard));
+        _MyFsm.AddState(ItemState_Type.Default,new PotDefaultState(_MyFsm, Default, _potAttrBoard));
+        _MyFsm.AddState(ItemState_Type.State1, new PotHeatingState(_MyFsm, Default, _potAttrBoard));
         _MyFsm.SwitchState(ItemState_Type.Default);
 
     }
     public void OnDrawGizmos()
     {
-        if (_potAttrBoard.ShowGizmo) Gizmos.DrawSphere(_DefaultAttrBoard._rigidbody.transform.position, _potAttrBoard.HeatingRange);
+        if (_potAttrBoard.ShowGizmo) Gizmos.DrawSphere(Default.Phy._rigidbody.transform.position, _potAttrBoard.HeatingRange);
     }
 
 }

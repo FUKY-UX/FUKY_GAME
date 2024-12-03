@@ -1,28 +1,81 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
-public interface I_EdibleFood
+public enum CookingMoment
 {
-    public void Food_Cooking(Pot CookMePot);
-    public void Food_Leaving(Pot CookMePot);
-
+    UnCook,
+    Normal,
+    Super,
+    Lost,
+    Bad
 }
-
-public struct DefaultFoodPartState
+[Serializable]
+public class FoodPartInf_Def:AttrBoard
 {
-    public DefaultFoodPartState(float InitCookValue, float InitOverCookValue)
+    public FoodPartInf_Def(float InitCookValue, float InitOverCookValue)
     {
         CookValue = InitCookValue;
         SuperMoment = InitOverCookValue;
     }
-    public float CookValue{get; set; }
-    public float SuperMoment{ get; set; }
+
+    public CookingMoment CurrPartCookMoment;
+    public float CookValue = 0f;
+    public float SuperMoment = 0f;
+    public float BadCookValue = 0f;
+
+}
+[Serializable]
+public class FoodPhysics : AttrBoard
+{
+    [Tooltip("食材对锅的吸力")]
+    public float Meat_Stickiness = 0.04f;
+    [Tooltip("锅对食物施加的动力")]
+    public float Meat_JumpStren = 0.02f;
+    [Tooltip("食物离开锅时，会根据离开时的角度\r\n获得相应旋转速度强度")]
+    public float Meat_RotateStren = 0.1f;
+    [Tooltip("食物的加热速度")]
+    public float Food_TCR = 0.1f;
+    [Tooltip("食物离开厨具多久算不接触")]
+    public float LeavingMoment = 0.35f;
+    [HideInInspector]
+    public float FloatingTime = 0f;
+}
+[Serializable]
+public class FoodCooking : AttrBoard
+{
+    public Pot _CookMePot;
+    public CookingMoment _CookingMoment;
+    public Collider _CookedPart;
+    public bool IsLeavingPot;
+    public float Food_TotalCook = 0f;
+    [Tooltip("肉的各部分，用来模拟食材各部分的烹饪情况")]
+    public Collider[] Food_Part;
+    public FoodPartInf_Def CurrCookingPart;
+    [Tooltip("烹饪时机难度，越大机会越稍纵即逝")]
+    [Range(0, 1f)]
+    public float SuperMomentSpeed = 0.1f;
+    [Tooltip("惊喜时刻的反应时间，越大反应时间越足")]
+    [Range(0, 0.5f)]
+    public float SuperMomentTime = 0.1f;
+    [Tooltip("惊喜时刻")]
+    public float SuperMoment;
+    [HideInInspector]
+    public Vector2 SuperMoment_V2;
+    [Tooltip("惊喜时刻的时间段")]
+    public Vector2 SuperMomentRange = new(0.2f, 0.8f);
+}
+[Serializable]
+public class FoodSounds : AttrBoard
+{
+    [SerializeField]
+    [Tooltip("Key【物品状态】—Value【状态音效】")]
+    public SerializableDictionary<CookingMoment,SoundInf> Sounds;
 }
 
-
 [Serializable]
-public class MeetAttrBoard : AttrBoard
+public class FoodAttr : AttrBoard
 {
     #region 音效相关
     [Header("普通音效")]
@@ -42,45 +95,17 @@ public class MeetAttrBoard : AttrBoard
         MusicAndSound_Path.instance.MeetDrop2,
         };
     #endregion
-    #region 烹饪机制
-    [Header("烹饪机制")]
-    public Pot _CookMePot;
-    public Collider _CookedPart;
-    public bool IsLeavingPot;
-    public float Food_TotalCook = 0f;
-    [Tooltip("变温速度")]
-    public float Food_TCR = 0.2f;
-    [SerializeField]
-    public Dictionary<Collider, DefaultFoodPartState> Food_PartState;
-    [Tooltip("肉的各部分，用来模拟了食材各部分的温度情况")]
-    public Collider[] Food_Part;
-    #endregion
-    #region 烹饪音效
-    [Header("烹饪音效变化")]
-    public AudioSource CookStateSound;
-    public AudioSource SuperStateSound;
 
-    public string[] CookingSound= 
-    {
-            MusicAndSound_Path.instance.MeatCook1,
-            MusicAndSound_Path.instance.MeatCook_S,
-            MusicAndSound_Path.instance.MeatCook_Syes,
-            MusicAndSound_Path.instance.MeatCook_Bad
-    };    // 音效数组
-    #endregion
-    #region 烹饪视觉
-    [Header("烹饪视觉")]
-    public Material Meat_Mat;
-    #endregion
-    #region 烹饪物理
+    [HideInInspector]
+    public FoodPartInf_Def LastFoodPartState;
+    public Dictionary<Collider, FoodPartInf_Def> Food_PartState;
+    
+    [Header("烹饪机制")]
+    public FoodCooking Cook;
     [Header("烹饪物理")]
-    public float Meat_Stickiness = 0.04f;
-    public float Meat_JumpStren = 0.02f;
-    public float Meat_RotateStren = 0.1f;
-    public float FloatingTime = 0f;
-    [Tooltip("判定食物离开厨具的时间")]
-    public float LeavingMoment = 0.5f;
-    #endregion
+    public FoodPhysics Phy;
+    [Header("烹饪音效")]
+    public FoodSounds Sound;
 
     [HideInInspector]
     public Quaternion Meat_Rotate = Quaternion.identity;
@@ -88,103 +113,139 @@ public class MeetAttrBoard : AttrBoard
 public class FoodDefaultState : DefaultItemState
 {
     protected ItemFSM _MyFsm;
-    public DefaultItemAttrBoard _DefAttrBoard;
-    public MeetAttrBoard _FoodAttr;
+    public DefaultItemAttrBoard _DefAttr;
+    public FoodAttr _FoodAttr;
     
-    public FoodDefaultState(ItemFSM in_Fsm, DefaultItemAttrBoard _defattrboard, MeetAttrBoard Extend_Board)
+    public FoodDefaultState(ItemFSM in_Fsm, DefaultItemAttrBoard _defattrboard, FoodAttr Extend_Board)
     {
         _MyFsm = in_Fsm;
-        _DefAttrBoard = _defattrboard as DefaultItemAttrBoard;
-        _FoodAttr = Extend_Board as MeetAttrBoard;
+        _DefAttr = _defattrboard as DefaultItemAttrBoard;
+        _FoodAttr = Extend_Board as FoodAttr;
     }
 
     public override void OnGrab()
     {
-        AudioManager.instance.PlayRamSound(_DefAttrBoard._audiosource, _FoodAttr.MeatGrabSound, _DefAttrBoard.V_Voulme, 2);
+        AudioManager.instance.PlayRamSound(_DefAttr.Sound.AudioSource, _FoodAttr.MeatGrabSound, _DefAttr.Sound.Volume, 2);
     }
     public override void OnRelease()
     {
-        AudioManager.instance.PlayRamSound(_DefAttrBoard._audiosource, _FoodAttr.MeatDropSound, _DefAttrBoard.V_Voulme, 2);
+        AudioManager.instance.PlayRamSound(_DefAttr.Sound.AudioSource, _FoodAttr.MeatDropSound, _DefAttr.Sound.Volume, 2);
     }
     public override void OnRidigibodyEnter(Collision collision)
     {
-        if (_FoodAttr.Food_TotalCook > 0f) { _DefAttrBoard._rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; }
-        else { _DefAttrBoard._rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete; }
         //音效
-        if (_DefAttrBoard.V_Playable)
+        if (_DefAttr.Sound.V_Playable)
         {
-            AudioManager.instance.PlayRamSound(_DefAttrBoard._audiosource, _FoodAttr.MeatGrabSound, _DefAttrBoard.V_Voulme, 2);
-            _DefAttrBoard.V_Playable = false;
-            _DefAttrBoard.V_LastSoundPlay = 0;
+            AudioManager.instance.PlayRamSound(_DefAttr.Sound.AudioSource, _FoodAttr.MeatGrabSound, _DefAttr.Sound.Volume, 2);
+            _DefAttr.Sound.V_Playable = false;
+            _DefAttr.Sound.V_LastSoundPlay = 0;
         }
     }
     public override void OnFixUpdate()
     {
-        if (_FoodAttr.FloatingTime < _FoodAttr.LeavingMoment)
+        //判断是否离开锅的逻辑
+        if (_FoodAttr.Phy.FloatingTime < _FoodAttr.Phy.LeavingMoment && !_FoodAttr.Cook.IsLeavingPot)
         {
-            _FoodAttr.FloatingTime += Time.deltaTime;
-            if(_FoodAttr.FloatingTime > _FoodAttr.LeavingMoment)
-            {
-                _DefAttrBoard._rigidbody.angularVelocity = _FoodAttr.Meat_Rotate.eulerAngles * _FoodAttr.Meat_RotateStren / _FoodAttr.Food_Part.Length;
-                _FoodAttr.IsLeavingPot = true;
+            _FoodAttr.Phy.FloatingTime += Time.deltaTime;
+            if(_FoodAttr.Phy.FloatingTime > _FoodAttr.Phy.LeavingMoment)
+            {   
+                _DefAttr.Phy._rigidbody.angularVelocity = _FoodAttr.Meat_Rotate.eulerAngles * _FoodAttr.Phy.Meat_RotateStren / _FoodAttr.Cook.Food_Part.Length;
+                AudioManager.instance.FadeOutVolume(_DefAttr.Sound.AudioSource, 0.5f);
+                _FoodAttr.Cook.IsLeavingPot = true;
+                _FoodAttr.Cook._CookingMoment = CookingMoment.UnCook;
                 return;
             }
         }
     }
-    public override void OnUpdate()
-    {
-        if (_FoodAttr.IsLeavingPot)
-        {
-            float Temperature_Delta = Time.deltaTime * _FoodAttr.Food_TCR;
-            if (_FoodAttr.Food_TotalCook > 0 && _FoodAttr.Food_TotalCook < 1) { _FoodAttr.Food_TotalCook -= Temperature_Delta; } else { _FoodAttr.Meat_Mat.color = Color.white; return; }
-            _FoodAttr.Meat_Mat.color = new(1, 1 - _FoodAttr.Food_TotalCook, 1 - _FoodAttr.Food_TotalCook, 1);
-            AudioManager.instance.FadeOut(_FoodAttr.CookStateSound, 2f, _FoodAttr.CookStateSound.volume);
-        }
-    }
-}
 
+}
 public class FoodCookingState : DefaultItemState
 {
     protected ItemFSM _MyFsm;
-    public DefaultItemAttrBoard _DefAttrBoard;
-    public MeetAttrBoard _FoodAttr;
+    public DefaultItemAttrBoard _DefAttr;
+    public FoodAttr _FoodAttr;
 
-    public FoodCookingState(ItemFSM in_Fsm, DefaultItemAttrBoard _defattrboard, MeetAttrBoard Extend_Board)
+    public FoodCookingState(ItemFSM in_Fsm, DefaultItemAttrBoard _defattrboard, FoodAttr Extend_Board)
     {
         _MyFsm = in_Fsm;
-        _DefAttrBoard = _defattrboard as DefaultItemAttrBoard;
-        _FoodAttr = Extend_Board as MeetAttrBoard;
+        _DefAttr = _defattrboard as DefaultItemAttrBoard;
+        _FoodAttr = Extend_Board as FoodAttr;
     }
     public override void OnEnter()
     {
+        if(_FoodAttr.Cook.SuperMoment == 0) 
+        { 
+            _FoodAttr.Cook.SuperMoment = UnityEngine.Random.Range(_FoodAttr.Cook.SuperMomentRange.x, _FoodAttr.Cook.SuperMomentRange.y);
+            _FoodAttr.Cook.SuperMoment_V2 = new(Mathf.Max(_FoodAttr.Cook.SuperMomentRange.x, _FoodAttr.Cook.SuperMoment - _FoodAttr.Cook.SuperMomentTime), Mathf.Min(_FoodAttr.Cook.SuperMomentRange.y, _FoodAttr.Cook.SuperMoment + _FoodAttr.Cook.SuperMomentTime));
+        }
         #region 参数和烹饪物理
-        _FoodAttr.IsLeavingPot = false;
-        _FoodAttr.FloatingTime = 0f;
-        _FoodAttr.Meat_Rotate = _DefAttrBoard._rigidbody.rotation;
-        Vector3 ForceDir = _FoodAttr._CookMePot._potAttrBoard.PotCenter.position - _DefAttrBoard._rigidbody.transform.position;
-        _DefAttrBoard._rigidbody.AddForce(ForceDir * _FoodAttr.Meat_Stickiness / _FoodAttr.Food_Part.Length);
-        _DefAttrBoard._rigidbody.AddForce(Vector3.up * _FoodAttr._CookMePot._DefaultAttrBoard.RubFactor.y * _FoodAttr.Meat_JumpStren / _FoodAttr.Food_Part.Length);
+        _FoodAttr.Cook.IsLeavingPot = false;
+        _FoodAttr.Phy.FloatingTime = 0f;
+        _FoodAttr.Meat_Rotate = _DefAttr.Phy._rigidbody.rotation;
+        Vector3 ForceDir = _FoodAttr.Cook._CookMePot._potAttrBoard.PotCenter.position - _DefAttr.Phy._rigidbody.transform.position;
+        _DefAttr.Phy._rigidbody.AddForce(ForceDir * _FoodAttr.Phy.Meat_Stickiness / _FoodAttr.Cook.Food_Part.Length);
+        _DefAttr.Phy._rigidbody.AddForce(Vector3.up * _FoodAttr.Cook._CookMePot.Default.Phy.RubFactor.y * _FoodAttr.Phy.Meat_JumpStren / _FoodAttr.Cook.Food_Part.Length);
+        FoodPartInf_Def _CurrFoodPartState;
+        _FoodAttr.Food_PartState.TryGetValue(_FoodAttr.Cook._CookedPart, out _CurrFoodPartState);
         #endregion
+        if (_CurrFoodPartState != null)
+        {
+            _FoodAttr.Cook.CurrCookingPart = _CurrFoodPartState;
+            #region 食物烹饪数据更新
+            if (_FoodAttr.Cook._CookMePot._potAttrBoard.Heating) 
+            {
+                float CookValue = Time.deltaTime * _FoodAttr.Phy.Food_TCR / _FoodAttr.Cook.Food_Part.Length;
+                _CurrFoodPartState.SuperMoment += CookValue;
+                switch (_CurrFoodPartState.CurrPartCookMoment)
+                {
+                    case CookingMoment.UnCook:
+                        if (_CurrFoodPartState.SuperMoment > 0)
+                        {
+                            _FoodAttr.Cook._CookingMoment = _CurrFoodPartState.CurrPartCookMoment;
+                        }
+                        else
+                        {
+                            AudioManager.instance.FadeOutVolume(_DefAttr.Sound.AudioSource, 1f);
+                        }
+                        break;
+                    case CookingMoment.Normal:
+                        if (_CurrFoodPartState.SuperMoment > _FoodAttr.Cook.SuperMoment_V2.x)
+                        {
 
-        #region 食物烹饪数据更新
-        if (_FoodAttr._CookMePot._potAttrBoard.Heating) 
-        {
-            DefaultFoodPartState _FoodPartState = _FoodAttr.Food_PartState[_FoodAttr._CookedPart];
-            float CookValue = Time.deltaTime * _FoodAttr.Food_TCR / _FoodAttr.Food_Part.Length;
-            _FoodPartState.CookValue += CookValue;
-            _FoodPartState.SuperMoment += CookValue;
-            _FoodAttr.Food_TotalCook += CookValue;
-            _FoodAttr.Food_PartState[_FoodAttr._CookedPart] = _FoodPartState;
+                            //if(_DefAttr._audiosource.clip. != )
+                            AudioManager.instance.MuteAndChangeClip(_DefAttr.Sound.AudioSource, MusicAndSound_Path.instance.MeatCook1);
+                            AudioManager.instance.FadeInVolume(_DefAttr.Sound.AudioSource, 2f);
+                            _CurrFoodPartState.CurrPartCookMoment = CookingMoment.Normal;
+
+                            AudioManager.instance.CrossTransSound(_DefAttr.Sound.AudioSource, MusicAndSound_Path.instance.MeatCook_S,1f);
+                            _CurrFoodPartState.CurrPartCookMoment = CookingMoment.Super;
+                        }
+                        break;
+                    case CookingMoment.Super:
+                        if (_CurrFoodPartState.SuperMoment > _FoodAttr.Cook.SuperMoment_V2.y)
+                        {
+                            _CurrFoodPartState.CurrPartCookMoment = CookingMoment.Lost;
+                        }
+                        break;
+                    case CookingMoment.Lost:
+
+                        break;
+                    case CookingMoment.Bad:
+                        if (_CurrFoodPartState.SuperMoment > _FoodAttr.Cook.SuperMoment_V2.x) { }
+
+                        break;
+                    default:
+                        break;
+                }
+
+                if (_FoodAttr.LastFoodPartState != _CurrFoodPartState)
+                {
+                }
+                _FoodAttr.LastFoodPartState = _CurrFoodPartState;
+
+            }
         }
         #endregion
-        if (_FoodAttr.Food_TotalCook >= 0)
-        {
-            AudioManager.instance.FadeIn(_FoodAttr.CookStateSound, 1f, _FoodAttr.CookStateSound.volume, 2f);
-        }
-        else
-        {
-            AudioManager.instance.FadeOut(_FoodAttr.CookStateSound, 2f, _FoodAttr.CookStateSound.volume);
-        }
 
         _MyFsm.SwitchState(ItemState_Type.Default);
     }
@@ -193,24 +254,25 @@ public class FoodCookingState : DefaultItemState
 
 public class FoodItemBase : InteractedItemOrigin
 {
-    public MeetAttrBoard _MeatAttr;
-
+    [Header("烹饪基础属性")]
+    public FoodAttr CookAttr;
     private void Start()
     {
-        _MyFsm.AddState(ItemState_Type.Default, new FoodDefaultState(_MyFsm, _DefaultAttrBoard, _MeatAttr));
-        _MyFsm.AddState(ItemState_Type.State1, new FoodCookingState(_MyFsm, _DefaultAttrBoard, _MeatAttr));
+        _MyFsm.AddState(ItemState_Type.Default, new FoodDefaultState(_MyFsm, Default, CookAttr));
+        _MyFsm.AddState(ItemState_Type.State1, new FoodCookingState(_MyFsm, Default, CookAttr));
         _MyFsm.SwitchState(ItemState_Type.Default);
-        _MeatAttr.Food_Part = GetComponentsInChildren<Collider>();
-        _MeatAttr.Food_PartState = new Dictionary<Collider, DefaultFoodPartState>();
-        foreach (Collider FoodPart in _MeatAttr.Food_Part)
+        //_MeatAttr.Food_Part = GetComponentsInChildren<Collider>();
+        CookAttr.Food_PartState = new Dictionary<Collider, FoodPartInf_Def>();
+        foreach (Collider FoodPart in CookAttr.Cook.Food_Part)
         {
-            DefaultFoodPartState FoodPartState = new DefaultFoodPartState(0f,0f);
-            _MeatAttr.Food_PartState.Add(FoodPart, FoodPartState);
+            //(AudioClip)Resources.Load(path)
+            FoodPartInf_Def FoodPartState = new FoodPartInf_Def(0f,0f);
+            CookAttr.Food_PartState.Add(FoodPart, FoodPartState);
+            foreach (var item in CookAttr.Cook.Food_Part)
+            {
+
+            }
         }
-        _MeatAttr.CookStateSound.loop = true;
-        _MeatAttr.SuperStateSound.loop = true;
-        AudioManager.instance.PlaySound(_MeatAttr.CookStateSound, MusicAndSound_Path.instance.MeatCook1, 0);
-        AudioManager.instance.PlaySound(_MeatAttr.SuperStateSound, MusicAndSound_Path.instance.MeatCook_S, 0);
     }
 
 }

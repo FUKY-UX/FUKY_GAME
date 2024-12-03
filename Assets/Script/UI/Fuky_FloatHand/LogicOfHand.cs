@@ -84,28 +84,28 @@ public class GrabHand : HandState
     public void OnEnter()
     {
         _SBoard._HandCollider.isTrigger = true;
-        _SBoard.TouchItem._DefaultAttrBoard._rigidbody.velocity = Vector3.zero;
-        _SBoard.TouchItem._DefaultAttrBoard._rigidbody.freezeRotation = true;
-        _SBoard.TouchItem._DefaultAttrBoard._rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        _SBoard.TouchItem.Default.Phy._rigidbody.velocity = Vector3.zero;
+        _SBoard.TouchItem.Default.Phy._rigidbody.freezeRotation = true;
+        _SBoard.TouchItem.Default.Phy._rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         _SBoard._HandRender.enabled = false;
 
     }
     public void OnExit()
     {
-        _SBoard.TouchItem._DefaultAttrBoard._rigidbody.freezeRotation = false;
+        _SBoard.TouchItem.Default.Phy._rigidbody.freezeRotation = false;
         _SBoard._HandRender.enabled = true;
         _SBoard.IsCaught = false;
-        _SBoard.TouchItem._DefaultAttrBoard._rigidbody.isKinematic = false;
-        _SBoard.TouchItem._DefaultAttrBoard._rigidbody.velocity = _SBoard._HandRigidbody.velocity;
+        _SBoard.TouchItem.Default.Phy._rigidbody.isKinematic = false;
+        _SBoard.TouchItem.Default.Phy._rigidbody.velocity = _SBoard._HandRigidbody.velocity;
         _SBoard.TouchItemFSM.OnRelease();
     }
     public void OnFixUpdate()
     {
-        float ItemGrabFactor = _SBoard.TouchItem._DefaultAttrBoard.GrabTimeFactor;
+        float ItemGrabFactor = _SBoard.TouchItem.Default.Phy.GrabTimeFactor;
 
-        Vector3 TouchingItemRigiPos = _SBoard.TouchItem._DefaultAttrBoard._rigidbody.transform.position;
+        Vector3 TouchingItemRigiPos = _SBoard.TouchItem.Default.Phy._rigidbody.transform.position;
         Vector3 HandOriRigiPos = _SBoard._HandRigidbody.transform.position;
-        Quaternion ItemQuat = _SBoard.TouchItem._DefaultAttrBoard._rigidbody.transform.rotation;
+        Quaternion ItemQuat = _SBoard.TouchItem.Default.Phy._rigidbody.transform.rotation;
 
         Vector3 ForceDir = _SBoard.FukyGameBase.FukyHandPos - _SBoard._LastHandPos;
         Quaternion CurrRotate = Quaternion.Euler(0f, _SBoard.RefCamera.transform.rotation.eulerAngles.y, 0f) * _SBoard.FukyGameBase.FukyHandRotate;
@@ -115,14 +115,14 @@ public class GrabHand : HandState
 
         if (!_SBoard.IsCaught)
         {
-            _SBoard.TouchItem._DefaultAttrBoard._rigidbody.transform.rotation = Quaternion.Lerp(_SBoard.TouchItem._DefaultAttrBoard._rigidbody.transform.rotation,
+            _SBoard.TouchItem.Default.Phy._rigidbody.transform.rotation = Quaternion.Lerp(_SBoard.TouchItem.Default.Phy._rigidbody.transform.rotation,
                 CurrRotate, _SBoard._TranslateUsingTime / _SBoard._GrabTranslateTime * ItemGrabFactor);// 旋转对象的插值直接转成触摸对象
-            _SBoard.TouchItem._DefaultAttrBoard._rigidbody.transform.position = Vector3.Lerp(TouchingItemRigiPos, HandOriRigiPos, _SBoard._TranslateUsingTime/_SBoard._GrabTranslateTime * ItemGrabFactor);
+            _SBoard.TouchItem.Default.Phy._rigidbody.transform.position = Vector3.Lerp(TouchingItemRigiPos, HandOriRigiPos, _SBoard._TranslateUsingTime/_SBoard._GrabTranslateTime * ItemGrabFactor);
             
             _SBoard._TranslateUsingTime += Time.deltaTime;
             if (_SBoard._TranslateUsingTime > _SBoard._GrabTranslateTime) 
             {
-                _SBoard.TouchItem._DefaultAttrBoard._rigidbody.isKinematic = true;
+                _SBoard.TouchItem.Default.Phy._rigidbody.isKinematic = true;
                 _SBoard.IsCaught = true; 
                 _SBoard._TranslateUsingTime = 0;
                 _SBoard.TouchItemFSM.OnGrab();
@@ -131,9 +131,9 @@ public class GrabHand : HandState
             return;
         }
         
-        _SBoard.TouchItem._DefaultAttrBoard.RubFactor = ForceDir;
-        _SBoard.TouchItem._DefaultAttrBoard._rigidbody.transform.rotation = _SBoard._HandRigidbody.transform.rotation;
-        _SBoard.TouchItem._DefaultAttrBoard._rigidbody.transform.position = _SBoard._HandRigidbody.transform.position;
+        _SBoard.TouchItem.Default.Phy.RubFactor = ForceDir;
+        _SBoard.TouchItem.Default.Phy._rigidbody.transform.rotation = _SBoard._HandRigidbody.transform.rotation;
+        _SBoard.TouchItem.Default.Phy._rigidbody.transform.position = _SBoard._HandRigidbody.transform.position;
         _SBoard._LastHandPos = _SBoard._HandRigidbody.transform.position;
     }
     public void OnUpdate()

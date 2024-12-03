@@ -1,28 +1,52 @@
 using UnityEngine;
 using System;
 
-[Serializable]
-public class DefaultItemAttrBoard : AttrBoard
+public enum DefaultItemSound
 {
-    #region 物品的引擎属性
-    [Header("物品引擎属性")]
+    [Tooltip("抓住物品时发出的声音")]
+    Grabing,
+    [Tooltip("扔掉物品时发出的声音")]
+    Throwing,
+    [Tooltip("和其他物品碰撞的声音")]
+    Knock
+}
+[Serializable]
+public class ItemPhysics:AttrBoard
+{
     public Rigidbody _rigidbody;
     public Collider _collider;
     public float GrabTimeFactor = 1f;
     public Vector3 RubFactor;
     public float RubStrength = 1f;
-    #endregion
-    #region 音效播放基础
-    [Header("物品音效")]
-    public AudioSource _audiosource;
-    public float V_CoolDown = 1f;
-    public float V_Voulme = 1f;
-    public bool V_Playable = true;
-    public float V_CoolDownOffset = 1f;
+}
+[Serializable]
+public class ItemSound : AttrBoard
+{
+    [Tooltip("Key【物品状态】—Value【状态音效】")]
+    public SerializableDictionary<DefaultItemSound, SoundInf> Sounds;
+    [Tooltip("默认的声源，每个物体上至少有一个")]
+    public AudioSource AudioSource;
+    [Tooltip("该物体音效的音量")]
+    public float Volume = 1f;
+    [Tooltip("音效播放的冷却，主要影响碰撞音效")]
+    public float NoiseCd = 1f;
+    [Tooltip("音效播放的冷却随机量，主要影响碰撞音效")]
+    public float NoiseCdOffset = 1f;
+    [HideInInspector]
     public float V_LastSoundPlay;
-    #endregion
+    [HideInInspector]
+    public bool V_Playable = true;
+
 }
 
+[Serializable]
+public class DefaultItemAttrBoard : AttrBoard
+{
+    [Header("基础物理属性")]
+    public ItemPhysics Phy;
+    [Header("基础音效属性")]
+    public ItemSound Sound;
+}
 public abstract class DefaultItemState : InteractedItem
 {
     public virtual void OnEnter()
@@ -52,26 +76,26 @@ public abstract class DefaultItemState : InteractedItem
     public virtual void OnTriggerStay(Collider collider) { }
 
 }
-
 public class InteractedItemOrigin : MonoBehaviour
 {
     public ItemFSM _MyFsm;
-    public DefaultItemAttrBoard _DefaultAttrBoard;
+    [Header("物体的基础属性")]
+    public DefaultItemAttrBoard Default;
     private void Awake()
     {
-        _MyFsm = new ItemFSM(_DefaultAttrBoard);
+        _MyFsm = new ItemFSM(Default);
     }
     public void Update()
     {
         _MyFsm.OnUpdate();
-        if (!_DefaultAttrBoard.V_Playable)
+        if (!Default.Sound.V_Playable)
         {
-            if (_DefaultAttrBoard.V_LastSoundPlay > _DefaultAttrBoard.V_CoolDownOffset)
+            if (Default.Sound.V_LastSoundPlay > Default.Sound.NoiseCdOffset)
             {
-                _DefaultAttrBoard.V_Playable = true;
-                _DefaultAttrBoard.V_CoolDownOffset = _DefaultAttrBoard.V_CoolDown + UnityEngine.Random.Range(-0.5f, 0.5f);
+                Default.Sound.V_Playable = true;
+                Default.Sound.NoiseCdOffset = Default.Sound.NoiseCd + UnityEngine.Random.Range(-0.5f, 0.5f);
             }
-            _DefaultAttrBoard.V_LastSoundPlay += Time.deltaTime;
+            Default.Sound.V_LastSoundPlay += Time.deltaTime;
             return;
         }
     }

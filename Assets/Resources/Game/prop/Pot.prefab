@@ -104,18 +104,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c19166561595b114db27190f70f24743, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _DefaultAttrBoard:
-    _rigidbody: {fileID: 5036519689893839713}
-    _collider: {fileID: 4895392235905516526}
-    GrabTimeFactor: 0.25
-    RubFactor: {x: 0, y: 0, z: 0}
-    RubStrength: 1
-    _audiosource: {fileID: 1594499051203794273}
-    V_CoolDown: 1
-    V_Voulme: 1
-    V_Playable: 1
-    V_CoolDownOffset: 1
-    V_LastSoundPlay: 0
+  Default:
+    Phy:
+      _rigidbody: {fileID: 5036519689893839713}
+      _collider: {fileID: 0}
+      GrabTimeFactor: 1
+      RubFactor: {x: 0, y: 0, z: 0}
+      RubStrength: 1
+    Sound:
+      _Sounds:
+        list: []
+      V_AudioSource: {fileID: 0}
+      V_CoolDown: 1
+      V_Volume: 1
+      V_Playable: 1
+      V_CoolDownOffset: 1
+      V_LastSoundPlay: 0
   _potAttrBoard:
     Me: {fileID: 0}
     Heating: 0
