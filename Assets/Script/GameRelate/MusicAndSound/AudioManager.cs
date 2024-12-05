@@ -1,16 +1,18 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering;
+
 
 public enum SoundTpye
 {
-    [Tooltip("随机播放\r\n当选择Slowly时，只会让正在播放的音效缓缓消失，然后该音效会立刻播放\r\n这种音效不能完全支持渐入渐出,如果需要渐入渐出需要外部合成然后作为Single来播放")]
+    [Tooltip("随机播放，自然混音常用\r\n随机从声效表中选择一个声音\r\n作为最大的声音，然后依次递减")]
     RamdomNoise,
-    [Tooltip("播放主音效(音效表的第一个),加上指定数量的杂音\r\n当选择Slowly时，只会让正在播放的音效缓缓消失，然后该音效会立刻播放\r\n这种音效不能完全支持渐入渐出,如果需要渐入渐出需要外部合成然后作为Single来播放")]
+    [Tooltip("播放主音效(音效表的第一个),加上指定数量的杂音\r\n杂音的音量在主音效的一半左右波动")]
     MainWithRamdomNoise,
-    [Tooltip("播放主音效(音效表的第一个)")]
+    [Tooltip("播放主音效(音效表的第一个)\r\n消耗最少，不需要实时合成")]
     Single
 }
 public enum SwitchStyle
@@ -24,274 +26,354 @@ public enum SwitchStyle
 [Serializable]
 public class SoundInf
 {
-    [Tooltip("声源【默认留空】\r\n留空默认为基础音效下的声源")]
-    public AudioSource Source;
+    public SoundInf(Transform transform)
+    {
+        Source = transform;
+        Sounds = new List<AudioClip>();
+    }
+
+    [Tooltip("声源【默认留空】\r\n留空默认为挂载脚本的物体作为声源")]
+    public Transform Source;
     [Tooltip("这个音效的音量")]
     [Range(0,1)]
     public float Volume = 1f;
     [Tooltip("音效切换风格")]
-    public SwitchStyle Style;
+    public SwitchStyle SwitchStyle;
     [Tooltip("音效播放类型")]
     public SoundTpye Type;
     [Tooltip("音效表")]
-    public AudioClip[] Sounds;
-    [Tooltip("这个音频在出声时用的时间\r\n只在切换风格设置为Slowly时生效\r\n当播放类型是Single时\r\n它会影响淡入淡出效果的时长\r\n当播放类型为其他混合类音效时\r\n它只会影响淡出效果，并直接播放混合类音效")]
-    [Range(0, 10)]
+    public List<AudioClip> Sounds;
+    [Tooltip("音效渐入渐出时长")]
+    [Range(0, 20)]
     public float Time = 1f;
-    [Tooltip("每次播放时随机混合的音频数\r\n只在音效类型不是Single时生效\r\n如果混合数超过音效列表中的音效数量，则视为全部播放")]
-    [Range(0, 10)]
-    public int SoundsOneTime = 3;
+    [Tooltip("每次播放时混合的音频数\r\n如果混合数超过音效列表中的音效数量，则视为全部播放")]
+    [Range(1, 10)]
+    public int MixCount = 3;
+    [Tooltip("该音频是否是一直循环的")]
+    public bool Loop = false;
 }
-
 
 public class AudioManager : MonoBehaviour
 {
-
     public static AudioManager instance;
-    public AudioSource CamAudioSource;
-    private Dictionary<string, AudioClip> dictAudio;
-    public Dictionary<(SwitchStyle, SoundTpye), Action<AudioSource, SoundInf>> PlayActions = new Dictionary<(SwitchStyle, SoundTpye), Action<AudioSource, SoundInf>>();
-
+    public GameObject DynamicSourceTemplate;
+    public Transform MyChildren;
+    public Queue<AudioSource> VirtulAudioSources;
+    public Dictionary<(SwitchStyle, SoundTpye), Action<SoundInf>> PlayActions = new Dictionary<(SwitchStyle, SoundTpye), Action<SoundInf>>();
+    public SerializableDictionary<SoundInf, List<AudioSource>> AudioSourceInSoundInf;
+    public SerializableDictionary<AudioSource, Coroutine> OnFadeAudioSource;
     public SoundInf BGM;
     public float MainVolume;
-
     public AudioManager()
     {
-        PlayActions[(SwitchStyle.Flash, SoundTpye.RamdomNoise)] = (source, soundinf) => PlayRamSound(source, soundinf.Sounds, soundinf.Volume, Mathf.Max(Mathf.Min(soundinf.Sounds.Length, soundinf.SoundsOneTime), 0));
-        PlayActions[(SwitchStyle.Flash, SoundTpye.MainWithRamdomNoise)] = (source, soundinf) => PlayRamMixSound(source, soundinf.Sounds, Mathf.Max(Mathf.Min(soundinf.Sounds.Length, soundinf.SoundsOneTime), 0), soundinf.Volume);
-        PlayActions[(SwitchStyle.Flash, SoundTpye.Single)] = (source, soundinf) => ImmediatePlaySound(source, soundinf.Sounds[0], soundinf.Volume);
-        PlayActions[(SwitchStyle.Slowly, SoundTpye.RamdomNoise)] = (source, soundinf) =>
-        {
-            if (source.volume >= 0)
-            {
-                FadeOutVolume(source, soundinf.Time, soundinf.Volume);
-            }
-            PlayRamSound(source, soundinf.Sounds, soundinf.Volume, Mathf.Max(Mathf.Min(soundinf.Sounds.Length, soundinf.SoundsOneTime), 0));
-        };
-        PlayActions[(SwitchStyle.Slowly, SoundTpye.MainWithRamdomNoise)] = (source, soundinf) =>
-        {
-            if (source.volume >= 0)
-            {
-                FadeOutVolume(source, soundinf.Time, soundinf.Volume);
-            }
-            PlayRamMixSound(source, soundinf.Sounds, Mathf.Max(Mathf.Min(soundinf.Sounds.Length, soundinf.SoundsOneTime), 0), soundinf.Volume);
-        };
-        PlayActions[(SwitchStyle.Slowly, SoundTpye.Single)] = (source, soundinf) =>
-        {
-            if (source.volume >= 0)
-            {
-                CrossTransSound(source, soundinf.Sounds[0], soundinf.Time, soundinf.Volume);
-            }
-            else
-            {
-                MuteAndChangeClip(source, soundinf.Sounds[0]);
-                FadeInVolume(source, soundinf.Time, soundinf.Volume);
-            }
-        };
+        instance = this;
+        AudioSourceInSoundInf = new SerializableDictionary<SoundInf, List<AudioSource>>();
+        OnFadeAudioSource = new SerializableDictionary<AudioSource, Coroutine>();
+        VirtulAudioSources = new Queue<AudioSource>();
+        PlayActions[(SwitchStyle.Flash, SoundTpye.RamdomNoise)] = (soundinf) => PlayRamSound(soundinf, 1.0f);
+        PlayActions[(SwitchStyle.Flash, SoundTpye.MainWithRamdomNoise)] = (soundinf) => PlayRamMixSound(soundinf,1.0f);
+        PlayActions[(SwitchStyle.Flash, SoundTpye.Single)] = (soundinf) => PlayMainSound(soundinf, 1.0f);
+        PlayActions[(SwitchStyle.Slowly, SoundTpye.RamdomNoise)] = (soundinf) =>{CrossTrans_RandomN(soundinf);};
+        PlayActions[(SwitchStyle.Slowly, SoundTpye.MainWithRamdomNoise)] = (soundinf) =>{CrossTrans_1plusN(soundinf);};
+        PlayActions[(SwitchStyle.Slowly, SoundTpye.Single)] = (soundinf) =>{CrossTrans_Only1(soundinf);};
     }
 
-    private void Awake()
-    {
-        instance = this;
-        dictAudio = new Dictionary<string, AudioClip>();
-    }
     private void Start()
     {
-        Play(CamAudioSource, BGM);
+        AudioSourceInSoundInf.Add(BGM, new List<AudioSource>());
+        Play(BGM);
     }
     private AudioClip LoadAudio(string path)
     {
         //Debug.Log((AudioClip)Resources.Load(path));
         return (AudioClip)Resources.Load(path);
     }
-    private AudioClip GetAudio(string path)
-    {
-        if (!dictAudio.ContainsKey(path))
-        {
-            dictAudio[path] = LoadAudio(path);
-        }
-        return dictAudio[path];
-    }
-    public void Play(AudioSource AudioSource, SoundInf soundinf)
+    public void Play(SoundInf soundinf)
     {
         // 尝试从字典中获取对应的播放行为，并执行它
-        if (PlayActions.TryGetValue((soundinf.Style, soundinf.Type), out var action))
+        if (PlayActions.TryGetValue((soundinf.SwitchStyle, soundinf.Type), out var action))
         {
-            action(AudioSource, soundinf);
+            action(soundinf);
         }
     }
     #region 基础方法
-    public void PlayBGM(string name,float Volume = 1.0f)
-        {
-            CamAudioSource.Stop();
-            CamAudioSource.clip = GetAudio(name);
-            CamAudioSource.Play();
-            CamAudioSource.volume = Volume;
-        }
-    public void MuteAndChangeClip(AudioSource _audioSource, string path)
+    public AudioSource PlayMainSound(SoundInf soundinf, float _Volume = 0)
     {
-        _audioSource.clip = GetAudio(path);
-        _audioSource.volume = 0f;
-        _audioSource.Play();
+        AudioSource _SourceToPlay;
+        if (VirtulAudioSources.Count == 0) { NewEmptyAudioSource_ToQueue(); }
+        _SourceToPlay = GetAndBindAudioSource_FromQueueToSoundinf(soundinf);
+        _SourceToPlay.PlayOneShot(soundinf.Sounds[0]);
+        _SourceToPlay.volume = _Volume * soundinf.Volume;
+        if (!soundinf.Loop) { WaitForRecycle(soundinf, _SourceToPlay, soundinf.Sounds[0].length); }
+        return _SourceToPlay;
     }
-    public void MuteAndChangeClip(AudioSource _audioSource, AudioClip clip)
+    public AudioSource PlayRamMixSound(SoundInf soundinf, float _Volume = 0)
     {
-        _audioSource.clip = clip;
-        _audioSource.volume = 0f;
-        _audioSource.Play();
-    }
-    public void ImmediatePlaySound(AudioSource _audioSource,string path,float volume = 1.0f)
-    {
-        _audioSource.clip = GetAudio(path);
-        _audioSource.volume = volume * MainVolume;
-        _audioSource.Play();
-    }
-    public void ImmediatePlaySound(AudioSource _audioSource, AudioClip _clip, float volume = 1.0f)
-    {
-        _audioSource.clip = _clip;
-        _audioSource.volume = volume * MainVolume;
-        _audioSource.Play();
-    }
-    public void NonRepeatPlaySound(AudioSource _audioSource, string path, float volume = 1.0f)
-    {
-        AudioClip _clip = GetAudio(path);
-        if(_audioSource.clip != _clip)
-        {
-            _audioSource.PlayOneShot(GetAudio(path), volume * MainVolume);
-        }
-    }
-    public void PlayRamMixSound(AudioSource _audioSource, string MainPath, string[] SecPath, float volume = 1.0f)
-    {
-        _audioSource.PlayOneShot(GetAudio(MainPath), volume);
-        for (int i = 0; i < SecPath.Length; i++)
-        {
-            float SecVolume = UnityEngine.Random.Range(0, volume * 0.5f * MainVolume);
-            _audioSource.PlayOneShot(GetAudio(SecPath[i]), SecVolume);
-        }
-
-    }
-    public void PlayRamMixSound(AudioSource _audioSource, AudioClip[] Sounds,int MixCount, float volume = 1.0f)
-    {
-        _audioSource.PlayOneShot(Sounds[0]);
-        List<AudioClip> TheRestClips = new List<AudioClip>(Sounds);
-        TheRestClips.RemoveAt(0);
-        for (int i = 0; i < MixCount; i++)
+        int Count = Mathf.Clamp(soundinf.MixCount, 1, soundinf.Sounds.Count);
+        List<AudioClip> TheRestClips = new List<AudioClip>(soundinf.Sounds);
+        List<float> PlayingClips = new List<float>();
+        AudioSource _SourceToPlay;
+        if (VirtulAudioSources.Count == 0) { NewEmptyAudioSource_ToQueue(); }
+        _SourceToPlay = GetAndBindAudioSource_FromQueueToSoundinf(soundinf);
+        for (int i = 0; i < Count; i++)
         {
             int RandomIndex = UnityEngine.Random.Range(0, TheRestClips.Count);
-            float SecVolume = UnityEngine.Random.Range(0, volume * 0.5f * MainVolume);
-            _audioSource.PlayOneShot(TheRestClips[RandomIndex], SecVolume);
+            float SecVolume = UnityEngine.Random.Range(0, soundinf.Volume * 0.5f * MainVolume);
+            _SourceToPlay.PlayOneShot(TheRestClips[RandomIndex], SecVolume);
+            PlayingClips.Add(TheRestClips[RandomIndex].length);
         }
+        _SourceToPlay.volume = _Volume * soundinf.Volume;
+        if (!soundinf.Loop) { WaitForRecycle(soundinf, _SourceToPlay, PlayingClips.Max()); }
+        return _SourceToPlay;
     }
-    public void PlayRamSound(AudioSource _audioSource ,string[] SecPath, float volume = 1.0f,int Audios = 0)
+    public AudioSource PlayRamSound(SoundInf soundinf, float _Volume = 0)
     {
-        int PlayAudios = Mathf.Clamp(Audios, 0, SecPath.Length);
+        int Count = Mathf.Clamp(soundinf.MixCount, 1, soundinf.Sounds.Count);
         float lastVolume = 0f;
-        List<string> audioList = new List<string>(SecPath);
-        for (int i = 0; i < PlayAudios; i++)
+        AudioSource _SourceToPlay;
+        List<AudioClip> TheRestClips = new List<AudioClip>(soundinf.Sounds);
+        List<float> PlayingClips = new List<float>();
+        if(VirtulAudioSources.Count == 0){NewEmptyAudioSource_ToQueue();}
+        _SourceToPlay= GetAndBindAudioSource_FromQueueToSoundinf(soundinf);
+        for (int i = 0; i < Count; i++)
         {
-            int index = UnityEngine.Random.Range(0,audioList.Count);
-            float SecVolume = UnityEngine.Random.Range(0, 
-                Mathf.Max(0,volume - lastVolume) * MainVolume);
+            int RandomIndex = UnityEngine.Random.Range(0, TheRestClips.Count);
+            float SecVolume = UnityEngine.Random.Range(0, Mathf.Max(0, soundinf.Volume - lastVolume) * MainVolume);
             lastVolume = SecVolume;
-            _audioSource.PlayOneShot(GetAudio(audioList[index]), SecVolume);
-            audioList.RemoveAt(index);
+            _SourceToPlay.PlayOneShot(TheRestClips[RandomIndex], SecVolume);
+            PlayingClips.Add(TheRestClips[RandomIndex].length);
+            TheRestClips.RemoveAt(RandomIndex);
         }
+        _SourceToPlay.volume = _Volume * soundinf.Volume;
+        if (!soundinf.Loop) { WaitForRecycle(soundinf, _SourceToPlay, PlayingClips.Max()); }
+        return _SourceToPlay;
     }
-    public void PlayRamSound(AudioSource _audioSource, AudioClip[] Sounds, float volume = 1.0f, int AudiosCount = 0)
+    private void WaitForRecycle(SoundInf soundinf, AudioSource _SourceToPlay)
     {
-        int PlayAudios = Mathf.Clamp(AudiosCount, 0, Sounds.Length);
-        float lastVolume = 0f;
-        List<AudioClip> audioList = new List<AudioClip>(Sounds);
-        for (int i = 0; i < PlayAudios; i++)
-        {
-            int index = UnityEngine.Random.Range(0, audioList.Count);
-            float SecVolume = UnityEngine.Random.Range(0,
-                Mathf.Max(0, volume - lastVolume) * MainVolume);
-            lastVolume = SecVolume;
-            _audioSource.PlayOneShot(audioList[index], SecVolume);
-            audioList.RemoveAt(index);
-        }
+        OnFadeAudioSource.Add(_SourceToPlay, StartCoroutine(IE_WaitRecycle(_SourceToPlay, _SourceToPlay.clip.length, soundinf)));
     }
+    private void WaitForRecycle(SoundInf soundinf, AudioSource _SourceToPlay,float WaitingTime)
+    {
+        OnFadeAudioSource.Add(_SourceToPlay, StartCoroutine(IE_WaitRecycle(_SourceToPlay, WaitingTime, soundinf)));
+    }
+
     #region 音效淡入淡出协程
-    private IEnumerator IE_CrossTransSound(AudioSource OnPlayingSource, string Path, float duration = 1.0f, float targetVolume=1.0f)
+    private IEnumerator IE_CrossTrans_Only1(SoundInf soundinf)
     {
-        if (duration <= 0) { Debug.LogError("音量淡入淡出的过程用时不能是零或负数"); yield break; }
-        float UsingTime = 0f;
-        AudioSource OnComingSource = Instantiate( OnPlayingSource.gameObject).GetComponent<AudioSource>();
-        OnComingSource.transform.position = OnPlayingSource.transform.position;
-        OnComingSource.transform.parent = OnPlayingSource.transform;
-        MuteAndChangeClip(OnComingSource, Path);
-        while (OnPlayingSource.volume > 0 || OnComingSource.volume < targetVolume)
+        AudioSource NewSoundFade;
+        NewSoundFade = PlayMainSound(soundinf);
+        List<AudioSource> CrossFade = AudioSourceInSoundInf[soundinf];
+        CrossFade.Remove(NewSoundFade);
+        if (CrossFade.Count > 0)
         {
-            OnPlayingSource.volume = Mathf.Max(0, OnPlayingSource.volume - UsingTime / duration);
-            OnComingSource.volume = Mathf.Min(targetVolume,UsingTime / duration*targetVolume);
+            while (AudioSourceInSoundInf[soundinf].Count > 0 || NewSoundFade.volume < soundinf.Volume)
+            {
+                float UsingTime = 0f;
+                List<AudioSource> OtherSource = new List<AudioSource>(AudioSourceInSoundInf[soundinf]);
+                OtherSource.Remove(NewSoundFade);
+                foreach (AudioSource SoundFade in CrossFade)
+                {
+                    SoundFade.volume = Mathf.Max(0, SoundFade.volume - UsingTime / soundinf.Time);
+                }
+                CheckAndRecycleMuteAudioSurce(CrossFade, soundinf);
+                NewSoundFade.volume = Mathf.Min(soundinf.Volume, UsingTime / soundinf.Time * soundinf.Volume);
+                UsingTime += Time.deltaTime;
+                yield return null;
+            }
+        }
+        else { StartCoroutine(IE_FadeIn(NewSoundFade, soundinf)); }
+    }
+    private IEnumerator IE_CrossTransSound_M(SoundInf soundinf)
+    {
+        AudioSource NewSoundFade;
+        NewSoundFade = PlayRamMixSound(soundinf);
+        List<AudioSource> CrossFade = AudioSourceInSoundInf[soundinf];
+        CrossFade.Remove(NewSoundFade);
+        if (CrossFade.Count > 0)
+        {
+            while (AudioSourceInSoundInf[soundinf].Count > 0 || NewSoundFade.volume < soundinf.Volume)
+            {
+                float UsingTime = 0f;
+                List<AudioSource> OtherSource = new List<AudioSource>(AudioSourceInSoundInf[soundinf]);
+                OtherSource.Remove(NewSoundFade);
+                foreach (AudioSource SoundFade in CrossFade)
+                {
+                    SoundFade.volume = Mathf.Max(0, SoundFade.volume - UsingTime / soundinf.Time);
+                }
+                CheckAndRecycleMuteAudioSurce(CrossFade, soundinf);
+                NewSoundFade.volume = Mathf.Min(soundinf.Volume, UsingTime / soundinf.Time * soundinf.Volume);
+                UsingTime += Time.deltaTime;
+                yield return null;
+            }
+        }
+        else { StartCoroutine(IE_FadeIn(NewSoundFade, soundinf)); }
+    }
+    private IEnumerator IE_CrossTrans_Random(SoundInf soundinf)
+    {
+        AudioSource NewSoundFade;
+        NewSoundFade=PlayRamSound(soundinf);
+        List<AudioSource> CrossFade = AudioSourceInSoundInf[soundinf];
+        CrossFade.Remove(NewSoundFade);
+        if (CrossFade.Count > 0)
+        {
+            while (CrossFade.Count > 0 || NewSoundFade.volume < soundinf.Volume)
+            {
+                float UsingTime = 0f;
+                foreach (AudioSource SoundFade in CrossFade)
+                {
+                    SoundFade.volume = Mathf.Max(0, SoundFade.volume - UsingTime / soundinf.Time);
+                }
+                CheckAndRecycleMuteAudioSurce(CrossFade, soundinf);
+                NewSoundFade.volume = Mathf.Min(soundinf.Volume, UsingTime / soundinf.Time * soundinf.Volume);
+                UsingTime += Time.deltaTime;
+                yield return null;
+            }
+        }
+        else{StartCoroutine(IE_FadeIn(NewSoundFade,soundinf));}
+    }
+    private void CheckAndRecycleMuteAudioSurce(List<AudioSource> Sources, SoundInf soundinf)
+    {
+        List<AudioSource> toRecycle = new List<AudioSource>();
+        foreach (AudioSource SoundFade in Sources)
+        {
+            if (SoundFade.volume <= 0)
+            {
+                StopCoroutine(OnFadeAudioSource[SoundFade]);
+                toRecycle.Add(SoundFade);
+            }
+        }
+        foreach (AudioSource SoundFade in toRecycle)
+        {
+            RecycleFromInfToQueue(SoundFade, soundinf);
+        }
+        
+    }
+    private AudioSource GetAudioSource(SoundInf soundinf)
+    {
+        AudioSource NewSoundFade;
+        if (VirtulAudioSources.Count > 0)
+        {
+            NewSoundFade = GetAndBindAudioSource_FromQueueToSoundinf(soundinf);
+        }
+        else
+        {
+            NewSoundFade = NewEmptyAudioSource_ToQueue();
+            NewSoundFade = GetAndBindAudioSource_FromQueueToSoundinf(soundinf);
+        }
+        return NewSoundFade;
+    }
+    private AudioSource GetAndBindAudioSource_FromQueueToSoundinf(SoundInf soundinf)
+    {
+        AudioSource NewSoundFade = VirtulAudioSources.Dequeue();
+        NewSoundFade.enabled = true;
+        AudioSourceInSoundInf[soundinf].Add(NewSoundFade);
+        NewSoundFade = BindAudioSource(soundinf, NewSoundFade);
+        return NewSoundFade;
+    }
+    private AudioSource NewEmptyAudioSource_ToQueue()
+    {
+        GameObject newgameobject = GameObject.Instantiate(DynamicSourceTemplate);
+        newgameobject.name = "DynamicSoundSource" + (VirtulAudioSources.Count + 1);
+        AudioSource audioSource = newgameobject.GetComponent<AudioSource>();
+        audioSource.clip = null; 
+        audioSource.playOnAwake = false; 
+        audioSource.volume = 0.0f;
+        audioSource.enabled =false;
+        VirtulAudioSources.Enqueue(audioSource);
+        return audioSource;
+    }
+    private AudioSource BindAudioSource(SoundInf soundinf, AudioSource NewSoundFade)
+    {
+        NewSoundFade.gameObject.transform.position = soundinf.Source.transform.position;
+        NewSoundFade.gameObject.transform.parent = soundinf.Source.transform.parent;
+        return NewSoundFade;
+    }
+    private AudioSource CleanAndBindAudioSource(SoundInf soundinf, AudioSource NewSoundFade)
+    {
+        NewSoundFade.transform.position = soundinf.Source.transform.position;
+        NewSoundFade.transform.parent = soundinf.Source.transform.parent;
+        NewSoundFade.volume = 0f;
+        NewSoundFade.clip = null;
+        NewSoundFade.Stop();
+        return NewSoundFade;
+    }
+    private void WaitForRecycle()
+    {
+
+    }
+    private IEnumerator IE_WaitRecycle(AudioSource WaitDeleteSource, float time,SoundInf soundinf)
+    {
+        yield return new WaitForSeconds(time);
+        RecycleFromInfToQueue(WaitDeleteSource, soundinf);
+    }
+    private IEnumerator IE_StopFade(AudioSource FadeOutSource, float FadeTime,SoundInf soundinf)
+    {
+        float UsingTime = 0f;
+        while (FadeOutSource.volume > 0)
+        {
+            FadeOutSource.volume = Mathf.Max(0, FadeOutSource.volume - UsingTime / FadeTime);
             UsingTime += Time.deltaTime;
             yield return null;
         }
-        OnPlayingSource.clip = OnComingSource.clip;
-        OnPlayingSource.time = OnComingSource.time;
-        OnPlayingSource.volume = OnComingSource.volume;
-        GameObject.Destroy(OnComingSource);
+        RecycleFromInfToQueue(FadeOutSource, soundinf);
     }
-    private IEnumerator IE_CrossTransSound(AudioSource OnPlayingSource, AudioClip Sound, float duration = 1.0f, float targetVolume = 1.0f)
+    private void RecycleFromInfToQueue(AudioSource RecycleSource, SoundInf soundinf)
     {
-        if (duration <= 0) { Debug.LogError("音量淡入淡出的过程用时不能是零或负数"); yield break; }
-        float UsingTime = 0f;
-        float StartVolume = OnPlayingSource.volume;
-        AudioSource OnComingSource = Instantiate(OnPlayingSource.gameObject).GetComponent<AudioSource>();
-        OnComingSource.transform.position = OnPlayingSource.transform.position;
-        OnComingSource.transform.parent = OnPlayingSource.transform;
-        MuteAndChangeClip(OnComingSource, Sound);
-        while (OnPlayingSource.volume > 0 || OnComingSource.volume < targetVolume)
-        {
-            OnPlayingSource.volume = Mathf.Max(0, StartVolume - UsingTime / duration * StartVolume);
-            OnComingSource.volume = Mathf.Min(targetVolume, UsingTime / duration * targetVolume);
-            UsingTime += Time.deltaTime;
-            yield return null;
-        }
-        OnPlayingSource.clip = OnComingSource.clip;
-        OnPlayingSource.time = OnComingSource.time;
-        OnPlayingSource.pitch = OnComingSource.pitch;
-        OnPlayingSource.volume = OnComingSource.volume;
-        OnPlayingSource.Play();
-        GameObject.Destroy(OnComingSource.gameObject);
+        OnFadeAudioSource.Remove(RecycleSource);
+        AudioSourceInSoundInf[soundinf].Remove(RecycleSource);
+        RecycleSource.gameObject.name = ("DynamicSoundSource" + (VirtulAudioSources.Count + 1));
+        VirtulAudioSources.Enqueue(RecycleSource);
+        RecycleSource.volume = 0f;
+        RecycleSource.clip = null;
+        RecycleSource.transform.parent = MyChildren;
+        RecycleSource.transform.localPosition = Vector3.zero;
+        RecycleSource.transform.rotation = Quaternion.identity;
+        RecycleSource.enabled = false;
     }
-    private IEnumerator IE_FadeInVolume(AudioSource OnComingSource, float duration = 1.0f, float targetVolume = 1.0f)
+    private IEnumerator IE_FadeIn(AudioSource SoundFade,SoundInf soundinf)
     {
         float UsingTime = 0f;
-        while (OnComingSource.volume < targetVolume)
+        while (SoundFade.volume < soundinf.Volume)
         {
-            OnComingSource.volume = Mathf.Min(targetVolume, UsingTime / duration * targetVolume);
+            SoundFade.volume = Mathf.Min(soundinf.Volume, UsingTime / soundinf.Time * soundinf.Volume);
             UsingTime += Time.deltaTime;
             yield return null;
         }
     }
-    private IEnumerator IE_FadeOutVolume(AudioSource OnMeltSource, float duration = 1.0f)
+    private IEnumerator IE_FadeOut(SoundInf soundinf)
     {
+
         float UsingTime = 0f;
-        while (OnMeltSource.volume > 0)
+        while (AudioSourceInSoundInf[soundinf].Count > 0)
         {
-            OnMeltSource.volume = Mathf.Max(0, OnMeltSource.volume - UsingTime / duration);
-            UsingTime += Time.deltaTime;
+            foreach (AudioSource SoundFade in AudioSourceInSoundInf[soundinf])
+            {
+                SoundFade.volume = Mathf.Max(0, SoundFade.volume - UsingTime / soundinf.Time);
+            }
+            CheckAndRecycleMuteAudioSurce(AudioSourceInSoundInf[soundinf],soundinf);
             yield return null;
         }
     }
     #endregion
-    public void CrossTransSound(AudioSource OnPlayingSource, string Path, float duration = 1.0f, float targetVolume = 1.0f)
+    public void CrossTrans_Only1(SoundInf Inf)
     {
-        StartCoroutine(IE_CrossTransSound(OnPlayingSource, Path, duration, targetVolume));
+        StartCoroutine(IE_CrossTrans_Only1(Inf));
     }
-    public void CrossTransSound(AudioSource OnPlayingSource, AudioClip Sound, float duration = 1.0f, float targetVolume = 1.0f)
+    public void CrossTrans_1plusN(SoundInf Inf)
     {
-        StartCoroutine(IE_CrossTransSound(OnPlayingSource, Sound, duration, targetVolume));
+        StartCoroutine(IE_CrossTransSound_M(Inf));
     }
-    public void FadeInVolume(AudioSource OnPlayingSource, float fadeInDuration= 1.0f, float targetVolume = 1.0f)
+    public void CrossTrans_RandomN(SoundInf Inf)
     {
-        StartCoroutine(IE_FadeInVolume(OnPlayingSource, fadeInDuration, targetVolume));
+        StartCoroutine(IE_CrossTrans_Random(Inf));
     }
-    public void FadeOutVolume(AudioSource OnMeltSource, float fadeOutDuration = 1.0f, float targetVolume = 1.0f)
+    public void FadeInVolume(AudioSource source,SoundInf Inf)
     {
-        StartCoroutine(IE_FadeOutVolume(OnMeltSource, fadeOutDuration));
+        StartCoroutine(IE_FadeIn(source,Inf));
+    }
+    public void FadeOutVolume(SoundInf Inf)
+    {
+        StartCoroutine(IE_FadeOut(Inf));
     }
     #endregion
 }

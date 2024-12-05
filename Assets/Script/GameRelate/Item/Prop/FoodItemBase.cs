@@ -77,25 +77,6 @@ public class FoodSounds : AttrBoard
 [Serializable]
 public class FoodAttr : AttrBoard
 {
-    #region 音效相关
-    [Header("普通音效")]
-    public string[] MeatGrabSound = new string[]
-        {
-            MusicAndSound_Path.instance.MeetGrab1,
-            MusicAndSound_Path.instance.MeetGrab2,
-            MusicAndSound_Path.instance.MeetGrab3,
-            MusicAndSound_Path.instance.MeetGrab4,
-            MusicAndSound_Path.instance.MeetGrab5,
-            MusicAndSound_Path.instance.MeetGrab6,
-            MusicAndSound_Path.instance.MeetGrab7
-        };
-    public string[] MeatDropSound = new string[]
-        {
-        MusicAndSound_Path.instance.MeetDrop1,
-        MusicAndSound_Path.instance.MeetDrop2,
-        };
-    #endregion
-
     [HideInInspector]
     public FoodPartInf_Def LastFoodPartState;
     public Dictionary<Collider, FoodPartInf_Def> Food_PartState;
@@ -125,18 +106,18 @@ public class FoodDefaultState : DefaultItemState
 
     public override void OnGrab()
     {
-        AudioManager.instance.PlayRamSound(_DefAttr.Sound.AudioSource, _FoodAttr.MeatGrabSound, _DefAttr.Sound.Volume, 2);
+        AudioManager.instance.Play(_DefAttr.Sound.Sounds[DefaultItemSound.Grabing]);
     }
     public override void OnRelease()
     {
-        AudioManager.instance.PlayRamSound(_DefAttr.Sound.AudioSource, _FoodAttr.MeatDropSound, _DefAttr.Sound.Volume, 2);
+        AudioManager.instance.Play(_DefAttr.Sound.Sounds[DefaultItemSound.Throwing]);
     }
     public override void OnRidigibodyEnter(Collision collision)
     {
         //音效
         if (_DefAttr.Sound.V_Playable)
         {
-            AudioManager.instance.PlayRamSound(_DefAttr.Sound.AudioSource, _FoodAttr.MeatGrabSound, _DefAttr.Sound.Volume, 2);
+            AudioManager.instance.Play(_DefAttr.Sound.Sounds[DefaultItemSound.Knock]);
             _DefAttr.Sound.V_Playable = false;
             _DefAttr.Sound.V_LastSoundPlay = 0;
         }
@@ -150,7 +131,6 @@ public class FoodDefaultState : DefaultItemState
             if(_FoodAttr.Phy.FloatingTime > _FoodAttr.Phy.LeavingMoment)
             {   
                 _DefAttr.Phy._rigidbody.angularVelocity = _FoodAttr.Meat_Rotate.eulerAngles * _FoodAttr.Phy.Meat_RotateStren / _FoodAttr.Cook.Food_Part.Length;
-                AudioManager.instance.FadeOutVolume(_DefAttr.Sound.AudioSource, 0.5f);
                 _FoodAttr.Cook.IsLeavingPot = true;
                 _FoodAttr.Cook._CookingMoment = CookingMoment.UnCook;
                 return;
@@ -205,7 +185,6 @@ public class FoodCookingState : DefaultItemState
                         }
                         else
                         {
-                            AudioManager.instance.FadeOutVolume(_DefAttr.Sound.AudioSource, 1f);
                         }
                         break;
                     case CookingMoment.Normal:
@@ -213,11 +192,7 @@ public class FoodCookingState : DefaultItemState
                         {
 
                             //if(_DefAttr._audiosource.clip. != )
-                            AudioManager.instance.MuteAndChangeClip(_DefAttr.Sound.AudioSource, MusicAndSound_Path.instance.MeatCook1);
-                            AudioManager.instance.FadeInVolume(_DefAttr.Sound.AudioSource, 2f);
                             _CurrFoodPartState.CurrPartCookMoment = CookingMoment.Normal;
-
-                            AudioManager.instance.CrossTransSound(_DefAttr.Sound.AudioSource, MusicAndSound_Path.instance.MeatCook_S,1f);
                             _CurrFoodPartState.CurrPartCookMoment = CookingMoment.Super;
                         }
                         break;
@@ -250,7 +225,6 @@ public class FoodCookingState : DefaultItemState
         _MyFsm.SwitchState(ItemState_Type.Default);
     }
 }
-
 
 public class FoodItemBase : InteractedItemOrigin
 {

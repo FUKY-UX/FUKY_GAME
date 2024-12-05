@@ -4,15 +4,6 @@ using System;
 [Serializable]
 public class WoodPlateAttrBoard : AttrBoard
 {
-    #region 音效相关
-    [Header("木碟音效")]
-    public string[] WoodPlateSound = new string[]
-        {
-            MusicAndSound_Path.instance.WoodPlateDrop,
-            MusicAndSound_Path.instance.WoodPlateGrab
-        };
-    #endregion
-
 };
 
 public class WoodPlateDefState : DefaultItemState
@@ -28,17 +19,17 @@ public class WoodPlateDefState : DefaultItemState
     }
     public override void OnGrab()
     {
-        AudioManager.instance.PlayRamSound(_DefAttrBoard.Sound.AudioSource, _WoodPlateAttrBoard.WoodPlateSound, _DefAttrBoard.Sound.Volume, 2);
+        AudioManager.instance.Play(_DefAttrBoard.Sound.Sounds[DefaultItemSound.Grabing]);
     }
     public override void OnRelease()
     {
-        AudioManager.instance.PlayRamSound(_DefAttrBoard.Sound.AudioSource, _WoodPlateAttrBoard.WoodPlateSound, _DefAttrBoard.Sound.Volume, 2);
+        AudioManager.instance.Play(_DefAttrBoard.Sound.Sounds[DefaultItemSound.Throwing]);
     }
     public override void OnRidigibodyEnter(Collision collision)
     {
         if (_DefAttrBoard.Sound.V_Playable)
         {
-            AudioManager.instance.PlayRamSound(_DefAttrBoard.Sound.AudioSource, _WoodPlateAttrBoard.WoodPlateSound, _DefAttrBoard.Sound.Volume, 2);
+            AudioManager.instance.Play(_DefAttrBoard.Sound.Sounds[DefaultItemSound.Knock]);
             _DefAttrBoard.Sound.V_Playable = false;
             _DefAttrBoard.Sound.V_LastSoundPlay = 0;
         }

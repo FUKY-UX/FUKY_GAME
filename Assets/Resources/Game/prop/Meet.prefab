@@ -73,62 +73,57 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79f0ed1a9bbdc8c4c86e6b6a6f0140bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _DefaultAttrBoard:
-    _rigidbody: {fileID: 2028742100204673329}
-    _collider: {fileID: 0}
-    GrabTimeFactor: 1
-    RubFactor: {x: 0, y: 0, z: 0}
-    RubStrength: 1
-    _audiosource: {fileID: 2628529633271886283}
-    V_CoolDown: 1
-    V_Voulme: 1
-    V_Playable: 1
-    V_CoolDownOffset: 1
-    V_LastSoundPlay: 0
-  _MeatAttr:
-    MeatGrabSound:
-    - Game/Audio/MeetGrab1
-    - Game/Audio/MeetGrab2
-    - Game/Audio/MeetGrab3
-    - Game/Audio/MeetGrab4
-    - Game/Audio/MeetGrab5
-    - Game/Audio/MeetGrab6
-    - Game/Audio/MeetGrab7
-    MeatDropSound:
-    - Game/Audio/MeetDrop1
-    - Game/Audio/MeetDrop2
-    _CookMePot: {fileID: 0}
-    _CookingMoment: 0
-    _CookedPart: {fileID: 0}
-    IsLeavingPot: 0
-    Food_TotalCook: 0
-    Food_Part:
-    - {fileID: 3266438355921805180}
-    - {fileID: 1146778783568607017}
-    CurrCookingPart:
-      CurrPartCookMoment: 0
-      CookValue: 0
-      SuperMoment: 0
-      BadCookValue: 0
-    SuperMomentSpeed: 0.1
-    SuperMomentTime: 0.1
-    SuperMoment: 0
-    SuperMoment_V2: {x: 0, y: 0}
-    SuperMomentRange: {x: 0.4, y: 0.8}
+  Default:
+    Phy:
+      _rigidbody: {fileID: 2028742100204673329}
+      _collider: {fileID: 0}
+      GrabTimeFactor: 1
+      RubFactor: {x: 0, y: 0, z: 0}
+      RubStrength: 1
+    Sound:
+      Sounds:
+        list: []
+      AudioSource: {fileID: 4845238648382698350}
+      Volume: 1
+      NoiseCd: 1
+      NoiseCdOffset: 1
+      V_LastSoundPlay: 0
+      V_Playable: 1
+  CookAttr:
     LastFoodPartState:
       CurrPartCookMoment: 0
       CookValue: 0
       SuperMoment: 0
       BadCookValue: 0
-    First_audiosource: {fileID: 0}
-    Sec_audiosource: {fileID: 0}
-    Meat_Mat: {fileID: 2100000, guid: f257b650600ded443943c7d5067afe00, type: 2}
-    Meat_Stickiness: 0.05
-    Meat_JumpStren: 0.1
-    Meat_RotateStren: 0.05
-    FloatingTime: 0
-    Food_TCR: 0.1
-    LeavingMoment: 0.35
+    Cook:
+      _CookMePot: {fileID: 0}
+      _CookingMoment: 0
+      _CookedPart: {fileID: 0}
+      IsLeavingPot: 0
+      Food_TotalCook: 0
+      Food_Part:
+      - {fileID: 3266438355921805180}
+      - {fileID: 1146778783568607017}
+      CurrCookingPart:
+        CurrPartCookMoment: 0
+        CookValue: 0
+        SuperMoment: 0
+        BadCookValue: 0
+      SuperMomentSpeed: 0.1
+      SuperMomentTime: 0.1
+      SuperMoment: 0
+      SuperMoment_V2: {x: 0, y: 0}
+      SuperMomentRange: {x: 0.2, y: 0.8}
+    Phy:
+      Meat_Stickiness: 0.04
+      Meat_JumpStren: 0.02
+      Meat_RotateStren: 0.1
+      Food_TCR: 0.1
+      LeavingMoment: 0.35
+      FloatingTime: 0
+    Sound:
+      Sounds:
+        list: []
     Meat_Rotate: {x: 0, y: 0, z: 0, w: 1}
 --- !u!1 &2503403715016678888
 GameObject:

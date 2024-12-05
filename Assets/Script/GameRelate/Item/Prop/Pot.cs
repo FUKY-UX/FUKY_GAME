@@ -19,28 +19,6 @@ public class PotAttrBoard : AttrBoard
     [Tooltip("调小这个值火焰会隐藏得更快")]
     [Range(0,1)]
     public float PotVsFire=0.5f;
-    [Header("铁锅音效")]
-    public string[] PotKnockSound = new string[]
-        {
-            MusicAndSound_Path.instance.PotKnock1,
-            MusicAndSound_Path.instance.PotKnock2,
-            MusicAndSound_Path.instance.PotKnock3,
-            MusicAndSound_Path.instance.PotKnock4,
-            MusicAndSound_Path.instance.PotKnock5,
-            MusicAndSound_Path.instance.PotKnock6
-        };
-    public string[] PotGrabSound = new string[]
-        {
-            MusicAndSound_Path.instance.PotGrab1,
-            MusicAndSound_Path.instance.PotGrab2,
-            MusicAndSound_Path.instance.PotGrab3
-        };
-    public string[] PotDropSound = new string[]
-        {
-            MusicAndSound_Path.instance.PotDrop1,
-            MusicAndSound_Path.instance.PotDrop2,
-            MusicAndSound_Path.instance.PotDrop3
-        };
     [Header("调试参数")]
     public bool ShowGizmo;
     [HideInInspector]
@@ -67,20 +45,20 @@ public class PotDefaultState : DefaultItemState
     {
         _DefAttrBoard.Phy._collider.isTrigger=true;
         _PotAttrBoard.CookCollider.enabled = true;
-        AudioManager.instance.PlayRamSound(_DefAttrBoard.Sound.AudioSource, _PotAttrBoard.PotGrabSound, _DefAttrBoard.Sound.Volume, 2);
+        AudioManager.instance.Play(_DefAttrBoard.Sound.Sounds[DefaultItemSound.Grabing]);
     }
     public override void OnRelease()
     {
         _DefAttrBoard.Phy._collider.isTrigger = false;
         _PotAttrBoard.CookCollider.enabled = false;
-        AudioManager.instance.PlayRamSound(_DefAttrBoard.Sound.AudioSource, _PotAttrBoard.PotDropSound, _DefAttrBoard.Sound.Volume, 2);
+        AudioManager.instance.Play(_DefAttrBoard.Sound.Sounds[DefaultItemSound.Throwing]);
     }
     public override void OnRidigibodyEnter(Collision collision)
     {
         //音效
         if (_DefAttrBoard.Sound.V_Playable)
         {
-            AudioManager.instance.PlayRamSound(_DefAttrBoard.Sound.AudioSource, _PotAttrBoard.PotKnockSound, _DefAttrBoard.Sound.Volume / 2, 3);
+            AudioManager.instance.Play(_DefAttrBoard.Sound.Sounds[DefaultItemSound.Knock]);
             _DefAttrBoard.Sound.V_Playable = false;
             _DefAttrBoard.Sound.V_LastSoundPlay = 0;
         }
@@ -132,20 +110,20 @@ public class PotHeatingState : DefaultItemState
     {
         _DefAttrBoard.Phy._collider.isTrigger = true;
         _PotAttrBoard.CookCollider.enabled = true;
-        AudioManager.instance.PlayRamSound(_DefAttrBoard.Sound.AudioSource, _PotAttrBoard.PotGrabSound, _DefAttrBoard.Sound.Volume, 2);
+        AudioManager.instance.Play(_DefAttrBoard.Sound.Sounds[DefaultItemSound.Grabing]);
     }
     public override void OnRelease()
     {
         _DefAttrBoard.Phy._collider.isTrigger = false;
         _PotAttrBoard.CookCollider.enabled = false;
-        AudioManager.instance.PlayRamSound(_DefAttrBoard.Sound.AudioSource, _PotAttrBoard.PotDropSound, _DefAttrBoard.Sound.Volume, 2);
+        AudioManager.instance.Play(_DefAttrBoard.Sound.Sounds[DefaultItemSound.Throwing]);
     }
     public override void OnRidigibodyEnter(Collision collision)
     {
         //音效
         if (_DefAttrBoard.Sound.V_Playable)
         {
-            AudioManager.instance.PlayRamSound(_DefAttrBoard.Sound.AudioSource, _PotAttrBoard.PotKnockSound, _DefAttrBoard.Sound.Volume /2, 3);
+            AudioManager.instance.Play(_DefAttrBoard.Sound.Sounds[DefaultItemSound.Knock]);
             _DefAttrBoard.Sound.V_Playable = false;
             _DefAttrBoard.Sound.V_LastSoundPlay = 0;
         }
@@ -185,7 +163,6 @@ public class Pot : InteractedItemOrigin
         _MyFsm.AddState(ItemState_Type.Default,new PotDefaultState(_MyFsm, Default, _potAttrBoard));
         _MyFsm.AddState(ItemState_Type.State1, new PotHeatingState(_MyFsm, Default, _potAttrBoard));
         _MyFsm.SwitchState(ItemState_Type.Default);
-
     }
     public void OnDrawGizmos()
     {
