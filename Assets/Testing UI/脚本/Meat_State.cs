@@ -35,6 +35,7 @@ public class Meat_State : MonoBehaviour
             {
                 hasFinished = false; // 重置为未完成
                 StopMeatAudio();
+                cookingGoodController.HidePanelExternally();// 重置成熟度时隐藏UI，可以在这里调用：
             }
         }
     }
@@ -44,6 +45,9 @@ public class Meat_State : MonoBehaviour
 
     // 音频剪辑（可在编辑器中赋值）
     public AudioClip meatAudioClip;
+
+    // 新增：对Cooking_Good脚本的引用，以便在成熟度完成时显示UI
+    public Cooking_Good cookingGoodController;
 
     private void Awake()
     {
@@ -71,6 +75,15 @@ public class Meat_State : MonoBehaviour
     {
         Debug.Log("你是，Cook Master");
         PlayMeatAudio();
+        // 当成熟度达到100时，弹出UI面板
+        if (cookingGoodController != null)
+        {
+            cookingGoodController.ShowPanelExternally();
+        }
+        else
+        {
+            Debug.LogWarning("cookingGoodController 未被分配，请在Inspector中为Meat_State指定Cooking_Good引用。");
+        }
     }
 
     // 播放成熟度满的音频
