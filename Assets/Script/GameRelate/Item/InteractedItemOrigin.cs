@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Unity.Mathematics;
 
 
 public enum DefaultItemSound
@@ -83,6 +84,10 @@ public class InteractedItemOrigin : MonoBehaviour
     public ItemFSM _MyFsm;
     [Header("物体的基础属性")]
     public DefaultItemAttrBoard Default;
+    public bool CurrCanPickAble = true;
+    public float PickUpCoolDown = 2f;
+    private float LastDropTime_Delay = 0;
+    private quaternion CustomRotateOffset = quaternion.identity;
     private void Awake()
     {
         if (AudioManager.instance.AudioSourceInSoundInf == null)
@@ -132,7 +137,6 @@ public class InteractedItemOrigin : MonoBehaviour
         }
     }
 
-
     public void Update()
     {
         _MyFsm.OnUpdate();
@@ -146,35 +150,53 @@ public class InteractedItemOrigin : MonoBehaviour
             Default.Sound.V_LastSoundPlay += Time.deltaTime;
             return;
         }
+        if (!CurrCanPickAble)
+        {
+            if(Time.time - LastDropTime_Delay > PickUpCoolDown)
+            {
+                CurrCanPickAble =true;
+            }
+        }
     }
     public void FixedUpdate()
     {
+        if (!CurrCanPickAble) { return;}
         _MyFsm.OnFixUpdate();
     }
     public void OnCollisionEnter(Collision collision)
     {
+        if (!CurrCanPickAble) { return; }
         _MyFsm.OnRidigibodyEnter(collision);
     }
     private void OnCollisionStay(Collision collision)
     {
+        if (!CurrCanPickAble) { return; }
         _MyFsm.OnRidigibodyStay(collision);
     }
     public void OnCollisionExit(Collision collision)
     {
+        if (!CurrCanPickAble) { return; }
         _MyFsm.OnRidigibodyExit(collision);
     }
     private void OnTriggerEnter(Collider other)
     {
+        if (!CurrCanPickAble) { return; }
         _MyFsm.OnTriggerEnter(other);
     }
     private void OnTriggerExit(Collider other)
     {
+        if (!CurrCanPickAble) { return; }
         _MyFsm.OnTriggerExit(other);
     }
     private void OnTriggerStay(Collider other)
     {
+        if (!CurrCanPickAble) { return; }
         _MyFsm.OnTriggerStay(other);
     }
 
-
+    public void DropItem_DelayPick()
+    {
+        LastDropTime_Delay = Time.time;
+        CurrCanPickAble =false;
+    }
 }

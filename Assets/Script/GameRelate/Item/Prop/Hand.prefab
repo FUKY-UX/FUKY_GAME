@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2318385779235034208}
   - component: {fileID: 8594651276501135552}
   - component: {fileID: 8368059142292793220}
-  m_Layer: 3
+  m_Layer: 6
   m_Name: Hand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -65,7 +65,7 @@ Rigidbody:
   m_GameObject: {fileID: 3327551552181045051}
   serializedVersion: 4
   m_Mass: 0.2
-  m_Drag: 17.5
+  m_Drag: 35
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -75,7 +75,7 @@ Rigidbody:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 72
+    m_Bits: 73
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 1837862578907765940}
   - component: {fileID: 3662490886522106781}
   - component: {fileID: 7953516426441904648}
-  m_Layer: 3
+  m_Layer: 6
   m_Name: "\u624B\u90E8"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -109,13 +109,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9115212010325619000}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.7239916, y: -0.22589414, z: 0.43856892, w: 0.4821467}
+  m_LocalRotation: {x: 0.15568034, y: -0.10811153, z: -0.6921065, w: -0.6964655}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 35.00001, y: 35, z: 35}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2318385779235034208}
-  m_LocalEulerAnglesHint: {x: -30, y: -100, z: 120}
+  m_LocalEulerAnglesHint: {x: -21.5, y: 356, z: 90.4}
 --- !u!33 &3662490886522106781
 MeshFilter:
   m_ObjectHideFlags: 0

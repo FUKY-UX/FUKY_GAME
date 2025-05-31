@@ -5,7 +5,8 @@ using System;
     public enum HandState_Type
     {
         Default,
-        Grab
+        Grab,
+        Idle
     }
 
     public interface HandState

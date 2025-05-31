@@ -82,7 +82,7 @@ public class TempRoleControl : MonoBehaviour
     private void updateMovingDeirection()
     {
         MoveDierction = new Vector3((Input.GetKey(KeyCode.A) ? 1f : 0f) - (Input.GetKey(KeyCode.D) ? 1f : 0f), 0f, (Input.GetKey(KeyCode.S) ? 1f : 0f) - (Input.GetKey(KeyCode.W) ? 1f : 0f));
-        Trans_MoveDierction = -(this.transform.rotation * MoveDierction);
+        Trans_MoveDierction = this.transform.rotation * MoveDierction;
     }
 
     private void updateRotateOffset()

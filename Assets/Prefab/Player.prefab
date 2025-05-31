@@ -58,14 +58,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1706213058093514139}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.9816567, z: -0.19065733, w: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1.36, z: 0.02}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8989314699374606756}
   m_Father: {fileID: 1215406429842182949}
-  m_LocalEulerAnglesHint: {x: 21.982, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &7862235500787161749
 Camera:
   m_ObjectHideFlags: 0
@@ -224,9 +224,9 @@ MonoBehaviour:
   MoveDierction: {x: 0, y: 0, z: 0}
   Trans_MoveDierction: {x: 0, y: 0, z: 0}
   Rotation_Input: {x: 0, y: 0, z: 0}
-  MoveSpeed: 6
+  MoveSpeed: 30
   rotatespeed: 1
-  JumpForce: 120
+  JumpForce: 360
   squatSpeed: 0.2
   LockMouse: 0
 --- !u!54 &3395081941515509492
@@ -237,9 +237,9 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5264989581885598558}
   serializedVersion: 4
-  m_Mass: 0.5
+  m_Mass: 2
   m_Drag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 0
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -248,7 +248,7 @@ Rigidbody:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1

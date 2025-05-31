@@ -89,6 +89,8 @@ MonoBehaviour:
       NoiseCdOffset: 1
       V_LastSoundPlay: 0
       V_Playable: 1
+  CurrCanPickAble: 1
+  PickUpCoolDown: 2
   CookAttr:
     LastFoodPartState:
       CurrPartCookMoment: 0
@@ -123,7 +125,57 @@ MonoBehaviour:
       FloatingTime: 0
     Sound:
       Sounds:
-        list: []
+        list:
+        - Key: 0
+          Value:
+            Source: {fileID: 0}
+            Volume: 0
+            SwitchStyle: 0
+            Type: 0
+            Sounds: []
+            Time: 0
+            MixCount: 0
+            Loop: 0
+        - Key: 1
+          Value:
+            Source: {fileID: 0}
+            Volume: 0
+            SwitchStyle: 0
+            Type: 0
+            Sounds: []
+            Time: 0
+            MixCount: 0
+            Loop: 0
+        - Key: 2
+          Value:
+            Source: {fileID: 0}
+            Volume: 0
+            SwitchStyle: 0
+            Type: 0
+            Sounds: []
+            Time: 0
+            MixCount: 0
+            Loop: 0
+        - Key: 3
+          Value:
+            Source: {fileID: 0}
+            Volume: 0
+            SwitchStyle: 0
+            Type: 0
+            Sounds: []
+            Time: 0
+            MixCount: 0
+            Loop: 0
+        - Key: 0
+          Value:
+            Source: {fileID: 0}
+            Volume: 0
+            SwitchStyle: 0
+            Type: 0
+            Sounds: []
+            Time: 0
+            MixCount: 0
+            Loop: 0
     Meat_Rotate: {x: 0, y: 0, z: 0, w: 1}
 --- !u!1 &2503403715016678888
 GameObject:
@@ -393,52 +445,52 @@ PrefabInstance:
     - target: {fileID: 6241204521739093887, guid: 367522c9ebf069345a1d4451041641a8,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -0.0011560221
       objectReference: {fileID: 0}
     - target: {fileID: 6241204521739093887, guid: 367522c9ebf069345a1d4451041641a8,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.0011422106
       objectReference: {fileID: 0}
     - target: {fileID: 6241204521739093887, guid: 367522c9ebf069345a1d4451041641a8,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.00016303478
       objectReference: {fileID: 0}
     - target: {fileID: 6241204521739093887, guid: 367522c9ebf069345a1d4451041641a8,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.6008409
       objectReference: {fileID: 0}
     - target: {fileID: 6241204521739093887, guid: 367522c9ebf069345a1d4451041641a8,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0.17164814
       objectReference: {fileID: 0}
     - target: {fileID: 6241204521739093887, guid: 367522c9ebf069345a1d4451041641a8,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: 0.69926155
       objectReference: {fileID: 0}
     - target: {fileID: 6241204521739093887, guid: 367522c9ebf069345a1d4451041641a8,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0.34721816
       objectReference: {fileID: 0}
     - target: {fileID: 6241204521739093887, guid: 367522c9ebf069345a1d4451041641a8,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: 16.22
       objectReference: {fileID: 0}
     - target: {fileID: 6241204521739093887, guid: 367522c9ebf069345a1d4451041641a8,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 92.2
       objectReference: {fileID: 0}
     - target: {fileID: 6241204521739093887, guid: 367522c9ebf069345a1d4451041641a8,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
+      value: -43.2
       objectReference: {fileID: 0}
     - target: {fileID: 6241204521739093887, guid: 367522c9ebf069345a1d4451041641a8,
         type: 3}
