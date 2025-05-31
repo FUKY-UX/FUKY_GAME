@@ -86,8 +86,8 @@ public class InteractedItemOrigin : MonoBehaviour
     public DefaultItemAttrBoard Default;
     public bool CurrCanPickAble = true;
     public float PickUpCoolDown = 2f;
+    public quaternion CustomRotateOffset = quaternion.identity;
     private float LastDropTime_Delay = 0;
-    private quaternion CustomRotateOffset = quaternion.identity;
     private void Awake()
     {
         if (AudioManager.instance.AudioSourceInSoundInf == null)
