@@ -49,7 +49,7 @@ public class ButtonEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     // Called when mouse enters the button
     public void OnPointerEnter(PointerEventData eventData)
     {
-        Debug.Log("Hover Entered"); // 检查是否输出
+        //Debug.Log("Hover Entered"); // 检查是否输出
         isHovering = true;
         PlayHoverSound();
         StartCoroutine(ScaleButton(hoverScale));
@@ -72,7 +72,7 @@ public class ButtonEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     private void PlayClickSound()
     {
-        Debug.Log("Button Clicked"); // 检查是否输出
+        
         if (clickSound != null && audioSource != null)
         {
             audioSource.PlayOneShot(clickSound);

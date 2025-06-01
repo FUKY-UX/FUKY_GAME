@@ -173,6 +173,6 @@ public class SceneLoader : MonoBehaviour
 
     public void DontTouchMe()
     {
-        DialogController.Instance.StartDialog(ShitTalkingInMenue[0]);
+        DialogController.Instance.StartDialog(ShitTalkingInMenue[Random.Range(0,ShitTalkingInMenue.Length)]);
     }
 }

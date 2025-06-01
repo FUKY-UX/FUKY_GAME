@@ -156,7 +156,7 @@ public class FUKYMouse : SingletonMono<FUKYMouse>
         }
         catch (Exception e)
         {
-            Debug.LogError($"共享内存初始化失败: {e.Message}");
+            Debug.LogError($"没有连接鼠标: {e.Message}");
         }
         PosFilter = new OneEuroFilter<Vector3>(50);
     }
