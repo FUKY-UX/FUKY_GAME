@@ -106,18 +106,15 @@ public class FoodDefaultState : DefaultItemState
 
     public override void OnGrab()
     {
-        AudioManager.instance.Play(_DefAttr.Sound.Sounds[DefaultItemSound.Grabing]);
     }
     public override void OnRelease()
     {
-        AudioManager.instance.Play(_DefAttr.Sound.Sounds[DefaultItemSound.Throwing]);
     }
     public override void OnRidigibodyEnter(Collision collision)
     {
         //“Ù–ß
         if (_DefAttr.Sound.V_Playable)
         {
-            AudioManager.instance.Play(_DefAttr.Sound.Sounds[DefaultItemSound.Knock]);
             _DefAttr.Sound.V_Playable = false;
             _DefAttr.Sound.V_LastSoundPlay = 0;
         }

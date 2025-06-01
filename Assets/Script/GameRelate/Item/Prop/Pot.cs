@@ -45,20 +45,17 @@ public class PotDefaultState : DefaultItemState
     {
         _DefAttrBoard.Phy._collider.isTrigger=true;
         _PotAttrBoard.CookCollider.enabled = true;
-        AudioManager.instance.Play(_DefAttrBoard.Sound.Sounds[DefaultItemSound.Grabing]);
     }
     public override void OnRelease()
     {
         _DefAttrBoard.Phy._collider.isTrigger = false;
         _PotAttrBoard.CookCollider.enabled = false;
-        AudioManager.instance.Play(_DefAttrBoard.Sound.Sounds[DefaultItemSound.Throwing]);
     }
     public override void OnRidigibodyEnter(Collision collision)
     {
         //“Ù–ß
         if (_DefAttrBoard.Sound.V_Playable)
         {
-            AudioManager.instance.Play(_DefAttrBoard.Sound.Sounds[DefaultItemSound.Knock]);
             _DefAttrBoard.Sound.V_Playable = false;
             _DefAttrBoard.Sound.V_LastSoundPlay = 0;
         }
@@ -110,20 +107,17 @@ public class PotHeatingState : DefaultItemState
     {
         _DefAttrBoard.Phy._collider.isTrigger = true;
         _PotAttrBoard.CookCollider.enabled = true;
-        AudioManager.instance.Play(_DefAttrBoard.Sound.Sounds[DefaultItemSound.Grabing]);
     }
     public override void OnRelease()
     {
         _DefAttrBoard.Phy._collider.isTrigger = false;
         _PotAttrBoard.CookCollider.enabled = false;
-        AudioManager.instance.Play(_DefAttrBoard.Sound.Sounds[DefaultItemSound.Throwing]);
     }
     public override void OnRidigibodyEnter(Collision collision)
     {
         //“Ù–ß
         if (_DefAttrBoard.Sound.V_Playable)
         {
-            AudioManager.instance.Play(_DefAttrBoard.Sound.Sounds[DefaultItemSound.Knock]);
             _DefAttrBoard.Sound.V_Playable = false;
             _DefAttrBoard.Sound.V_LastSoundPlay = 0;
         }

@@ -19,17 +19,14 @@ public class WoodPlateDefState : DefaultItemState
     }
     public override void OnGrab()
     {
-        AudioManager.instance.Play(_DefAttrBoard.Sound.Sounds[DefaultItemSound.Grabing]);
     }
     public override void OnRelease()
     {
-        AudioManager.instance.Play(_DefAttrBoard.Sound.Sounds[DefaultItemSound.Throwing]);
     }
     public override void OnRidigibodyEnter(Collision collision)
     {
         if (_DefAttrBoard.Sound.V_Playable)
         {
-            AudioManager.instance.Play(_DefAttrBoard.Sound.Sounds[DefaultItemSound.Knock]);
             _DefAttrBoard.Sound.V_Playable = false;
             _DefAttrBoard.Sound.V_LastSoundPlay = 0;
         }
