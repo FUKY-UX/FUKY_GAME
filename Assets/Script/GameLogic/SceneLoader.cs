@@ -139,12 +139,9 @@ public class SceneLoader : MonoBehaviour
             {
                 progressBar.value = 1;
                 progressText.text = "100%";
-
+                InLoading = false;
                 // 添加短暂延迟让玩家看到100%
-                yield return new WaitForSeconds(0.5f);
-
-                // 激活场景
-                loadingOperation.allowSceneActivation = true;
+                yield return new WaitForSeconds(2f);
                 foreach (var item in MenueElement)
                 {
                     item.SetActive(false);
@@ -155,17 +152,14 @@ public class SceneLoader : MonoBehaviour
                     loadingScreen.color -= new Color(0, 0, 0, ToBlackSpeed * Time.deltaTime);
                     yield return null;
                 }
-                loadingScreen.gameObject.SetActive(false);
-                //依次加载
                 foreach (var item in LevelOne)
                 {
                     item.SetActive(true);
-                    yield return null;
                 }
-                InLoading = false;
+                loadingScreen.gameObject.SetActive(false);
+                // 激活场景
+                loadingOperation.allowSceneActivation = true;
             }
-
-            yield return null;
         }
 
 

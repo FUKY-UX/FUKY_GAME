@@ -19,6 +19,7 @@ public class DialogController : SingletonMono<DialogController>
     public GameObject dialogPanel;
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI dialogText;
+    public Image characterAvatar;
     public Image dialogBackground;
     public GameObject nextPrompt;
     public GameObject choicePanel;
@@ -29,6 +30,9 @@ public class DialogController : SingletonMono<DialogController>
     public float fadeDuration = 0.3f;
     public float shakeIntensity = 3f;
     public float shakeDuration = 0.2f;
+
+    public const float UIAnimDuration = 0.5f;
+
 
     [Header("声音设置")]
     public AudioClip dialogOpenSound;
@@ -51,6 +55,8 @@ public class DialogController : SingletonMono<DialogController>
     private CanvasGroup _dialogCanvasGroup;
     private Vector3 _originalTextPosition;
     private AudioSource _audioSource;
+
+
 
     private void Awake()
     {
@@ -82,7 +88,7 @@ public class DialogController : SingletonMono<DialogController>
         // 检测玩家输入
         if (_isDialogActive && !_isChoicePending)
         {
-            if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return))
+            if (Input.GetKeyDown(KeyCode.LeftShift))
             {
                 if (_isTyping)
                 {
@@ -189,9 +195,20 @@ public class DialogController : SingletonMono<DialogController>
         dialogText.text = "";
 
         // 设置对话框背景
-        if (sentence.dialogBackground != null)
+        if (sentence.dialogBackground != null )
         {
             dialogBackground.sprite = sentence.dialogBackground;
+        }
+
+        // 设置角色头像
+        if (sentence.characterAvatar.Length > 0)
+        {
+            characterAvatar.sprite = sentence.characterAvatar[0];
+            characterAvatar.gameObject.SetActive(true);
+        }
+        else
+        {
+            characterAvatar.gameObject.SetActive(false);
         }
 
         // 隐藏"继续"提示
@@ -199,26 +216,35 @@ public class DialogController : SingletonMono<DialogController>
 
         // 开始打字效果
         _isTyping = true;
-        _typingCoroutine = StartCoroutine(TypeSentence(sentence.text));
+        _typingCoroutine = StartCoroutine(TypeSentence(sentence.text, sentence));
     }
 
     /// <summary>
     /// 打字机效果显示句子
     /// </summary>
-    private IEnumerator TypeSentence(string sentence)
+    private IEnumerator TypeSentence(string sentence, DialogSentence CurrSentence)
     {
         dialogText.text = "";
         char[] chars = sentence.ToCharArray();
-
+        int AnimIndex = 0;
+        float _LastUpdateTime = 0;
         for (int i = 0; i < chars.Length; i++)
         {
             // 添加字符
             dialogText.text += chars[i];
 
             // 播放打字音效
-            if (i % 3 == 0) // 每3个字符播放一次
+            if (i % 4 == 0) // 每3个字符播放一次
             {
                 PlaySound(textTypeSound);
+            }
+            
+            if (CurrSentence.characterAvatar.Length > 1 && Time.time - _LastUpdateTime > UIAnimDuration)
+            {
+                characterAvatar.sprite = CurrSentence.characterAvatar[AnimIndex];
+                AnimIndex++;
+                if (AnimIndex > CurrSentence.characterAvatar.Length - 1) { AnimIndex = 0; }
+                _LastUpdateTime = Time.time;
             }
 
             // 特殊字符效果
@@ -226,6 +252,7 @@ public class DialogController : SingletonMono<DialogController>
             {
                 StartCoroutine(ShakeText());
             }
+
 
             yield return new WaitForSeconds(typewriterSpeed);
         }
@@ -417,8 +444,9 @@ public class DialogSentence
 {
     public string characterName;
     [TextArea(3, 10)] public string text;
-    public Sprite dialogBackground;
+    public Sprite[] characterAvatar; 
     public UnityEvent onSentenceDisplayed;
+    public Sprite dialogBackground;
 }
 
 /// <summary>

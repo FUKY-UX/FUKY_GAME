@@ -1,7 +1,6 @@
 using UnityEngine;
 using System;
 using Unity.VisualScripting;
-using static UnityEditor.Progress;
 [Serializable]
 public class HandAttributeBoard : AttributeBoard
 {
@@ -102,10 +101,8 @@ public class GrabHand :MonoBehaviour, HandState
     private bool Idle;
     private bool InRotate;
     private bool InRotateActive;
-    private Quaternion _prevItemRotation; // 记录初始LookAt旋转
-
-    private Vector3 _prevBallPosition;
-    private Plane _rotationPlane;
+    private Quaternion Init_Rota_Range_LookAt; // 记录初始LookAt旋转
+    private Quaternion Init_Delta_Rotation; // 记录初始旋转差
     public GrabHand(HandFSM in_handFsm, HandAttributeBoard in_Board)
     {
         _ShandFsm = in_handFsm;
@@ -170,32 +167,53 @@ public class GrabHand :MonoBehaviour, HandState
         }
         if (FUKYMouse.Instance.Right_pressed)
         {
-            // 初始化旋转UI
+            //在第一次进入旋转状态的时候，把两个当UI的3D物体移动到操控对象上
             if (!InRotate)
             {
-                InitializeRotationUI();
+                _SBoard.Fuky_Ball.transform.position = _SBoard.TouchItem.gameObject.transform.position;
+                _SBoard.Fuky_Ball.SetActive(true);
+                _SBoard.Fuky_Range.SetActive(true);
+                InRotate = true;
                 return;
             }
 
-            // 更新旋转控制UI
-            UpdateRotationUI();
-
-            // 当压力值足够时，执行旋转操作
+            //更新UI的位置
+            _SBoard.Fuky_Range.transform.position = _SBoard.TouchItem.gameObject.transform.position;
+            //移动小球,越压越慢
+            _SBoard.Fuky_Ball.transform.localPosition = _SBoard.Fuky_Ball.transform.localPosition + FUKYMouse.Instance.deltaTranslate * (1-FUKYMouse.Instance.PressureValue);
+            Vector3 offset = _SBoard.Fuky_Ball.transform.position - _SBoard.TouchItem.gameObject.transform.position;
+            if (offset.magnitude > _SBoard.Range)
+            {
+                _SBoard.Fuky_Ball.transform.localPosition = _SBoard.TouchItem.gameObject.transform.position + offset.normalized * _SBoard.Range;
+            }// 超出半径时，强制到球体表面
+            _SBoard.Fuky_Range.transform.localScale = Vector3.one * offset.magnitude * _SBoard.Range_Offset;        //更新UI
+            //如果在按左键过程中力度强一定程度，就进入控制模式
             if (FUKYMouse.Instance.PressureValue > 0.8f)
             {
-                if (!InRotateActive)
+                _SBoard.Fuky_Range.transform.LookAt(_SBoard.Fuky_Ball.transform,Vector3.up);
+                if (!InRotateActive)//如果初次进入循环
                 {
-                    InitializeRotationState();
+
+                    // D                                                  A                           B                              A*D=B
+                    //1相对量                                        LookAt旋转               初始物体旋转        <===得到  LookAt旋转 乘相对量
+                    //2相对量                                        移动前的range旋转        移动后的range旋转   <===得到  移动前的range旋转 乘相对量
+                    Init_Delta_Rotation = Quaternion.Inverse(_SBoard.Fuky_Range.transform.rotation) * _SBoard._HandPos.rotation;
+                    Init_Rota_Range_LookAt = _SBoard.Fuky_Range.transform.rotation;
+                    //data.holdPos.rotation = Fuky_Range.transform.rotation * Init_Delta_Rotation;
+                    InRotateActive = true;
                     return;
                 }
+                //quaternion CurrPointerRotation_Delta = Quaternion.Inverse(Init_Rota_Range_LookAt) * Fuky_Range.transform.rotation;
+                Quaternion CurrHoldRotation_Delta = Init_Delta_Rotation * (Quaternion.Inverse(Init_Rota_Range_LookAt) * _SBoard.Fuky_Range.transform.rotation);
 
-                PerformRotation();
-            }
-            else
-            {
-                InRotateActive = false;
-            }
+                _SBoard.TouchItem.CustomRotateOffset = _SBoard.Fuky_Range.transform.rotation * CurrHoldRotation_Delta
+                    * Quaternion.Euler(0f, _SBoard.RefCamera.transform.rotation.eulerAngles.y, 0f) * FUKYMouse.Instance.rawRotation;
 
+                _SBoard.TouchItem.transform.rotation = _SBoard.TouchItem.CustomRotateOffset * Quaternion.Euler(0f, _SBoard.RefCamera.transform.rotation.eulerAngles.y, 0f)
+                    * FUKYMouse.Instance.rawRotation;
+                return;
+            }
+            InRotateActive = false;
             return;
         }
         if (InRotate)
@@ -236,108 +254,6 @@ public class GrabHand :MonoBehaviour, HandState
             ClickCounter =0;
         }
     }
-
-    #region 旋转控制方法
-
-    /// <summary>
-    /// 初始化旋转UI
-    /// </summary>
-    private void InitializeRotationUI()
-    {
-        // 将旋转UI移动到目标物体位置
-        _SBoard.Fuky_Ball.transform.position = _SBoard.TouchItem.transform.position;
-        _SBoard.Fuky_Ball.SetActive(true);
-        _SBoard.Fuky_Range.SetActive(true);
-
-        // 设置小球在球面上的随机位置
-        Vector3 randomPoint = UnityEngine.Random.onUnitSphere * _SBoard.Range;
-        _SBoard.Fuky_Ball.transform.localPosition = randomPoint;
-
-        InRotate = true;
-        InRotateActive = false;
-    }
-
-    /// <summary>
-    /// 更新旋转UI位置
-    /// </summary>
-    private void UpdateRotationUI()
-    {
-        // 更新UI位置
-        _SBoard.Fuky_Range.transform.position = _SBoard.TouchItem.transform.position;
-
-        // 移动小球
-        Vector3 ballMovement = FUKYMouse.Instance.deltaTranslate * (1 - FUKYMouse.Instance.PressureValue);
-        Vector3 newPosition = _SBoard.Fuky_Ball.transform.localPosition + ballMovement;
-
-        // 限制小球在球体表面
-        _SBoard.Fuky_Ball.transform.localPosition = Vector3.ClampMagnitude(newPosition, _SBoard.Range);
-
-        // 更新范围UI大小
-        _SBoard.Fuky_Range.transform.localScale = Vector3.one * _SBoard.Range;
-    }
-
-    /// <summary>
-    /// 初始化旋转状态
-    /// </summary>
-    private void InitializeRotationState()
-    {
-        // 记录初始旋转状态
-        _prevBallPosition = _SBoard.Fuky_Ball.transform.position;
-        _prevItemRotation = _SBoard.TouchItem.transform.rotation;
-
-        // 计算球心到小球的向量
-        Vector3 ballDirection = (_prevBallPosition - _SBoard.TouchItem.transform.position).normalized;
-
-        // 创建旋转参考坐标系
-        _rotationPlane = new Plane(ballDirection, _SBoard.TouchItem.transform.position);
-
-        InRotateActive = true;
-    }
-
-    /// <summary>
-    /// 执行旋转操作
-    /// </summary>
-    private void PerformRotation()
-    {
-        // 获取当前小球位置
-        Vector3 currentBallPosition = _SBoard.Fuky_Ball.transform.position;
-
-        // 计算旋转轴（球心到小球的向量）
-        Vector3 rotationAxis = (currentBallPosition - _SBoard.TouchItem.transform.position).normalized;
-
-        // 计算旋转角度（基于小球移动方向）
-        Vector3 moveDirection = (currentBallPosition - _prevBallPosition).normalized;
-
-        // 计算旋转量
-        float rotationAngle = Vector3.SignedAngle(
-            _prevBallPosition - _SBoard.TouchItem.transform.position,
-            currentBallPosition - _SBoard.TouchItem.transform.position,
-            rotationAxis
-        );
-
-        // 应用旋转
-        Quaternion rotationDelta = Quaternion.AngleAxis(rotationAngle, rotationAxis);
-        _SBoard.TouchItem.transform.rotation = rotationDelta * _prevItemRotation;
-
-        // 更新参考点
-        _prevBallPosition = currentBallPosition;
-        _prevItemRotation = _SBoard.TouchItem.transform.rotation;
-    }
-
-    /// <summary>
-    /// 清理旋转UI
-    /// </summary>
-    private void CleanupRotationUI()
-    {
-        _SBoard.Fuky_Ball.SetActive(false);
-        _SBoard.Fuky_Range.SetActive(false);
-        InRotate = false;
-        InRotateActive = false;
-    }
-
-    #endregion
-
-
 }
 public class IdleHand :MonoBehaviour, HandState
 {
@@ -462,7 +378,4 @@ public class LogicOfHand : MonoBehaviour
     {
         if(_board.ShowGizmo) Gizmos.DrawSphere(_board._HandRigidbody.transform.position, _board.HandSize);
     }
-
-
-
 }
