@@ -6,7 +6,7 @@ public class WoodPlateAttrBoard : AttrBoard
 {
 };
 
-public class WoodPlateDefState : DefaultItemState
+public class WoodPlateDefState : ItemState
 {
     protected ItemFSM _MyFsm;
     public DefaultItemAttrBoard _DefAttrBoard;
@@ -25,11 +25,6 @@ public class WoodPlateDefState : DefaultItemState
     }
     public override void OnRidigibodyEnter(Collision collision)
     {
-        if (_DefAttrBoard.Sound.V_Playable)
-        {
-            _DefAttrBoard.Sound.V_Playable = false;
-            _DefAttrBoard.Sound.V_LastSoundPlay = 0;
-        }
     }
 }
 

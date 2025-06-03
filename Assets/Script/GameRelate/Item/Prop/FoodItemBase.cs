@@ -91,7 +91,7 @@ public class FoodAttr : AttrBoard
     [HideInInspector]
     public Quaternion Meat_Rotate = Quaternion.identity;
 };
-public class FoodDefaultState : DefaultItemState
+public class FoodDefaultState : ItemState
 {
     protected ItemFSM _MyFsm;
     public DefaultItemAttrBoard _DefAttr;
@@ -112,12 +112,7 @@ public class FoodDefaultState : DefaultItemState
     }
     public override void OnRidigibodyEnter(Collision collision)
     {
-        //“Ù–ß
-        if (_DefAttr.Sound.V_Playable)
-        {
-            _DefAttr.Sound.V_Playable = false;
-            _DefAttr.Sound.V_LastSoundPlay = 0;
-        }
+
     }
     public override void OnFixUpdate()
     {
@@ -136,7 +131,7 @@ public class FoodDefaultState : DefaultItemState
     }
 
 }
-public class FoodCookingState : DefaultItemState
+public class FoodCookingState : ItemState
 {
     protected ItemFSM _MyFsm;
     public DefaultItemAttrBoard _DefAttr;

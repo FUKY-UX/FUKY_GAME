@@ -190,7 +190,7 @@ public class GrabHand :MonoBehaviour, HandState
             //如果在按左键过程中力度强一定程度，就进入控制模式
             if (FUKYMouse.Instance.PressureValue > 0.8f)
             {
-                _SBoard.Fuky_Range.transform.LookAt(_SBoard.Fuky_Ball.transform,Vector3.up);
+                _SBoard.Fuky_Range.transform.LookAt(_SBoard.Fuky_Ball.transform);
                 if (!InRotateActive)//如果初次进入循环
                 {
 

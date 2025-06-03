@@ -98,6 +98,37 @@ public class FUKY_CAM_CTRL : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+    if (FUKYMouse.Instance.Left_pressed)
+    {
+        // 获取鼠标移动量
+        Vector3 mouseDelta = FUKYMouse.Instance.deltaTranslate * FUKYMouse.Instance.PressureValue;
+        
+        // 计算目标移动方向：
+        // - 左右：相机右方向 (x轴分量)
+        // - 上下：世界Y轴
+        // - 前后：相机前方向 (z轴分量)
+        Vector3 moveOffset = _camera.transform.right * mouseDelta.x   // 左右
+                            + Vector3.up * mouseDelta.y               // 上下
+                            + _camera.transform.forward * mouseDelta.z; // 前后
+        
+        target.localPosition += moveOffset;
+    }
+    
+    if (FUKYMouse.Instance.Right_pressed)
+    {
+        // 获取鼠标移动量
+        Vector3 mouseDelta = FUKYMouse.Instance.deltaTranslate * FUKYMouse.Instance.PressureValue;
+        
+        // 相机移动方向计算（与target逻辑相同）
+        Vector3 moveOffset = _camera.transform.right * mouseDelta.x   // 左右
+                            + Vector3.up * mouseDelta.y               // 上下
+                            + _camera.transform.forward * mouseDelta.z; // 前后
+        
+        _camera.transform.position += moveOffset;
+    }    }
+
     private void LateUpdate()
     {
         if (!target)

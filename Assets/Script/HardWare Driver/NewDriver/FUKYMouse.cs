@@ -264,6 +264,10 @@ public class FUKYMouse : SingletonMono<FUKYMouse>
         filteredTranslate = PosFilter.Filter(rawTranslate);
 
         deltaTranslate = filteredTranslate - lastFilteredTranslate;
+        if (deltaTranslate.magnitude > 0.5f)
+        {
+            deltaTranslate = Vector3.zero;
+        }
         lastFilteredTranslate = filteredTranslate;
 
 

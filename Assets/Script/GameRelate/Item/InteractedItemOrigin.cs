@@ -45,10 +45,8 @@ public class DefaultItemAttrBoard : AttrBoard
 {
     [Header("基础物理属性")]
     public ItemPhysics Phy;
-    [Header("基础音效属性")]
-    public ItemSound Sound;
 }
-public abstract class DefaultItemState : InteractedItem
+public abstract class ItemState : InteractedItem
 {
     public virtual void OnEnter()
     {
@@ -77,6 +75,29 @@ public abstract class DefaultItemState : InteractedItem
     public virtual void OnTriggerStay(Collider collider) { }
 
 }
+
+public class DefaultItemState : ItemState
+{
+    protected ItemFSM _MyFsm;
+    public DefaultItemAttrBoard _DefAttrBoard;
+
+    public DefaultItemState(ItemFSM in_Fsm, DefaultItemAttrBoard _defattrboard)
+    {
+        _MyFsm = in_Fsm;
+        _DefAttrBoard = _defattrboard as DefaultItemAttrBoard;
+    }
+    public override void OnGrab()
+    {
+    }
+    public override void OnRelease()
+    {
+    }
+    public override void OnRidigibodyEnter(Collision collision)
+    {
+    }
+}
+
+
 public class InteractedItemOrigin : MonoBehaviour
 {
     public ItemFSM _MyFsm;
@@ -89,21 +110,13 @@ public class InteractedItemOrigin : MonoBehaviour
     private void Awake()
     {
         _MyFsm = new ItemFSM(Default);
+        _MyFsm.AddState(ItemState_Type.Default, new DefaultItemState(_MyFsm, Default));
+        _MyFsm.SwitchState(ItemState_Type.Default);
     }
 
     public void Update()
     {
         _MyFsm.OnUpdate();
-        if (!Default.Sound.V_Playable)
-        {
-            if (Default.Sound.V_LastSoundPlay > Default.Sound.NoiseCdOffset)
-            {
-                Default.Sound.V_Playable = true;
-                Default.Sound.NoiseCdOffset = Default.Sound.NoiseCd + UnityEngine.Random.Range(-0.5f, 0.5f);
-            }
-            Default.Sound.V_LastSoundPlay += Time.deltaTime;
-            return;
-        }
         if (!CurrCanPickAble)
         {
             if(Time.time - LastDropTime_Delay > PickUpCoolDown)

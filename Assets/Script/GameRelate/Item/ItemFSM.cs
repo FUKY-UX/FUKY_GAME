@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-    public enum ItemState_Type
-    {
-        Default,
-        State1,
+public enum ItemState_Type
+{
+    Default,
+    State1,
         State2,
         State3,
         State4,

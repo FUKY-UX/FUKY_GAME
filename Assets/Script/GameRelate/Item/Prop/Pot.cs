@@ -25,7 +25,7 @@ public class PotAttrBoard : AttrBoard
     public bool LastHeatInf, CurrHeatInf;
 
 };
-public class PotDefaultState : DefaultItemState
+public class PotDefaultState : ItemState
 {
     protected ItemFSM _MyFsm;
     public DefaultItemAttrBoard _DefAttrBoard;
@@ -53,12 +53,6 @@ public class PotDefaultState : DefaultItemState
     }
     public override void OnRidigibodyEnter(Collision collision)
     {
-        //“Ù–ß
-        if (_DefAttrBoard.Sound.V_Playable)
-        {
-            _DefAttrBoard.Sound.V_Playable = false;
-            _DefAttrBoard.Sound.V_LastSoundPlay = 0;
-        }
     }
     public override void OnRidigibodyStay(Collision collision)
     {
@@ -73,7 +67,7 @@ public class PotDefaultState : DefaultItemState
     }
 
 }
-public class PotHeatingState : DefaultItemState
+public class PotHeatingState : ItemState
 {
     protected ItemFSM _MyFsm;
     public DefaultItemAttrBoard _DefAttrBoard;
@@ -115,12 +109,6 @@ public class PotHeatingState : DefaultItemState
     }
     public override void OnRidigibodyEnter(Collision collision)
     {
-        //“Ù–ß
-        if (_DefAttrBoard.Sound.V_Playable)
-        {
-            _DefAttrBoard.Sound.V_Playable = false;
-            _DefAttrBoard.Sound.V_LastSoundPlay = 0;
-        }
     }
     public override void OnRidigibodyStay(Collision collision)
     {
