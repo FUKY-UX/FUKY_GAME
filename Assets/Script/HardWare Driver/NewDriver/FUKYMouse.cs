@@ -13,7 +13,7 @@ public class FUKYMouse : SingletonMono<FUKYMouse>
     // 配置参数 公开在前私有在后
     ///////////////////////////////////////////////////////////////////////////
     #region Configuration Parameters
-    [Header("坐标缩放设置")]
+    [Header(" 全局设置")]
     [Tooltip("全局缩放系数")]
     [Range(0.001F, 1F)]
     public float Scaler;
@@ -40,10 +40,13 @@ public class FUKYMouse : SingletonMono<FUKYMouse>
     [Range(0.001f, 2f)]
     public float AccelThershold;
     [Range(0.001f, 2f)]
+
     public float AccelScaler = 0.01f;
     private Vector3 LastAccel;
     private Vector3 CurrAccel;
     private bool SenseUpdate;
+
+
 
     [Header("滤波器参数")]
     [Tooltip("较高minCutoff值会导致更多的高频噪声通过，而较低的值则会使输出更加平滑")]

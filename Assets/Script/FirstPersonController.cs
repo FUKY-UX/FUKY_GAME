@@ -48,7 +48,6 @@ public class FirstPersonController : MonoBehaviour
         cameraTransform = playerCamera.transform;
         cameraOriginalPosition = cameraTransform.localPosition;
         defaultCameraY = cameraOriginalPosition.y;
-
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }

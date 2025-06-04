@@ -107,11 +107,19 @@ public class InteractedItemOrigin : MonoBehaviour
     public float PickUpCoolDown = 2f;
     public quaternion ItemAdjRotation = quaternion.identity;
     private float LastDropTime_Delay = 0;
+    private float ItemMass;
+    private float ItemDrag;
+    private float ItemAngleDrag;
+
     private void Awake()
     {
         _MyFsm = new ItemFSM(Default);
         _MyFsm.AddState(ItemState_Type.Default, new DefaultItemState(_MyFsm, Default));
         _MyFsm.SwitchState(ItemState_Type.Default);
+        ItemMass = Default.Phy._rigidbody.mass;
+        ItemDrag = Default.Phy._rigidbody.drag;
+        ItemAngleDrag = Default.Phy._rigidbody.angularDrag;
+
     }
 
     public void Update()
@@ -165,5 +173,19 @@ public class InteractedItemOrigin : MonoBehaviour
     {
         LastDropTime_Delay = Time.time;
         CurrCanPickAble =false;
+    }
+
+    public void Change_GrabRigidbody(Rigidbody Hand)
+    {
+        Default.Phy._rigidbody.mass = Hand.mass;
+        Default.Phy._rigidbody.drag = Hand.drag;
+        Default.Phy._rigidbody.angularDrag = Hand.angularDrag;
+    }
+
+    public void ReSet_GrabRigidbody()
+    {
+        Default.Phy._rigidbody.mass = ItemMass;
+        Default.Phy._rigidbody.drag = ItemDrag;
+        Default.Phy._rigidbody.angularDrag = ItemAngleDrag;
     }
 }
