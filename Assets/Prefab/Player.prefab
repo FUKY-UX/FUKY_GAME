@@ -142,7 +142,7 @@ Transform:
   m_GameObject: {fileID: 1706213058093514139}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.36, z: 0.02}
+  m_LocalPosition: {x: 0, y: 1.8, z: 0.02}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -334,18 +334,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe07ae13b1c085b4f9e8aaa1851aff1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BodyPos: {fileID: 3395081941515509492}
-  BodyCol: {fileID: 7356837812487369237}
-  Cam: {fileID: 3331509099995519133}
-  HeadSoundSouece: {fileID: 0}
-  MoveDierction: {x: 0, y: 0, z: 0}
-  Trans_MoveDierction: {x: 0, y: 0, z: 0}
-  Rotation_Input: {x: 0, y: 0, z: 0}
-  MoveSpeed: 30
-  rotatespeed: 1
-  JumpForce: 360
-  squatSpeed: 0.2
-  LockMouse: 0
+  moveSpeed: 5
+  sprintSpeed: 8
+  jumpForce: 7
+  gravity: 20
+  airControl: 0.5
+  mouseSensitivity: 2
+  minVerticalAngle: -90
+  maxVerticalAngle: 90
+  walkBobFrequency: 1.5
+  walkBobHeight: 0.1
+  walkBobSide: 0.05
+  sprintMultiplier: 1.5
+  landBobAmount: 0.2
+  bobSmooth: 5
+  minMoveThreshold: 0.1
 --- !u!54 &3395081941515509492
 Rigidbody:
   m_ObjectHideFlags: 0

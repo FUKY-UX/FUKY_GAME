@@ -5,8 +5,9 @@ public class RelativeLookAt : MonoBehaviour
     public Transform Earth;  // 要旋转的物体
     public Transform Finger;  // 目标物体
     public bool inRotationMode = false;  // 是否处于旋转模式
-
+    public bool SelectMode = false;  // 是否处于选择模式
     // 发光连线设置
+    public GameObject RingUI;    // 发光颜色
     public Color glowColor = Color.cyan;    // 发光颜色
     public float glowIntensity = 2f;         // 发光强度
     public float glowWidth = 0.1f;           // 发光线宽度
@@ -39,7 +40,7 @@ public class RelativeLookAt : MonoBehaviour
         {
             glowLine = gameObject.GetComponent<LineRenderer>();
         }
-
+        RingUI.SetActive(false);
         // 设置发光线属性
         glowLine.startWidth = glowWidth;
         glowLine.endWidth = glowWidth;
@@ -60,27 +61,12 @@ public class RelativeLookAt : MonoBehaviour
     
     void Update()
     {
-        // 当按下E键时
-        //if (Input.GetKeyDown(KeyCode.E))
-        //{
-        //    if (!inRotationMode)
-        //    {
-        //        // 进入旋转模式 - 保存初始状态
-        //        StartRotation();
-        //        // 显示发光线
-        //        if (glowLine != null) glowLine.enabled = true;
-        //    }
-        //    else
-        //    {
-        //        // 退出旋转模式
-        //        inRotationMode = false;
-        //        // 隐藏发光线
-        //        if (glowLine != null) glowLine.enabled = false;
-        //    }
-        //}
-
-        // 如果在旋转模式中
-        if (inRotationMode)
+        if (SelectMode)
+        {
+            if (glowLine != null) glowLine.enabled = true;
+            UpdateGlowLine(); return; 
+        }
+        else if(inRotationMode)
         {
             if (glowLine != null) glowLine.enabled = true;
             ApplyRelativeRotation();
@@ -89,20 +75,21 @@ public class RelativeLookAt : MonoBehaviour
         else
         {
             if (glowLine != null) glowLine.enabled = false;
+            Finger.gameObject.SetActive(false);
         }
     }
 
     /// <summary>
     /// 更新发光线位置
     /// </summary>
-    private void UpdateGlowLine()
+    public void UpdateGlowLine()
     {
         if (glowLine != null && Earth != null && Finger != null)
         {
             // 设置发光线的起点和终点
             glowLine.SetPosition(0, Earth.position);
             glowLine.SetPosition(1, Finger.position);
-
+            RingUI.transform.position = Finger.position;
             // 根据距离动态调整发光强度和宽度
             float distance = Vector3.Distance(Earth.position, Finger.position);
             glowLine.startWidth = glowWidth * (1 + distance * 0.1f);
@@ -135,7 +122,7 @@ public class RelativeLookAt : MonoBehaviour
     /// <summary>
     /// 应用基于初始位置关系的相对旋转
     /// </summary>
-    private void ApplyRelativeRotation()
+    public Quaternion ApplyRelativeRotation()
     {
         // 计算当前位置关系
         Vector3 currentDirection = (Finger.position - Earth.position).normalized;
@@ -145,6 +132,8 @@ public class RelativeLookAt : MonoBehaviour
 
         // 应用旋转 (保持初始旋转关系的基础上增加旋转)
         Earth.rotation = deltaRotation * initialRotationA;
+
+        return deltaRotation;
     }
 
     // 在场景中绘制可视化参考

@@ -10,6 +10,7 @@ public class HandAttributeBoard : AttributeBoard
     public Collider _HandCollider;
     public Camera RefCamera;
     public Transform _HandPos;
+    public RelativeLookAt RotationManager;
     [Header("运行时手触摸到的物体")]
     public Collider TouchCollider;
     public InteractedItemOrigin TouchItem;
@@ -36,9 +37,9 @@ public class HandAttributeBoard : AttributeBoard
     //摄像机控制参数
     [Header("旋转控制")]
     public GameObject Fuky_Ball;
-    public GameObject Fuky_Range;
     public float Range = 2f;
     public float Range_Offset = 1.3f;
+    public Quaternion CurrAdjRotation;
 }
 public class DefaultHand : HandState
 {
@@ -65,7 +66,7 @@ public class DefaultHand : HandState
         }
 
         Vector3 ForceDir = _SBoard._HandPos.position - _SBoard._LastHandPos;
-        Quaternion CurrRotate = Quaternion.Euler(0f, _SBoard.RefCamera.transform.rotation.eulerAngles.y, 0f) * FUKYMouse.Instance.rawRotation;
+        Quaternion CurrRotate =  Quaternion.Euler(0f, _SBoard.RefCamera.transform.rotation.eulerAngles.y, 0f) * FUKYMouse.Instance.rawRotation;
 
         _SBoard._HandRigidbody.AddForce(ForceDir * _SBoard.DragStrength * Time.deltaTime);
         _SBoard._HandRigidbody.transform.rotation = Quaternion.Lerp(_SBoard._HandRigidbody.transform.rotation, CurrRotate, _SBoard.RotateSmooth * Time.deltaTime);
@@ -103,6 +104,8 @@ public class GrabHand :MonoBehaviour, HandState
     private bool InRotateActive;
     private Quaternion Init_Rota_Range_LookAt; // 记录初始LookAt旋转
     private Quaternion Init_Delta_Rotation; // 记录初始旋转差
+    private bool DataUpdate;
+
     public GrabHand(HandFSM in_handFsm, HandAttributeBoard in_Board)
     {
         _ShandFsm = in_handFsm;
@@ -143,7 +146,7 @@ public class GrabHand :MonoBehaviour, HandState
         Quaternion ItemQuat = _SBoard.TouchItem.Default.Phy._rigidbody.transform.rotation;
         
         Vector3 ForceDir = _SBoard._HandPos.position - _SBoard._LastHandPos;
-        Quaternion CurrRotate  = _SBoard.TouchItem.CustomRotateOffset * Quaternion.Euler(0f, _SBoard.RefCamera.transform.rotation.eulerAngles.y, 0f) * FUKYMouse.Instance.rawRotation;
+        Quaternion CurrRotate  = _SBoard.TouchItem.ItemAdjRotation * Quaternion.Euler(0f, _SBoard.RefCamera.transform.rotation.eulerAngles.y, 0f) * FUKYMouse.Instance.rawRotation;
 
         _SBoard._HandRigidbody.AddForce(ForceDir * _SBoard.DragStrength * Time.deltaTime);
         _SBoard._HandRigidbody.transform.rotation = Quaternion.Lerp(_SBoard._HandRigidbody.transform.rotation, CurrRotate, _SBoard.RotateSmooth * Time.deltaTime);
@@ -167,60 +170,47 @@ public class GrabHand :MonoBehaviour, HandState
         }
         if (FUKYMouse.Instance.Right_pressed)
         {
-            //在第一次进入旋转状态的时候，把两个当UI的3D物体移动到操控对象上
             if (!InRotate)
             {
-                _SBoard.Fuky_Ball.transform.position = _SBoard.TouchItem.gameObject.transform.position;
-                _SBoard.Fuky_Ball.SetActive(true);
-                _SBoard.Fuky_Range.SetActive(true);
+                _SBoard.RotationManager.Earth = _SBoard.TouchItem.transform;
+                _SBoard.RotationManager.Finger.position = _SBoard.TouchItem.transform.position;
+                _SBoard.RotationManager.SelectMode = true;
                 InRotate = true;
                 return;
             }
-
-            //更新UI的位置
-            _SBoard.Fuky_Range.transform.position = _SBoard.TouchItem.gameObject.transform.position;
+            _SBoard.RotationManager.UpdateGlowLine();
             //移动小球,越压越慢
             _SBoard.Fuky_Ball.transform.localPosition = _SBoard.Fuky_Ball.transform.localPosition + FUKYMouse.Instance.deltaTranslate * (1-FUKYMouse.Instance.PressureValue);
             Vector3 offset = _SBoard.Fuky_Ball.transform.position - _SBoard.TouchItem.gameObject.transform.position;
-            if (offset.magnitude > _SBoard.Range)
-            {
-                _SBoard.Fuky_Ball.transform.localPosition = _SBoard.TouchItem.gameObject.transform.position + offset.normalized * _SBoard.Range;
-            }// 超出半径时，强制到球体表面
-            _SBoard.Fuky_Range.transform.localScale = Vector3.one * offset.magnitude * _SBoard.Range_Offset;        //更新UI
+            if (offset.magnitude > _SBoard.Range){_SBoard.Fuky_Ball.transform.localPosition = 
+                    _SBoard.TouchItem.gameObject.transform.position + offset.normalized * _SBoard.Range;}// 超出半径时，强制到球体表面
             //如果在按左键过程中力度强一定程度，就进入控制模式
-            if (FUKYMouse.Instance.PressureValue > 0.8f)
+            if (FUKYMouse.Instance.PressureValue > 0.7f)
             {
-                _SBoard.Fuky_Range.transform.LookAt(_SBoard.Fuky_Ball.transform);
                 if (!InRotateActive)//如果初次进入循环
                 {
-
-                    // D                                                  A                           B                              A*D=B
-                    //1相对量                                        LookAt旋转               初始物体旋转        <===得到  LookAt旋转 乘相对量
-                    //2相对量                                        移动前的range旋转        移动后的range旋转   <===得到  移动前的range旋转 乘相对量
-                    Init_Delta_Rotation = Quaternion.Inverse(_SBoard.Fuky_Range.transform.rotation) * _SBoard._HandPos.rotation;
-                    Init_Rota_Range_LookAt = _SBoard.Fuky_Range.transform.rotation;
-                    //data.holdPos.rotation = Fuky_Range.transform.rotation * Init_Delta_Rotation;
+                    _SBoard.RotationManager.SelectMode = false;
+                    _SBoard.RotationManager.StartRotation();
                     InRotateActive = true;
+                    DataUpdate = true;
                     return;
                 }
-                //quaternion CurrPointerRotation_Delta = Quaternion.Inverse(Init_Rota_Range_LookAt) * Fuky_Range.transform.rotation;
-                Quaternion CurrHoldRotation_Delta = Init_Delta_Rotation * (Quaternion.Inverse(Init_Rota_Range_LookAt) * _SBoard.Fuky_Range.transform.rotation);
-
-                _SBoard.TouchItem.CustomRotateOffset = _SBoard.Fuky_Range.transform.rotation * CurrHoldRotation_Delta
-                    * Quaternion.Euler(0f, _SBoard.RefCamera.transform.rotation.eulerAngles.y, 0f) * FUKYMouse.Instance.rawRotation;
-
-                _SBoard.TouchItem.transform.rotation = _SBoard.TouchItem.CustomRotateOffset * Quaternion.Euler(0f, _SBoard.RefCamera.transform.rotation.eulerAngles.y, 0f)
-                    * FUKYMouse.Instance.rawRotation;
-                return;
+                _SBoard.CurrAdjRotation = _SBoard.RotationManager.ApplyRelativeRotation();
             }
-            InRotateActive = false;
+            else if(DataUpdate)
+            {
+                _SBoard.TouchItem.ItemAdjRotation = _SBoard.CurrAdjRotation * _SBoard.TouchItem.ItemAdjRotation;
+                DataUpdate = false;
+            }
+            _SBoard.TouchItem.transform.rotation = _SBoard.TouchItem.ItemAdjRotation * Quaternion.Euler(0f, _SBoard.RefCamera.transform.rotation.eulerAngles.y, 0f) * FUKYMouse.Instance.rawRotation;
+
             return;
         }
         if (InRotate)
         {
             InRotate = false;
             _SBoard.Fuky_Ball.SetActive(false);
-            _SBoard.Fuky_Range.SetActive(false);
+
         }
 
         //_SBoard.TouchItem.Default.Phy.RubFactor = ForceDir;
@@ -279,7 +269,15 @@ public class IdleHand :MonoBehaviour, HandState
     public void OnFixUpdate()
     {
         Vector3 ForceDir = (_SBoard.DefaultHandPos.position - _SBoard._HandRigidbody.transform.position).normalized;
-        Quaternion CurrRotate = Quaternion.Euler(0f, _SBoard.RefCamera.transform.rotation.eulerAngles.y, 0f) * FUKYMouse.Instance.rawRotation;
+        Quaternion CurrRotate;
+        if (_SBoard.TouchItemFSM != null)
+        {
+            CurrRotate = _SBoard.TouchItem.ItemAdjRotation * Quaternion.Euler(0f, _SBoard.RefCamera.transform.rotation.eulerAngles.y, 0f) * FUKYMouse.Instance.rawRotation;
+        }
+        else
+        {
+            CurrRotate = Quaternion.Euler(0f, _SBoard.RefCamera.transform.rotation.eulerAngles.y, 0f) * FUKYMouse.Instance.rawRotation;
+        }
         _SBoard.CurrBackHomeStrength += _SBoard.BackHomeStrength;
         _SBoard._HandRigidbody.AddForce(ForceDir * Math.Min(_SBoard.DragStrength, _SBoard.CurrBackHomeStrength * Time.deltaTime));
         _SBoard._HandRigidbody.transform.rotation = Quaternion.Lerp(_SBoard._HandRigidbody.transform.rotation, CurrRotate, _SBoard.RotateSmooth * Time.deltaTime);

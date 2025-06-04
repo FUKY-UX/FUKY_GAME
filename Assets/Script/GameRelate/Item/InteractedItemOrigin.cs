@@ -105,7 +105,7 @@ public class InteractedItemOrigin : MonoBehaviour
     public DefaultItemAttrBoard Default;
     public bool CurrCanPickAble = true;
     public float PickUpCoolDown = 2f;
-    public quaternion CustomRotateOffset = quaternion.identity;
+    public quaternion ItemAdjRotation = quaternion.identity;
     private float LastDropTime_Delay = 0;
     private void Awake()
     {

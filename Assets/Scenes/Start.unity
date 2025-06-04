@@ -11400,12 +11400,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 827637811}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &827637813 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 870738464804248901, guid: f0a721d298735c849976e58f0ff73c96,
-    type: 3}
-  m_PrefabInstance: {fileID: 827637811}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &853951200 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6750701934158924704, guid: 0cd9cddd71db1e0419aadcabc163b0ad,
@@ -11828,6 +11822,11 @@ PrefabInstance:
         type: 3}
       propertyPath: walkBobFrequency
       value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 3331509099995519133, guid: 66df9452b08d79e45af5d805ddf7b37d,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.8
       objectReference: {fileID: 0}
     - target: {fileID: 3331509099995519133, guid: 66df9452b08d79e45af5d805ddf7b37d,
         type: 3}
@@ -12927,7 +12926,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Scaler: 0.3
   InVerse: 1
-  Rotation_Offset: {x: 3, y: -1.3, z: 0}
+  Rotation_Offset: {x: 3.1, y: -1.8, z: 0}
   Z_Offset: -240
   X_Scale: 2
   Y_Scale: 1.5
@@ -16574,6 +16573,7 @@ MonoBehaviour:
     _HandCollider: {fileID: 1713575952}
     RefCamera: {fileID: 872461666}
     _HandPos: {fileID: 872461665}
+    RotationManager: {fileID: 1362702223}
     TouchCollider: {fileID: 0}
     TouchItem: {fileID: 0}
     ShowGizmo: 1
@@ -16592,9 +16592,9 @@ MonoBehaviour:
     CurrBackHomeStrength: 0
     ReachRange: 5
     Fuky_Ball: {fileID: 872461663}
-    Fuky_Range: {fileID: 827637813}
     Range: 2
     Range_Offset: 2
+    CurrAdjRotation: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &1362702223
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16610,6 +16610,8 @@ MonoBehaviour:
   Earth: {fileID: 0}
   Finger: {fileID: 872461668}
   inRotationMode: 0
+  SelectMode: 0
+  RingUI: {fileID: 872461663}
   glowColor: {r: 0, g: 1, b: 1, a: 1}
   glowIntensity: 2
   glowWidth: 0.1
@@ -18170,7 +18172,7 @@ MonoBehaviour:
       RubStrength: 1
   CurrCanPickAble: 1
   PickUpCoolDown: 2
-  CustomRotateOffset:
+  ItemAdjRotation:
     value:
       x: 0
       y: 0
