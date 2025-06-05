@@ -141,6 +141,7 @@ public class Pot : InteractedItemOrigin
     public PotAttrBoard _potAttrBoard; 
     private void Start()
     {
+        base.Start();
         _potAttrBoard.Me = this;
         _MyFsm.AddState(ItemState_Type.Default,new PotDefaultState(_MyFsm, Default, _potAttrBoard));
         _MyFsm.AddState(ItemState_Type.State1, new PotHeatingState(_MyFsm, Default, _potAttrBoard));

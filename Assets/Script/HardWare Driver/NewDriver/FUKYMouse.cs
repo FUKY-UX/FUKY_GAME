@@ -5,6 +5,7 @@ using System.Threading;
 using System.Runtime.InteropServices;
 //using System.Numerics;
 using Unity.Mathematics;
+using System.Data;
 
 
 public class FUKYMouse : SingletonMono<FUKYMouse>
@@ -15,15 +16,22 @@ public class FUKYMouse : SingletonMono<FUKYMouse>
     #region Configuration Parameters
     [Header(" 全局设置")]
     [Tooltip("全局缩放系数")]
-    [Range(0.001F, 1F)]
+    [Range(0.001F, 100F)]
     public float Scaler;
+    [Range(0.001F, 100F)]
+    public float Sensity = 1f;
     [Tooltip("左右位移反转")]
     public bool InVerse;
     [Header("IMU安装轴问题")]
     [Tooltip("旋转的纠正量，用来处理IMU安装与设备朝向以及Unity坐标不对应的问题")]
     public Vector3 Rotation_Offset;
     public float Z_Offset = 10;
-
+    [Tooltip("傻逼IMU瞎几把自己设定轴，如果发现轴不对就狂换下面，看哪一种匹配")]
+    [Range(0,5)]
+    public int MappingAxis = 0;
+    [Tooltip("当发现旋转映射上后，但有一个轴的映射是反的，就狂按下面")]
+    [Range(0, 6)]
+    public int AxisInverse = 0;
     [Header("各轴独立缩放")]
     [Tooltip("X轴单独的缩放")]
     [Range(0.001f, 10f)]
@@ -178,12 +186,7 @@ public class FUKYMouse : SingletonMono<FUKYMouse>
                 data.accelZ,
                 data.accelX
             );
-            rawRotation = quaternion.Euler(Rotation_Offset) * new Quaternion(
-                data.quatY,
-                data.quatX,
-                data.quatZ,
-                data.quatW
-            );
+            GetRotateData(data);
             //Debug.Log("加速度数据:" + rawAcceleration + "四元数数据:" + rawRotation);
             // 读取数据结构 定位器数据
             _locatorAccessor.Read(0, out data2);
@@ -216,14 +219,14 @@ public class FUKYMouse : SingletonMono<FUKYMouse>
             isMouseFloating = (buttonState & 0x08) != 0; // 第3位：浮动状态
             //Debug.Log($"按钮值: {buttonState}");
 
-            if (Left_pressed && Left_pressed != LastLeft_pressed)  Left_Down = true;  else Left_Down = false;
+            if (Left_pressed && Left_pressed != LastLeft_pressed) Left_Down = true; else Left_Down = false;
             if (Right_pressed && Right_pressed != LastRight_pressed) Right_Down = true; else Right_Down = false;
             LastLeft_pressed = Left_pressed;
             LastRight_pressed = Right_pressed;
 
             byte low = _PRESS_Accessor.ReadByte(0);
             byte high = _PRESS_Accessor.ReadByte(1);
-            PressureValue =math.max(0, ((ushort)((high << 8) | low) / 65535.0f))*2;
+            PressureValue = math.max(0, ((ushort)((high << 8) | low) / 65535.0f)) * 2;
             //Debug.Log(PressureValue);
 
             var AccelVector = rawAcceleration - LastAccel;
@@ -234,7 +237,7 @@ public class FUKYMouse : SingletonMono<FUKYMouse>
                 {
                     FusionTranslate += CurrAccel * AccelScaler;
                     SenseUpdate = false;
-                    Debug.Log("插帧"+ CurrAccel);
+                    Debug.Log("插帧" + CurrAccel);
                 }
             }
         }
@@ -271,6 +274,7 @@ public class FUKYMouse : SingletonMono<FUKYMouse>
         {
             deltaTranslate = Vector3.zero;
         }
+        deltaTranslate *= Sensity;
         lastFilteredTranslate = filteredTranslate;
 
 
@@ -279,5 +283,40 @@ public class FUKYMouse : SingletonMono<FUKYMouse>
 
 
     }
+
+    private void GetRotateData(IMUData data)
+    {
+        switch (MappingAxis)
+        {
+            case 0: rawRotation = quaternion.Euler(Rotation_Offset) * new Quaternion(data.quatX, data.quatY, data.quatZ, data.quatW); AdjustAxis(); break;
+            case 1: rawRotation = quaternion.Euler(Rotation_Offset) * new Quaternion(data.quatX, data.quatZ, data.quatY, data.quatW); AdjustAxis(); break;
+
+            case 2: rawRotation = quaternion.Euler(Rotation_Offset) * new Quaternion(data.quatY, data.quatX, data.quatZ, data.quatW); AdjustAxis(); break;
+            case 3: rawRotation = quaternion.Euler(Rotation_Offset) * new Quaternion(data.quatY, data.quatZ, data.quatX, data.quatW); AdjustAxis(); break;
+
+            case 4: rawRotation = quaternion.Euler(Rotation_Offset) * new Quaternion(data.quatZ, data.quatX, data.quatY, data.quatW); AdjustAxis(); break;
+            case 5: rawRotation = quaternion.Euler(Rotation_Offset) * new Quaternion(data.quatZ, data.quatY, data.quatX, data.quatW); AdjustAxis(); break;
+            default:
+                break;
+        }
+    }
+    private void AdjustAxis()
+    {
+        switch (AxisInverse)
+        {
+            case 0:rawRotation = new Quaternion(rawRotation.x, rawRotation.y, rawRotation.z, rawRotation.w); break;
+
+            case 1: rawRotation = new Quaternion(-rawRotation.x, rawRotation.y, rawRotation.z, rawRotation.w); break;
+            case 2: rawRotation = new Quaternion(rawRotation.x, -rawRotation.y, rawRotation.z, rawRotation.w); break;
+            case 3: rawRotation = new Quaternion(rawRotation.x, rawRotation.y, -rawRotation.z, rawRotation.w); break;
+
+            case 4: rawRotation = new Quaternion(-rawRotation.x, -rawRotation.y, rawRotation.z, rawRotation.w); break;
+            case 5: rawRotation = new Quaternion(rawRotation.x, -rawRotation.y, -rawRotation.z, rawRotation.w); break;
+            case 6: rawRotation = new Quaternion(-rawRotation.x, rawRotation.y, -rawRotation.z, rawRotation.w); break;
+            default:
+                break;
+        }
+    }
+
 
 }

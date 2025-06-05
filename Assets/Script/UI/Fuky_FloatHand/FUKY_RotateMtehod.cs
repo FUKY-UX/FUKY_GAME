@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class RelativeLookAt : MonoBehaviour
+public class FUKY_RotateMtehod : MonoBehaviour
 {
     public Transform Earth;  // 要旋转的物体
     public Transform Finger;  // 目标物体
@@ -64,17 +64,22 @@ public class RelativeLookAt : MonoBehaviour
         if (SelectMode)
         {
             if (glowLine != null) glowLine.enabled = true;
+            glowLine.enabled = true;
+            Finger.gameObject.SetActive(true);
             UpdateGlowLine(); return; 
         }
         else if(inRotationMode)
         {
             if (glowLine != null) glowLine.enabled = true;
+            glowLine.enabled = true;
+            Finger.gameObject.SetActive(true);
             ApplyRelativeRotation();
             UpdateGlowLine();
         }
         else
         {
             if (glowLine != null) glowLine.enabled = false;
+            glowLine.enabled = false;
             Finger.gameObject.SetActive(false);
         }
     }
@@ -132,32 +137,31 @@ public class RelativeLookAt : MonoBehaviour
 
         // 应用旋转 (保持初始旋转关系的基础上增加旋转)
         Earth.rotation = deltaRotation * initialRotationA;
-
         return deltaRotation;
     }
 
     // 在场景中绘制可视化参考
-    void OnDrawGizmos()
-    {
-        if (inRotationMode)
-        {
-            // 绘制初始位置连线
-            Gizmos.color = Color.green;
-            Gizmos.DrawLine(initialPositionA, initialPositionB);
-            Gizmos.DrawSphere(initialPositionA, 0.1f);
-            Gizmos.DrawSphere(initialPositionB, 0.1f);
+    //void OnDrawGizmos()
+    //{
+    //    if (inRotationMode && Earth !=null)
+    //    {
+    //        // 绘制初始位置连线
+    //        Gizmos.color = Color.green;
+    //        Gizmos.DrawLine(initialPositionA, initialPositionB);
+    //        Gizmos.DrawSphere(initialPositionA, 0.1f);
+    //        Gizmos.DrawSphere(initialPositionB, 0.1f);
 
-            // 绘制当前位置连线
-            Gizmos.color = Color.blue;
-            Gizmos.DrawLine(Earth.position, Finger.position);
+    //        // 绘制当前位置连线
+    //        Gizmos.color = Color.blue;
+    //        Gizmos.DrawLine(Earth.position, Finger.position);
 
-            // 使用Gizmos替代Handles.Label
-            DrawLabel(initialPositionA + Vector3.up * 0.5f, "初始位置A", Color.green);
-            DrawLabel(initialPositionB + Vector3.up * 0.5f, "初始位置B", Color.green);
-            DrawLabel(Earth.position + Vector3.up * 0.5f, "当前A", Color.blue);
-            DrawLabel(Finger.position + Vector3.up * 0.5f, "当前B", Color.blue);
-        }
-    }
+    //        // 使用Gizmos替代Handles.Label
+    //        DrawLabel(initialPositionA + Vector3.up * 0.5f, "初始位置A", Color.green);
+    //        DrawLabel(initialPositionB + Vector3.up * 0.5f, "初始位置B", Color.green);
+    //        DrawLabel(Earth.position + Vector3.up * 0.5f, "当前A", Color.blue);
+    //        DrawLabel(Finger.position + Vector3.up * 0.5f, "当前B", Color.blue);
+    //    }
+    //}
     /// <summary>
     /// 使用Gizmos绘制文本标签
     /// </summary>

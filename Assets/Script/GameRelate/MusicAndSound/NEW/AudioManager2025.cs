@@ -4,30 +4,34 @@ using UnityEngine;
 
 using UnityEngine;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 /// <summary>
-/// ¼òÒ×ÒôĞ§²¥·ÅÆ÷£¨µ¥ÀıÄ£Ê½£©
-/// ¹¦ÄÜ£º²¥·Å/Í£Ö¹ÒôĞ§¡¢ÒôÁ¿¿ØÖÆ¡¢·ÀÖ¹ÖØ¸´²¥·Å
+/// ç®€æ˜“éŸ³æ•ˆæ’­æ”¾å™¨ï¼ˆå•ä¾‹æ¨¡å¼ï¼‰
+/// åŠŸèƒ½ï¼šæ’­æ”¾/åœæ­¢éŸ³æ•ˆã€éŸ³é‡æ§åˆ¶ã€é˜²æ­¢é‡å¤æ’­æ”¾
 /// </summary>
 public class AudioManager2025 : MonoBehaviour
 {
     public static AudioManager2025 Instance { get; private set; }
 
-    [Header("ÒôĞ§ÉèÖÃ")]
+    [Header("éŸ³æ•ˆè®¾ç½®")]
     [Range(0, 1)] public float globalVolume = 1f;
     [SerializeField] private AudioClip[] soundEffects;
     [SerializeField] private AudioClip bgm;
-    private Dictionary<string, AudioClip> soundLibrary = new Dictionary<string, AudioClip>();
-    private AudioSource audioSource;
-    private float lastPlayTime;
-    private float soundCooldown = 0.1f; // ·ÀÖ¹Á¬Ğø²¥·ÅµÄ×îĞ¡¼ä¸ô
+    [SerializeField] public AudioSource UniversalAudioSoure;
 
-    private Camera CurrMainCam;
+    public SerializableDictionary<string, AudioClip> soundLibrary = new SerializableDictionary<string, AudioClip>();
+    private AudioSource CamAudioSoure;
+
+    private float lastPlayTime;
+    private string lastplayName;
+
+    private float soundCooldown = 0.1f; // é˜²æ­¢è¿ç»­æ’­æ”¾çš„æœ€å°é—´éš”
 
     private void Awake()
     {
 
-        // µ¥Àı³õÊ¼»¯
+        // å•ä¾‹åˆå§‹åŒ–
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -36,11 +40,7 @@ public class AudioManager2025 : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // ´´½¨ÒôÆµÔ´
-        audioSource = gameObject.AddComponent<AudioSource>();
-        audioSource.playOnAwake = false;
-
-        // ½¨Á¢ÒôĞ§¿â×Öµä
+        // å»ºç«‹éŸ³æ•ˆåº“å­—å…¸
         foreach (var clip in soundEffects)
         {
             soundLibrary.Add(clip.name, clip);
@@ -50,32 +50,56 @@ public class AudioManager2025 : MonoBehaviour
     }
     private void Start()
     {
-        CurrMainCam = Camera.main;
-        CurrMainCam.gameObject.GetComponent<AudioSource>().PlayOneShot(bgm, globalVolume);
+        CamAudioSoure = Camera.main.gameObject.GetComponent<AudioSource>();
+       // UniversalAudioSoure.PlayOneShot(bgm, globalVolume);
 
     }
 
     /// <summary>
-    /// ²¥·ÅÖ¸¶¨Ãû³ÆµÄÒôĞ§
+    /// æ’­æ”¾æŒ‡å®šåç§°çš„éŸ³æ•ˆ
     /// </summary>
     public void PlaySound(string soundName)
     {
-        // ·ÀÖ¹¸ßÆµÖØ¸´²¥·Å
-        if (Time.time - lastPlayTime < soundCooldown) return;
+        // é˜²æ­¢é«˜é¢‘é‡å¤æ’­æ”¾
+        if (Time.time - lastPlayTime < soundCooldown && lastplayName == soundName) return;
 
         if (soundLibrary.TryGetValue(soundName, out AudioClip clip))
         {
-            audioSource.PlayOneShot(clip, globalVolume);
+            CamAudioSoure.PlayOneShot(clip, globalVolume);
+            lastPlayTime = Time.time;
+            lastplayName = soundName;
+        }
+        else
+        {
+            Debug.LogWarning($"éŸ³æ•ˆä¸å­˜åœ¨: {soundName}");
+        }
+    }
+
+    /// <summary>
+    /// åœ¨æŒ‡å®šçš„éŸ³æºæ’­æ”¾æŒ‡å®šåç§°çš„éŸ³æ•ˆ
+    /// </summary>
+    public void PlaySound( AudioSource SoundSource, string soundName)
+    {
+
+        // é˜²æ­¢é«˜é¢‘é‡å¤æ’­æ”¾
+        if (Time.time - lastPlayTime < soundCooldown && lastplayName == soundName) return;
+
+        if (soundLibrary.TryGetValue(soundName, out AudioClip clip) && SoundSource!=null)
+        {
+            Debug.LogWarning($"æ‰¾åˆ°äº†: {soundName}");
+
+            SoundSource.PlayOneShot(clip, globalVolume);
             lastPlayTime = Time.time;
         }
         else
         {
-            Debug.LogWarning($"ÒôĞ§²»´æÔÚ: {soundName}");
+            Debug.LogWarning($"éŸ³æ•ˆä¸å­˜åœ¨: {soundName}");
         }
     }
 
+
     /// <summary>
-    /// Ëæ»ú²¥·ÅÒ»×éÒôĞ§ÖĞµÄÒ»¸ö
+    /// éšæœºæ’­æ”¾ä¸€ç»„éŸ³æ•ˆä¸­çš„ä¸€ä¸ª
     /// </summary>
     public void PlayRandomSound(params string[] soundNames)
     {
@@ -86,22 +110,34 @@ public class AudioManager2025 : MonoBehaviour
     }
 
     /// <summary>
-    /// Í£Ö¹ËùÓĞÒôĞ§
+    /// éšæœºæ’­æ”¾ä¸€ç»„éŸ³æ•ˆä¸­çš„ä¸€ä¸ª
+    /// </summary>
+    public void PlayRandomSound(AudioSource SoundSource,params string[] soundNames)
+    {
+        if (soundNames.Length == 0) return;
+
+        string selectedSound = soundNames[Random.Range(0, soundNames.Length)];
+        PlaySound(SoundSource,selectedSound);
+    }
+
+
+    /// <summary>
+    /// åœæ­¢æ‰€æœ‰éŸ³æ•ˆ
     /// </summary>
     public void StopAllSounds()
     {
-        audioSource.Stop();
+        CamAudioSoure.Stop();
     }
 
     /// <summary>
-    /// ÉèÖÃÈ«¾ÖÒôÁ¿
+    /// è®¾ç½®å…¨å±€éŸ³é‡
     /// </summary>
     public void SetVolume(float volume)
     {
         globalVolume = Mathf.Clamp01(volume);
     }
 
-    // ±à¼­Æ÷¿ì½İ·½·¨
+    // ç¼–è¾‘å™¨å¿«æ·æ–¹æ³•
     [ContextMenu("Test Play Sound")]
     private void TestPlay()
     {

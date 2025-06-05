@@ -58,7 +58,7 @@ Transform:
   m_GameObject: {fileID: 1079349317635268419}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.56, y: -0.467, z: 1.19}
+  m_LocalPosition: {x: 0.5, y: -1, z: 2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -142,7 +142,7 @@ Transform:
   m_GameObject: {fileID: 1706213058093514139}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.8, z: 0.02}
+  m_LocalPosition: {x: 0, y: 1.8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -280,7 +280,7 @@ Transform:
   m_GameObject: {fileID: 2193926670803932075}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.551, z: 1.134}
+  m_LocalPosition: {x: -0, y: 0, z: 2.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -296,8 +296,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1215406429842182949}
   - component: {fileID: 2137240064308199155}
-  - component: {fileID: 3395081941515509492}
-  - component: {fileID: 7356837812487369237}
+  - component: {fileID: 2329606815130040337}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -334,70 +333,51 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe07ae13b1c085b4f9e8aaa1851aff1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
-  sprintSpeed: 8
-  jumpForce: 7
-  gravity: 20
+  IsDisAbleMovementAndLook: 0
+  moveSpeed: 6
+  sprintSpeed: 10
+  jumpForce: 10
+  gravity: 30
   airControl: 0.5
   mouseSensitivity: 2
   minVerticalAngle: -90
   maxVerticalAngle: 90
-  walkBobFrequency: 1.5
-  walkBobHeight: 0.1
-  walkBobSide: 0.05
-  sprintMultiplier: 1.5
+  crouchHeight: 1
+  crouchSpeed: 1
+  crouchTransitionSpeed: 10
+  crouchKey: 306
+  walkBobFrequency: 15
+  walkBobHeight: 0.25
+  walkBobSide: 0.1
+  sprintMultiplier: 2
   landBobAmount: 0.2
-  bobSmooth: 5
+  bobSmooth: 3
   minMoveThreshold: 0.1
---- !u!54 &3395081941515509492
-Rigidbody:
+--- !u!143 &2329606815130040337
+CharacterController:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5264989581885598558}
-  serializedVersion: 4
-  m_Mass: 2
-  m_Drag: 0
-  m_AngularDrag: 0
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 8
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 112
-  m_CollisionDetection: 2
---- !u!136 &7356837812487369237
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5264989581885598558}
-  m_Material: {fileID: 13400000, guid: 13836a0f6c037a8439f965a7ec5e1baa, type: 2}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 63
+    m_Bits: 520
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
+  serializedVersion: 3
+  m_Height: 4.5
   m_Radius: 0.5
-  m_Height: 6
-  m_Direction: 1
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7110105166309236709
 GameObject:
@@ -461,7 +441,7 @@ PrefabInstance:
     - target: {fileID: 2223964066447877407, guid: 7aa468795cefd1f4d83c29d7a86bbefa,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -4.43
+      value: -6.82
       objectReference: {fileID: 0}
     - target: {fileID: 2223964066447877407, guid: 7aa468795cefd1f4d83c29d7a86bbefa,
         type: 3}
@@ -511,7 +491,7 @@ PrefabInstance:
     - target: {fileID: 6235928581030244859, guid: 7aa468795cefd1f4d83c29d7a86bbefa,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -224,6 +224,7 @@ public class FoodItemBase : InteractedItemOrigin
     public FoodAttr CookAttr;
     private void Start()
     {
+        base.Start();
         _MyFsm.AddState(ItemState_Type.Default, new FoodDefaultState(_MyFsm, Default, CookAttr));
         _MyFsm.AddState(ItemState_Type.State1, new FoodCookingState(_MyFsm, Default, CookAttr));
         _MyFsm.SwitchState(ItemState_Type.Default);

@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class FirstPersonController : MonoBehaviour
 {
+    [Header("禁用功能")]
+    public bool IsDisAbleMovementAndLook = false;
+    public CharacterController controller;
     [Header("移动设置")]
     public float moveSpeed = 5f;
     public float sprintSpeed = 8f;
@@ -14,6 +17,12 @@ public class FirstPersonController : MonoBehaviour
     public float minVerticalAngle = -90f;
     public float maxVerticalAngle = 90f;
 
+    [Header("蹲伏设置")]
+    public float crouchHeight = 1.0f;
+    public float crouchSpeed = 2.5f;
+    public float crouchTransitionSpeed = 10f;
+    public KeyCode crouchKey = KeyCode.LeftControl;
+
     [Header("视角摇晃")]
     public float walkBobFrequency = 1.5f;
     public float walkBobHeight = 0.1f;
@@ -21,9 +30,9 @@ public class FirstPersonController : MonoBehaviour
     public float sprintMultiplier = 1.5f;
     public float landBobAmount = 0.2f;
     public float bobSmooth = 5f;
-    public float minMoveThreshold = 0.1f; // 新增：最小移动阈值
+    public float minMoveThreshold = 0.1f;
 
-    private CharacterController controller;
+
     private Camera playerCamera;
     private Transform cameraTransform;
 
@@ -39,7 +48,13 @@ public class FirstPersonController : MonoBehaviour
     private bool isGrounded = false;
     private bool wasGrounded = false;
     private float verticalVelocity = 0;
-    private bool isMoving = false; // 新增：移动状态检测
+    private bool isMoving = false;
+    private float standHeight;
+    private Vector3 standCenter;
+    private Vector3 crouchCenter;
+    private bool isCrouching = false;
+    private float currentHeight; // 当前实际高度
+    private Vector3 currentCenter; // 当前实际中心点
 
     void Start()
     {
@@ -50,14 +65,103 @@ public class FirstPersonController : MonoBehaviour
         defaultCameraY = cameraOriginalPosition.y;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        // 初始化高度参数
+        standHeight = controller.height;
+        standCenter = controller.center;
+        crouchCenter = standCenter - new Vector3(0, (standHeight - crouchHeight) / 2, 0);
+
+        // 设置当前高度和中心点为站立状态
+        currentHeight = standHeight;
+        currentCenter = standCenter;
     }
 
     void Update()
     {
+        if (IsDisAbleMovementAndLook)
+        {
+            // 保留最小物理逻辑
+            isGrounded = controller.isGrounded;
+            controller.Move(Vector3.zero); // 触发碰撞检测
+            return;
+        }
+
+        HandleCrouch();
         HandleMovement();
         HandleMouseLook();
         HandleHeadBob();
         HandleLandingEffect();
+
+        // 应用平滑过渡
+        ApplyCrouchTransition();
+    }
+
+    void HandleCrouch()
+    {
+        bool wantToCrouch = Input.GetKey(crouchKey);
+
+        // 从站立切换到蹲下
+        if (wantToCrouch && !isCrouching)
+        {
+            isCrouching = true;
+        }
+        // 从蹲下切换到站立（需要检查头顶空间）
+        else if (!wantToCrouch && isCrouching)
+        {
+            if (CanStandUp())
+            {
+                isCrouching = false;
+            }
+        }
+    }
+
+    void ApplyCrouchTransition()
+    {
+        // 确定目标高度和中心点
+        float targetHeight = isCrouching ? crouchHeight : standHeight;
+        Vector3 targetCenter = isCrouching ? crouchCenter : standCenter;
+
+        // 使用Lerp平滑过渡高度和中心点
+        currentHeight = Mathf.Lerp(currentHeight, targetHeight, crouchTransitionSpeed * Time.deltaTime);
+        currentCenter = Vector3.Lerp(currentCenter, targetCenter, crouchTransitionSpeed * Time.deltaTime);
+
+        // 应用过渡后的值
+        controller.height = currentHeight;
+        controller.center = currentCenter;
+
+        // 调整摄像机高度（可选）
+        AdjustCameraHeight();
+    }
+
+    void AdjustCameraHeight()
+    {
+        // 计算摄像机应下降的高度差
+        float heightDifference = standHeight - currentHeight;
+
+        // 创建新的摄像机位置（保持原始位置减去高度差）
+        Vector3 adjustedPosition = cameraOriginalPosition;
+        adjustedPosition.y -= heightDifference;
+
+        // 应用平滑过渡到新位置
+        cameraTransform.localPosition = Vector3.Lerp(
+            cameraTransform.localPosition,
+            adjustedPosition,
+            crouchTransitionSpeed * Time.deltaTime
+        );
+    }
+
+    // 检查头顶是否有足够空间站起
+    private bool CanStandUp()
+    {
+        float checkDistance = standHeight - crouchHeight;
+        Vector3 rayStart = transform.position + currentCenter + Vector3.up * (currentHeight / 2);
+
+        // 向上发射射线检测障碍物
+        if (Physics.Raycast(rayStart, Vector3.up, checkDistance))
+        {
+            return false;
+        }
+        return true;
     }
 
     void HandleMovement()
@@ -77,7 +181,10 @@ public class FirstPersonController : MonoBehaviour
         // 计算移动方向
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
-        float currentSpeed = sprinting ? sprintSpeed : moveSpeed;
+
+        // 修改速度计算部分（考虑蹲下状态）
+        float currentSpeed = isCrouching ? crouchSpeed :
+            (sprinting ? sprintSpeed : moveSpeed);
 
         // 垂直速度计算
         if (isGrounded)
@@ -141,14 +248,14 @@ public class FirstPersonController : MonoBehaviour
             float bobHeight = Mathf.Sin(bobTimer) * walkBobHeight * bobMultiplier;
             float bobSide = Mathf.Cos(bobTimer * 0.5f) * walkBobSide * bobMultiplier;
 
-            // 设置目标位置
-            targetCameraPosition = cameraOriginalPosition +
-                                  new Vector3(bobSide, bobHeight, 0);
+            // 设置目标位置（加上蹲伏偏移）
+            Vector3 bobOffset = new Vector3(bobSide, bobHeight, 0);
+            targetCameraPosition = cameraOriginalPosition - new Vector3(0, standHeight - currentHeight, 0) + bobOffset;
         }
         else
         {
-            // 平滑回到原始位置
-            targetCameraPosition = cameraOriginalPosition;
+            // 平滑回到原始位置（考虑蹲伏偏移）
+            targetCameraPosition = cameraOriginalPosition - new Vector3(0, standHeight - currentHeight, 0);
 
             // 重置摇晃计时器
             if (!isMoving)
@@ -167,19 +274,6 @@ public class FirstPersonController : MonoBehaviour
 
     void HandleLandingEffect()
     {
-        // 落地时的额外摇晃效果
-        //if (isGrounded && !wasGrounded)
-        //{
-        //    // 使用临时变量避免直接修改摄像机位置
-        //    Vector3 landingPosition = cameraTransform.localPosition;
-        //    landingPosition.y -= landBobAmount;
-
-        //    // 直接设置位置确保立即生效
-        //    cameraTransform.localPosition = landingPosition;
-
-        //    // 更新目标位置保持一致性
-        //    targetCameraPosition = landingPosition;
-        //}
-        //wasGrounded = isGrounded;
+        // 落地效果（可选实现）
     }
 }

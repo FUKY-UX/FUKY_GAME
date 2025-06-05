@@ -80,17 +80,14 @@ MonoBehaviour:
       GrabTimeFactor: 1
       RubFactor: {x: 0, y: 0, z: 0}
       RubStrength: 1
-    Sound:
-      Sounds:
-        list: []
-      AudioSource: {fileID: 4845238648382698350}
-      Volume: 1
-      NoiseCd: 1
-      NoiseCdOffset: 1
-      V_LastSoundPlay: 0
-      V_Playable: 1
   CurrCanPickAble: 1
   PickUpCoolDown: 2
+  ItemAdjRotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 1
   CookAttr:
     LastFoodPartState:
       CurrPartCookMoment: 0
@@ -435,7 +432,7 @@ PrefabInstance:
     - target: {fileID: 6241204521739093887, guid: 367522c9ebf069345a1d4451041641a8,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.035
+      value: 0.0573265
       objectReference: {fileID: 0}
     - target: {fileID: 6241204521739093887, guid: 367522c9ebf069345a1d4451041641a8,
         type: 3}
@@ -445,17 +442,17 @@ PrefabInstance:
     - target: {fileID: 6241204521739093887, guid: 367522c9ebf069345a1d4451041641a8,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.0011560221
+      value: -0.0011541
       objectReference: {fileID: 0}
     - target: {fileID: 6241204521739093887, guid: 367522c9ebf069345a1d4451041641a8,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.0011422106
+      value: 0.0011498
       objectReference: {fileID: 0}
     - target: {fileID: 6241204521739093887, guid: 367522c9ebf069345a1d4451041641a8,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.00016303478
+      value: 0.00015541
       objectReference: {fileID: 0}
     - target: {fileID: 6241204521739093887, guid: 367522c9ebf069345a1d4451041641a8,
         type: 3}
@@ -495,7 +492,7 @@ PrefabInstance:
     - target: {fileID: 6241204521739093887, guid: 367522c9ebf069345a1d4451041641a8,
         type: 3}
       propertyPath: m_ConstrainProportionsScale
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6472773402060817066, guid: 367522c9ebf069345a1d4451041641a8,
         type: 3}

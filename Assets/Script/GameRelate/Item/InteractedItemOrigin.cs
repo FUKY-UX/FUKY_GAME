@@ -2,17 +2,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using Unity.Mathematics;
+using System.Linq;
+using Unity.Collections;
+using System.Collections;
 
 
-public enum DefaultItemSound
-{
-    [Tooltip("抓住物品时发出的声音")]
-    Grabing,
-    [Tooltip("扔掉物品时发出的声音")]
-    Throwing,
-    [Tooltip("和其他物品碰撞的声音")]
-    Knock
-}
 [Serializable]
 public class ItemPhysics:AttrBoard
 {
@@ -22,6 +16,25 @@ public class ItemPhysics:AttrBoard
     public Vector3 RubFactor;
     public float RubStrength = 1f;
 }
+
+[Serializable]
+public class ItemDefaultSound : AttrBoard
+{
+    [Tooltip("声音发出来的地方")]
+    public AudioSource MyAduioSource;
+    [Tooltip("和其他物品碰撞的声音")]
+    public AudioClip[] _OnHitSound;
+    [Tooltip("抓住物品时发出的声音")]
+    public AudioClip[] _OnGrabSound;
+    [Tooltip("扔掉物品时发出的声音")]
+    public AudioClip[] _OnReleaseSound;
+
+    [ReadOnly] public string[] _OnHitSound_Str;
+    [ReadOnly] public string[] _OnGrabSound_Str;
+    [ReadOnly] public string[] _OnReleaseSound_Str;
+
+}
+
 [Serializable]
 public class ItemSound : AttrBoard
 {
@@ -45,6 +58,9 @@ public class DefaultItemAttrBoard : AttrBoard
 {
     [Header("基础物理属性")]
     public ItemPhysics Phy;
+    [Header("基础音效")]
+    public ItemDefaultSound Sound;
+    
 }
 public abstract class ItemState : InteractedItem
 {
@@ -80,7 +96,6 @@ public class DefaultItemState : ItemState
 {
     protected ItemFSM _MyFsm;
     public DefaultItemAttrBoard _DefAttrBoard;
-
     public DefaultItemState(ItemFSM in_Fsm, DefaultItemAttrBoard _defattrboard)
     {
         _MyFsm = in_Fsm;
@@ -88,12 +103,15 @@ public class DefaultItemState : ItemState
     }
     public override void OnGrab()
     {
+        AudioManager2025.Instance.PlaySound(_DefAttrBoard.Sound.MyAduioSource, _DefAttrBoard.Sound._OnGrabSound_Str[0]);
     }
     public override void OnRelease()
     {
+        AudioManager2025.Instance.PlaySound(_DefAttrBoard.Sound.MyAduioSource, _DefAttrBoard.Sound._OnReleaseSound_Str[0]);
     }
     public override void OnRidigibodyEnter(Collision collision)
     {
+        AudioManager2025.Instance.PlaySound(_DefAttrBoard.Sound.MyAduioSource, _DefAttrBoard.Sound._OnHitSound_Str[0]);
     }
 }
 
@@ -106,6 +124,7 @@ public class InteractedItemOrigin : MonoBehaviour
     public bool CurrCanPickAble = true;
     public float PickUpCoolDown = 2f;
     public quaternion ItemAdjRotation = quaternion.identity;
+    
     private float LastDropTime_Delay = 0;
     private float ItemMass;
     private float ItemDrag;
@@ -116,10 +135,35 @@ public class InteractedItemOrigin : MonoBehaviour
         _MyFsm = new ItemFSM(Default);
         _MyFsm.AddState(ItemState_Type.Default, new DefaultItemState(_MyFsm, Default));
         _MyFsm.SwitchState(ItemState_Type.Default);
+
         ItemMass = Default.Phy._rigidbody.mass;
         ItemDrag = Default.Phy._rigidbody.drag;
         ItemAngleDrag = Default.Phy._rigidbody.angularDrag;
+    }
 
+    public void Start()
+    {
+        registerAduioList();
+    }
+
+    public void registerAduioList()
+    {
+        if (Default.Sound.MyAduioSource == null)
+        {
+            Default.Sound.MyAduioSource = gameObject.AddComponent<AudioSource>();
+            CopyAudioSourceProperties(AudioManager2025.Instance.UniversalAudioSoure, Default.Sound.MyAduioSource);
+        }
+        // 建立音效字符串列表
+        Default.Sound._OnGrabSound_Str = ConvertClipsToNames(Default.Sound._OnGrabSound);
+        Default.Sound._OnReleaseSound_Str = ConvertClipsToNames(Default.Sound._OnReleaseSound);
+        Default.Sound._OnHitSound_Str = ConvertClipsToNames(Default.Sound._OnHitSound);
+    }
+    private string[] ConvertClipsToNames(AudioClip[] clips)
+    {
+        if (clips == null || clips.Length == 0)
+            return new[] { "Error" };
+
+        return clips.Select(clip => clip?.name ?? "null").ToArray();
     }
 
     public void Update()
@@ -187,5 +231,19 @@ public class InteractedItemOrigin : MonoBehaviour
         Default.Phy._rigidbody.mass = ItemMass;
         Default.Phy._rigidbody.drag = ItemDrag;
         Default.Phy._rigidbody.angularDrag = ItemAngleDrag;
+    }
+
+    // 复制AudioSource所有属性的辅助方法
+    public void CopyAudioSourceProperties(AudioSource source, AudioSource target)
+    {
+        target.volume = source.volume;
+        target.pitch = source.pitch;
+        target.spatialBlend = source.spatialBlend;
+        target.loop = source.loop;
+        target.playOnAwake = source.playOnAwake;
+        target.outputAudioMixerGroup = source.outputAudioMixerGroup;
+        target.minDistance = source.minDistance;
+        target.maxDistance = source.maxDistance;
+        target.rolloffMode = source.rolloffMode;
     }
 }
