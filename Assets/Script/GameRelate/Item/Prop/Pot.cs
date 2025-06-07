@@ -14,7 +14,7 @@ public class PotAttrBoard : AttrBoard
     public float HeatingRange = 1f; 
     
     [Header("铁锅物理")]
-    public MeshCollider CookCollider;
+    public GameObject CookCollider;
     public Transform PotCenter;
     [Header("调试参数")]
     public bool ShowGizmo;
@@ -52,12 +52,12 @@ public class PotDefaultState : ItemState
     public override void OnGrab()
     {
         _DefAttrBoard.Phy._collider.enabled = false;
-        _PotAttrBoard.CookCollider.enabled = true;
+        _PotAttrBoard.CookCollider.SetActive(true);
     }
     public override void OnRelease()
     {
         _DefAttrBoard.Phy._collider.enabled = true;
-        _PotAttrBoard.CookCollider.enabled = false;
+        _PotAttrBoard.CookCollider.SetActive(false);
     }
 
 }
@@ -104,12 +104,12 @@ public class PotHeatingState : ItemState
     {
         base.OnGrab();
         _DefAttrBoard.Phy._collider.enabled = false;
-        _PotAttrBoard.CookCollider.enabled = true;
+        _PotAttrBoard.CookCollider.SetActive(true);
     }
     public override void OnRelease()
     {
         _DefAttrBoard.Phy._collider.enabled = true;
-        _PotAttrBoard.CookCollider.enabled = false;
+        _PotAttrBoard.CookCollider.SetActive(false);
     }
 
 }
