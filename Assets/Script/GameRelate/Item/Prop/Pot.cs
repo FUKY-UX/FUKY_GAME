@@ -21,12 +21,12 @@ public class PotAttrBoard : AttrBoard
 };
 
 
-public class PotDefaultState : ItemState
+public class PotDefaultState : GrabPhyItem_DefaultState
 {
     protected ItemFSM _MyFsm;
     public DefaultItemAttrBoard _DefAttrBoard;
     public PotAttrBoard _PotAttrBoard;
-    public PotDefaultState(ItemFSM in_Fsm, DefaultItemAttrBoard _defattrboard, PotAttrBoard Extend_Board)
+    public PotDefaultState(ItemFSM in_Fsm, DefaultItemAttrBoard _defattrboard, PotAttrBoard Extend_Board): base(in_Fsm,_defattrboard,Extend_Board)
     {
         _MyFsm = in_Fsm;
         _DefAttrBoard = _defattrboard as DefaultItemAttrBoard;
@@ -35,7 +35,7 @@ public class PotDefaultState : ItemState
 
     public override void OnTriggerStay(Collider collider)
     {
-        base.OnTriggerEnter(collider);
+        base.OnTriggerStay(collider);
         FireEffect fire;
         fire = collider.gameObject.GetComponentInParent<FireEffect>();
         if (fire)
@@ -51,24 +51,22 @@ public class PotDefaultState : ItemState
 
     public override void OnGrab()
     {
-        _DefAttrBoard.Phy._collider.enabled = false;
+        base.OnGrab();
         _PotAttrBoard.CookCollider.SetActive(true);
     }
     public override void OnRelease()
     {
-        _DefAttrBoard.Phy._collider.enabled = true;
+        base.OnRelease();
         _PotAttrBoard.CookCollider.SetActive(false);
     }
 
 }
-public class PotHeatingState : ItemState
+public class PotHeatingState : GrabPhyItem_DefaultState
 {
-    protected ItemFSM _MyFsm;
-    public DefaultItemAttrBoard _DefAttrBoard;
     public PotAttrBoard _PotAttrBoard;
-    public PotHeatingState(ItemFSM in_Fsm, DefaultItemAttrBoard _defattrboard, PotAttrBoard Extend_Board)
+    public PotHeatingState(ItemFSM in_Fsm, DefaultItemAttrBoard _defattrboard, PotAttrBoard Extend_Board): base(in_Fsm,_defattrboard,Extend_Board)
     {
-        _MyFsm = in_Fsm;
+        _ItemFsm = in_Fsm;
         _DefAttrBoard = _defattrboard as DefaultItemAttrBoard;
         _PotAttrBoard = Extend_Board as PotAttrBoard;
     }
@@ -97,7 +95,7 @@ public class PotHeatingState : ItemState
 
         if (colliders.Length == 0)
         {
-            _MyFsm.SwitchState(ItemState_Type.Default);
+            _ItemFsm.SwitchState(ItemState_Type.Default);
         }
     }
     public override void OnGrab()
@@ -107,6 +105,7 @@ public class PotHeatingState : ItemState
     }
     public override void OnRelease()
     {
+        base.OnRelease();
         _PotAttrBoard.CookCollider.SetActive(false);
     }
 
@@ -117,14 +116,14 @@ public class Pot : GrabInteractedItemOrigin
     void Awake()
     {
         base.InitItemStateAndPhy();
-    }
-    private void Start()
-    {
-        base.registerAduioList();
-        _potAttrBoard.Me = this;
         Item_FSM.AddState(ItemState_Type.Default, new PotDefaultState(Item_FSM, DefaultAttr, _potAttrBoard));
         Item_FSM.AddState(ItemState_Type.State1, new PotHeatingState(Item_FSM, DefaultAttr, _potAttrBoard));
         Item_FSM.SwitchState(ItemState_Type.Default);
+    }
+    private void Start()
+    {
+        _potAttrBoard.Me = this;
+        base.registerAduioList();
     }
     public void OnDrawGizmos()
     {
