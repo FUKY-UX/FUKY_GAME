@@ -18,9 +18,10 @@ public class CookingMech : MonoBehaviour
     [Tooltip("左边是食材的烹饪状态，右边是该状态下翻面成功后的花样度加成倍率,注:UNCOOK是无效的，不可能不粘锅就算翻面")]
     public SerializableDictionary<CookingMoment, float> CookMoment_PLUS = new SerializableDictionary<CookingMoment, float>();
     // 事件系统
-    public delegate void CookingStateChangeHandler(MeatBase food, Transform part, CookingMoment Moment);
-    public event CookingStateChangeHandler OnCookingStateFinish;
-    public event CookingStateChangeHandler CookingStateUpdate;
+    public delegate void CookingMomentFinish(CookingMoment moment,Pot pot,MeatBase meat);
+    public delegate void CookingStateChangeHandler(CookingMoment moment,MeatBase meat);
+    public event CookingMomentFinish OnCookingMomentFinish;
+    public event CookingStateChangeHandler OnCookingStateChange;
     // 活跃的烹饪锅和食物
     public SerializableDictionary<Pot, List<MeatBase>> MeatCooking_FacePair
                                 = new SerializableDictionary<Pot, List<MeatBase>>();
@@ -40,11 +41,31 @@ public class CookingMech : MonoBehaviour
     // 注册烹饪关系
     public void ImBeCooking(Pot pot, MeatBase food)
     {
-        if (Instance.MeatCooking_FacePair[pot._potAttrBoard.Me].Contains(food))
+        // 1. 参数安全检查
+        if (pot == null || pot._potAttrBoard == null || food == null)
         {
+            Debug.LogWarning("无效的锅或食物参数");
             return;
         }
-        Instance.MeatCooking_FacePair[pot._potAttrBoard.Me].Add(food);
+
+        // 2. 获取或创建该锅对应的食物列表
+        if (!Instance.MeatCooking_FacePair.TryGetValue(pot._potAttrBoard.Me, out var foodList))
+        {
+            // 如果锅不存在于字典中，创建新条目
+            foodList = new List<MeatBase>();
+            Instance.MeatCooking_FacePair[pot._potAttrBoard.Me] = foodList;
+        }
+
+        // 3. 检查是否已存在该食物
+        if (!foodList.Contains(food))
+        {
+            foodList.Add(food);
+            Debug.Log($"已注册食物 {food.name} 到锅 {pot.name}");
+        }
+        else
+        {
+            Debug.Log($"食物 {food.name} 已在锅 {pot.name} 的烹饪列表中");
+        }
     }
 
     // 取消烹饪关系
@@ -68,6 +89,7 @@ public class CookingMech : MonoBehaviour
                 foreach (MeatBase food in pair.Value.ToList())
                 {
                     UpdateFoodCooking(pot, food);
+                    food.AttachToPot(pot);
                 }
             }
         }
@@ -76,26 +98,15 @@ public class CookingMech : MonoBehaviour
     // 更新单个食物的烹饪进度
     private void UpdateFoodCooking(Pot pot, MeatBase food)
     {
+        // 检查当前烹饪部分是不是空的
         if (food.CookAttr.Cook._CurrCookedPart == null) { Debug.Log("当前烹饪部分是空的"); return; }
-        // 获取当前烹饪部位
-        FoodPartInf_Def partState;
-        food.CookAttr.Food_PartState.TryGetValue(food.CookAttr.Cook._CurrCookedPart, out partState);
-
-        if (food.CookAttr.Cook._CurrCookedPart != food.CookAttr.Cook._LastCookedPart && food.CookAttr.Cook._LastCookedPart != null)
+        // 检查是不是翻面了
+        if (food.CookAttr.Cook._CurrCookedPart != food.CookAttr.Cook._LastCookedPart)
         {
-
-            FoodPartInf_Def LastPartState;
-            food.CookAttr.Food_PartState.TryGetValue(food.CookAttr.Cook._LastCookedPart, out LastPartState);
-            Debug.Log($"上一面'{food.CookAttr.Cook._LastCookedPart}'翻转了，结算情况:{LastPartState.CurrPartCookMoment}");
-            OnCookingStateFinish?.Invoke
-                (
-                    food,
-                    food.CookAttr.Cook._LastCookedPart,
-
-                    food.CookAttr.Food_PartState
-                    [food.CookAttr.Cook._CurrCookedPart].
-                    CurrPartCookMoment
-                );
+            var LastPartState = food.CookAttr.Cook._LastCookedPart;
+            food.CookAttr.Cook._LastCookedPart ??= food.CookAttr.Cook._CurrCookedPart;
+            Debug.Log($"上一面'{food.CookAttr.Cook._LastCookedPart}'翻转了，结算情况:{food.CookAttr.Cook._LastCookedPart.CurrPartCookMoment}");
+            OnCookingMomentFinish?.Invoke(food.CookAttr.Cook._LastCookedPart.CurrPartCookMoment,pot,food);
             switch (LastPartState.CurrPartCookMoment)
             {
                 case CookingMoment.Normal:
@@ -116,37 +127,25 @@ public class CookingMech : MonoBehaviour
 
                 default: break;
             }
-            LastPartState.CurrPartCookMoment = CookingMoment.UnCook;
-            LastPartState.MomentInWhere = 0;
             CreatNewMoment(LastPartState);
-
             food.CookAttr.Cook._LastCookedPart = food.CookAttr.Cook._CurrCookedPart;
         }
+        FoodPartInf_Def partState = food.CookAttr.Cook._CurrCookedPart;
+        //计算总花样度
 
-        if (partState != null)
-        {
-            //计算总花样度
-            foreach (var item in food.CookAttr.Food_PartState.Values)
-            {
-                food.CookAttr.Cook.Food_TotalCook += item.CookValue;
-            }
-            food.CookAttr.Cook.Food_TotalCook = food.CookAttr.Cook.Food_TotalCook * food.CookAttr.Phy.Food_TCR / food.CookAttr.Cook.Food_Part.Length;
-            // 计算烹饪增量
-            float cookIncrement = Time.deltaTime * defaultCookRate * food.CookAttr.Phy.Food_TCR;
+        food.CookAttr.Cook.Food_TotalCook += food.CookAttr.Cook.UpFace.CookValue + food.CookAttr.Cook.DownFace.CookValue;
 
-            // 更新时刻值
-            partState.MomentInWhere += cookIncrement;
-
-            // 根据烹饪值更新状态
-            UpdateCookingState(partState, partState.SuperMoment_V2);
-
-            CookingStateUpdate?.Invoke(food, food.CookAttr.Cook._CurrCookedPart, partState.CurrPartCookMoment);
-
-        }
+        food.CookAttr.Cook.Food_TotalCook = food.CookAttr.Cook.Food_TotalCook * food.CookAttr.Phy.Food_TCR / 2;
+        // 计算烹饪增量
+        float cookIncrement = Time.deltaTime * defaultCookRate * food.CookAttr.Phy.Food_TCR;
+        // 更新时刻值
+        partState.MomentInWhere += cookIncrement;
+        // 根据烹饪值更新状态
+        UpdateCookingState(partState, partState.SuperMoment_V2,food);
     }
 
     // 更新烹饪状态
-    private void UpdateCookingState(FoodPartInf_Def partState, Vector2 superMomentRange)
+    private void UpdateCookingState(FoodPartInf_Def partState, Vector2 superMomentRange,MeatBase meat)
     {
         switch (partState.CurrPartCookMoment)
         {
@@ -154,6 +153,7 @@ public class CookingMech : MonoBehaviour
                 if (partState.MomentInWhere > 0)
                 {
                     partState.CurrPartCookMoment = CookingMoment.Normal;
+                    OnCookingStateChange?.Invoke(CookingMoment.Normal,meat);
                 }
                 partState.CookValue += defaultCookRate * Time.deltaTime;
 
@@ -162,6 +162,8 @@ public class CookingMech : MonoBehaviour
                 if (partState.MomentInWhere > superMomentRange.x)
                 {
                     partState.CurrPartCookMoment = CookingMoment.Super;
+                    OnCookingStateChange?.Invoke(CookingMoment.Super,meat);
+
                 }
                 partState.CookValue += defaultCookRate * Time.deltaTime;
                 break;
@@ -169,6 +171,7 @@ public class CookingMech : MonoBehaviour
                 if (partState.MomentInWhere > superMomentRange.y)
                 {
                     partState.CurrPartCookMoment = CookingMoment.Lost;
+                    OnCookingStateChange?.Invoke(CookingMoment.Lost,meat);
                 }
                 partState.CookValue += defaultCookRate * Time.deltaTime;
                 break;
@@ -176,6 +179,7 @@ public class CookingMech : MonoBehaviour
                 if (partState.MomentInWhere > 1.0f)
                 {
                     partState.CurrPartCookMoment = CookingMoment.Bad;
+                    OnCookingStateChange?.Invoke(CookingMoment.Bad,meat);
                 }
                 partState.BadCookValue += defaultCookRate * Time.deltaTime;
                 break;
@@ -193,6 +197,8 @@ public class CookingMech : MonoBehaviour
 
     public void CreatNewMoment(FoodPartInf_Def FoodPart)
     {
+        FoodPart.CurrPartCookMoment = CookingMoment.UnCook;
+        FoodPart.MomentInWhere = 0;
         // 初始化"惊喜时刻"
         FoodPart.SuperMoment = UnityEngine.Random.Range(
             defaultSuperMomentRange.x,
@@ -205,53 +211,4 @@ public class CookingMech : MonoBehaviour
         );
     }
     
-        // 处理烹饪结算效果
-    private void HandleCookingMomentFinish(MeatBase food, Transform part, CookingMoment FinishMoment)
-    {
-        Debug.Log($"尝试播放音效{FinishMoment}");
-
-        if (food == this && part == CookAttr.Cook._LastCookedPart)
-        {
-            switch (FinishMoment)
-            {
-                case CookingMoment.Normal:
-                    AudioManager2025.Instance.PlaySound(CookAttr.Sound.MomentSounds[CookingMoment.Normal].name); break;
-                case CookingMoment.Super:
-                    AudioManager2025.Instance.PlaySound(CookAttr.Sound.MomentSounds[CookingMoment.Super].name); break;
-                case CookingMoment.Lost:
-                    AudioManager2025.Instance.PlaySound(CookAttr.Sound.MomentSounds[CookingMoment.Lost].name); break;
-                case CookingMoment.Bad:
-                    AudioManager2025.Instance.PlaySound(CookAttr.Sound.MomentSounds[CookingMoment.Bad].name); break;
-                default: break;
-            }
-        }
-    }
-
-    // 处理烹饪时的音效
-    private void HandleCookingSound(MeatBase food, Transform part, CookingMoment Moment)
-    {
-        Debug.Log("收到音效触发");
-        if (food == this && part == CookAttr.Cook._CurrCookedPart)
-        {
-            switch (Moment)
-            {
-                case CookingMoment.Normal:
-                    AudioManager2025.Instance.StopLongSound();
-                    AudioManager2025.Instance.PlaySound(CookAttr.Sound.Sounds[CookingMoment.Normal].name); break;
-                case CookingMoment.Super:
-                    AudioManager2025.Instance.StopLongSound();
-                    AudioManager2025.Instance.PlaySound(CookAttr.Sound.Sounds[CookingMoment.Super].name); break;
-                case CookingMoment.Lost:
-                    AudioManager2025.Instance.StopLongSound();
-                    AudioManager2025.Instance.PlaySound(CookAttr.Sound.Sounds[CookingMoment.Lost].name); break;
-                case CookingMoment.Bad:
-                    AudioManager2025.Instance.StopLongSound();
-                    AudioManager2025.Instance.PlaySound(CookAttr.Sound.Sounds[CookingMoment.Bad].name); break;
-
-                default: break;
-            }
-        }
-
-    }
-
 }

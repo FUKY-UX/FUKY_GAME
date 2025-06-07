@@ -53,8 +53,6 @@ public class FoodPhysics : AttrBoard
 public class FoodCooking : AttrBoard
 {
     [Header("烹饪情况")]
-
-    public Transform _LastCookedPart;
     public bool IsLeavingPot;
     public float Food_TotalCook = 0f;
 
@@ -62,7 +60,7 @@ public class FoodCooking : AttrBoard
     public FoodPartInf_Def UpFace;
     public FoodPartInf_Def DownFace;
     public FoodPartInf_Def _CurrCookedPart;
-    private FoodPartInf_Def LastFoodPart;
+    public FoodPartInf_Def _LastCookedPart;
 
 }
 [Serializable]
@@ -77,10 +75,11 @@ public class FoodSounds : AttrBoard
     public SerializableDictionary<CookingMoment,AudioClip> MomentSounds;
 }
 
-
 [Serializable]
 public class FoodAttr : AttrBoard
 {
+    public MeatBase ME;
+
     [Header("烹饪机制")]
     public FoodCooking Cook;
     [Header("烹饪物理")]
@@ -104,12 +103,65 @@ public class FoodCookingState : ItemState
         _DefAttr = _defattrboard as DefaultItemAttrBoard;
         _FoodAttr = Extend_Board as FoodAttr;
     }
-    public override void OnRidigibodyEnter(Collision collision)
+    public override void OnFixUpdate()
     {
-        base.OnRidigibodyEnter(collision);
+        base.OnFixUpdate();
+        
+    }
+    public override void OnEnter()
+    {
+        base.OnEnter();
+        CookingMech.Instance.OnCookingMomentFinish += HandleCookingMomentFinish;
+        CookingMech.Instance.OnCookingStateChange += HandleCookingSound;
+    }
+        // 处理烹饪结算效果
+    private void HandleCookingMomentFinish(CookingMoment FinishMoment,Pot pot,MeatBase meat)
+    {
+        Debug.Log($"尝试播放音效{FinishMoment},烹饪系统储存的与事件返回值相同状态:{meat == _FoodAttr.ME}");
 
+        if (meat == _FoodAttr.ME)
+        {
+            switch (FinishMoment)
+            {
+                case CookingMoment.Normal:
+                    AudioManager2025.Instance.PlaySound(_FoodAttr.Sound.MomentSounds[CookingMoment.Normal].name); break;
+                case CookingMoment.Super:
+                    AudioManager2025.Instance.PlaySound(_FoodAttr.Sound.MomentSounds[CookingMoment.Super].name); break;
+                case CookingMoment.Lost:
+                    AudioManager2025.Instance.PlaySound(_FoodAttr.Sound.MomentSounds[CookingMoment.Lost].name); break;
+                case CookingMoment.Bad:
+                    AudioManager2025.Instance.PlaySound(_FoodAttr.Sound.MomentSounds[CookingMoment.Bad].name); break;
+                default: break;
+            }
+        }
     }
 
+    // 处理烹饪时的音效
+    private void HandleCookingSound(CookingMoment Moment,MeatBase meat)
+    {
+        Debug.Log($"尝试播放音效{Moment},烹饪系统储存的与事件返回值相同状态:{meat == _FoodAttr.ME}");
+        if (meat == _FoodAttr.ME)
+        {
+            switch (Moment)
+            {
+                case CookingMoment.Normal:
+                    AudioManager2025.Instance.StopLongSound();
+                    AudioManager2025.Instance.PlaySound(_FoodAttr.Sound.Sounds[CookingMoment.Normal].name); break;
+                case CookingMoment.Super:
+                    AudioManager2025.Instance.StopLongSound();
+                    AudioManager2025.Instance.PlaySound(_FoodAttr.Sound.Sounds[CookingMoment.Super].name); break;
+                case CookingMoment.Lost:
+                    AudioManager2025.Instance.StopLongSound();
+                    AudioManager2025.Instance.PlaySound(_FoodAttr.Sound.Sounds[CookingMoment.Lost].name); break;
+                case CookingMoment.Bad:
+                    AudioManager2025.Instance.StopLongSound();
+                    AudioManager2025.Instance.PlaySound(_FoodAttr.Sound.Sounds[CookingMoment.Bad].name); break;
+
+                default: break;
+            }
+        }
+
+    }
 }
 
 public class MeatBase : GrabInteractedItemOrigin
@@ -129,13 +181,10 @@ public class MeatBase : GrabInteractedItemOrigin
 
     private void Start()
     {
+        CookAttr.ME = this;
         base.registerAduioList();
         // 初始化食物部位状态
         InitializeFoodParts();
-        // 订阅烹饪时刻的状态事件
-        CookingMech.Instance.OnCookingStateFinish += HandleCookingMomentFinish;
-        // 订阅烹饪状态的状态事件
-        //CookingMech.Instance.CookingStateUpdate += HandleCookingSound;
     }
 
     // 初始化食物部位
@@ -146,8 +195,6 @@ public class MeatBase : GrabInteractedItemOrigin
         CookingMech.Instance.CreatNewMoment(CookAttr.Cook.UpFace);
         CookingMech.Instance.CreatNewMoment(CookAttr.Cook.DownFace);
     }
-
-
 
     /// <summary>
     /// 肉不会自己煮自己，调用该方法肉会告诉调用厨具对象自己哪一面是朝向加热锅底的
@@ -178,70 +225,7 @@ public class MeatBase : GrabInteractedItemOrigin
         }
     }
 
-    // 处理烹饪结算效果
-    private void HandleCookingMomentFinish(MeatBase food, Transform part, CookingMoment FinishMoment)
-    {
-        Debug.Log($"尝试播放音效{FinishMoment}");
-
-        if (food == this && part == CookAttr.Cook._LastCookedPart)
-        {
-            switch (FinishMoment)
-            {
-                case CookingMoment.Normal:
-                    AudioManager2025.Instance.PlaySound(CookAttr.Sound.MomentSounds[CookingMoment.Normal].name); break;
-                case CookingMoment.Super:
-                    AudioManager2025.Instance.PlaySound(CookAttr.Sound.MomentSounds[CookingMoment.Super].name); break;
-                case CookingMoment.Lost:
-                    AudioManager2025.Instance.PlaySound(CookAttr.Sound.MomentSounds[CookingMoment.Lost].name); break;
-                case CookingMoment.Bad:
-                    AudioManager2025.Instance.PlaySound(CookAttr.Sound.MomentSounds[CookingMoment.Bad].name); break;
-                default: break;
-            }
-        }
-    }
-
-    // 处理烹饪时的音效
-    private void HandleCookingSound(MeatBase food, Transform part, CookingMoment Moment)
-    {
-        Debug.Log("收到音效触发");
-        if (food == this && part == CookAttr.Cook._CurrCookedPart)
-        {
-            switch (Moment)
-            {
-                case CookingMoment.Normal:
-                    AudioManager2025.Instance.StopLongSound();
-                    AudioManager2025.Instance.PlaySound(CookAttr.Sound.Sounds[CookingMoment.Normal].name); break;
-                case CookingMoment.Super:
-                    AudioManager2025.Instance.StopLongSound();
-                    AudioManager2025.Instance.PlaySound(CookAttr.Sound.Sounds[CookingMoment.Super].name); break;
-                case CookingMoment.Lost:
-                    AudioManager2025.Instance.StopLongSound();
-                    AudioManager2025.Instance.PlaySound(CookAttr.Sound.Sounds[CookingMoment.Lost].name); break;
-                case CookingMoment.Bad:
-                    AudioManager2025.Instance.StopLongSound();
-                    AudioManager2025.Instance.PlaySound(CookAttr.Sound.Sounds[CookingMoment.Bad].name); break;
-
-                default: break;
-            }
-        }
-
-    }
-
-    public void OnDrawGizmos()
-    {
-        if (ShowGizmo)
-        {
-            if (CookAttr.Food_PartState.Keys.Count > 0)
-            {
-                foreach (var item in CookAttr.Food_PartState.Keys)
-                {
-                    Gizmos.DrawSphere(item.position, cook.HeatingRange);
-                }
-            }
-        }
-    }
-
-    private void AttachToPot(Pot _CookMePot)
+    public void AttachToPot(Pot _CookMePot)
     {
         Vector3 ForceDir = _CookMePot._potAttrBoard.PotCenter.position - DefaultAttr.Phy._rigidbody.transform.position;
         DefaultAttr.Phy._rigidbody.AddForce(ForceDir * CookAttr.Phy.Meat_Stickiness / 2);
@@ -250,19 +234,3 @@ public class MeatBase : GrabInteractedItemOrigin
 }
 
 
-        // //在肉离开锅的时候给点物理量，让肉自己转偏一点
-        // if (_FoodAttr.Cook.IsLeavingPot)
-        // {
-        //     _FoodAttr.Phy.FloatingTime += Time.deltaTime;
-
-        //     if (_FoodAttr.Phy.FloatingTime > _FoodAttr.Phy.LeavingMoment)
-        //     {
-        //         // 应用旋转效果
-        //         if (_DefAttrBoard.Phy._rigidbody != null)
-        //         {
-        //             _DefAttrBoard.Phy._rigidbody.angularVelocity =
-        //                 _FoodAttr.Meat_Rotate.eulerAngles *
-        //                 _FoodAttr.Phy.Meat_RotateStren / 2;
-        //         }
-        //     }
-        // }

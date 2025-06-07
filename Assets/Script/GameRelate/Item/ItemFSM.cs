@@ -40,7 +40,7 @@ public class AttrBoard
 {
 
 }
-
+[Serializable]
 public class ItemFSM
 {
     public ItemState_Type CurrItemState;
@@ -66,7 +66,7 @@ public class ItemFSM
     }
     public void SwitchState(ItemState_Type NewState_Type)
     {
-        if (!States.ContainsKey(NewState_Type)) { Debug.LogError("ÎïÆ·Ã»ÓÐÕâÖÖ×´Ì¬"); return; }
+        if (!States.ContainsKey(NewState_Type)) { Debug.LogError("ï¿½ï¿½Æ·Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬"); return; }
         if (CurrentState != null)
         {
             CurrentState.OnExit();

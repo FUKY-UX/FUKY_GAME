@@ -189,7 +189,7 @@ public class GrabInteractedItemOrigin : MonoBehaviour
     }
 
     /// <summary>
-    /// 请在开始时调用该方法，确保audiomanger2025已初始化结束
+    /// 请在Start时调用该方法，确保audiomanger2025已初始化结束
     /// 可交互物体基类注册音效的方法
     /// 自动把列表里的audioclip转成string的形式，并检查有没有声源
     /// 没有的话会从audiomanger2025那毛一个配置好的默认状态的声源
