@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Meet
-  m_Shader: {fileID: 4800000, guid: 650dd9526735d5b46b79224bc6e94025, type: 3}
+  m_Shader: {fileID: 4800000, guid: c63f701315fb36849af70e827d86ffda, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -17,8 +17,7 @@ Material:
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
-  stringTagMap:
-    RenderType: Opaque
+  stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
@@ -44,7 +43,27 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _DiffuseRampMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissiveTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FoodBurnedTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FoodCookedTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FoodRawTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -56,7 +75,15 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -80,11 +107,16 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Ints: []
+    m_Ints:
+    - _Stencil: 0
+    - _Stencil2: 0
     m_Floats:
+    - _AOInBaseColor: 0.5
+    - _AddSpecular: 0.05
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _Blend: 0
+    - _BlendMode: 0
     - _BlendModePreserveSpecular: 1
     - _BlendOp: 0
     - _BumpScale: 1
@@ -94,31 +126,84 @@ Material:
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
+    - _Discolor: 0
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _HalftoneEffect: 0
+    - _HalftoneScale: 10
+    - _HalftoneStep: 0.5
+    - _HalftoneUVZScale: 0
+    - _IsTangentSpace: 1
     - _Metallic: 0
+    - _NormalScale: 1
+    - _OcclusionMult: 0
     - _OcclusionStrength: 1
+    - _OutlineColInBaseColor: 0
+    - _OutlineWidth: -0.1
     - _Parallax: 0.005
+    - _PresetGroup: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _RimLightInShadow: 0.2
+    - _RimWidth: 0.01
     - _SampleGI: 0
+    - _ShadowGain: 0
+    - _SmoothNormalData: 0
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
+    - _Specular1: 0
+    - _SpecularDiscolor: 0
     - _SpecularHighlights: 1
+    - _SpecularInShadow: 0.1
+    - _SpecularStep: 0
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
+    - _StencilTest: 0
     - _Surface: 0
+    - _Threshold: 0.8
+    - _TransmissionSetting: 0
+    - _TransmissionUseShadow: 0
+    - _UniformOutline: 0
+    - _UseSSAO: 1
+    - _UseShadow: 1
+    - _UseVertexColorA: 0
+    - _UseVertexColorRGB: 0
     - _WorkflowMode: 1
+    - _ZTest1: 4
+    - _ZTest2: 4
     - _ZWrite: 1
+    - _ZWrite1: 1
+    - _ZWrite2: 1
+    - _aoSetting: 0
+    - _foodCooked: 0
+    - _group1: 0
+    - _group2: 0
+    - _group3: 0
+    - _group4: 0
+    - _group5: 0
+    - _group8: 0
+    - _group9: 0
+    - _rimLight: 0
+    - _staticAO: 0
+    - _transmission: 0
     m_Colors:
+    - _AOColor: {r: 0, g: 0, b: 0, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EdgePowScale: {r: 1, g: 1, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _EmissiveColor: {r: 0, g: 0, b: 0, a: 0}
+    - _HalftoneColor: {r: 1, g: 1, b: 1, a: 1}
+    - _MainColor: {r: 1, g: 1, b: 1, a: 1}
+    - _OutlineCol: {r: 0, g: 0, b: 0, a: 1}
+    - _RimCol: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
+    - _TransmissionCol: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &3504133821359452937
 MonoBehaviour:
