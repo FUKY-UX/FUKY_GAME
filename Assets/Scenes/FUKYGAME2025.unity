@@ -14110,9 +14110,26 @@ MonoBehaviour:
     RotationManager: {fileID: 1224826195}
     TouchCollider: {fileID: 0}
     TouchItem: {fileID: 0}
+    TouchItemFSM:
+      CurrItemState: 0
+      AttrBoard:
+        Phy:
+          _rigidbody: {fileID: 0}
+          _collider: {fileID: 0}
+          GrabTimeFactor: 1
+          RubFactor: {x: 0, y: 0, z: 0}
+          RubStrength: 1
+        Sound:
+          MyAduioSource: {fileID: 0}
+          _OnHitSound: []
+          _OnGrabSound: []
+          _OnReleaseSound: []
+          _OnHitSound_Str: []
+          _OnGrabSound_Str: []
+          _OnReleaseSound_Str: []
     TouchItemRigidbody: {fileID: 0}
     ShowGizmo: 0
-    HandSize: 0
+    HandSize: 0.5
     DragStrength: 5000
     RotateSmooth: 10
     _LastHandPos: {x: 0, y: 0, z: 0}
@@ -14561,6 +14578,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 030745d36fb79d049bda13e77173fb02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Item_FSM:
+    CurrItemState: 0
+    AttrBoard:
+      Phy:
+        _rigidbody: {fileID: 0}
+        _collider: {fileID: 0}
+        GrabTimeFactor: 1
+        RubFactor: {x: 0, y: 0, z: 0}
+        RubStrength: 1
+      Sound:
+        MyAduioSource: {fileID: 0}
+        _OnHitSound: []
+        _OnGrabSound: []
+        _OnReleaseSound: []
+        _OnHitSound_Str: []
+        _OnGrabSound_Str: []
+        _OnReleaseSound_Str: []
   DefaultAttr:
     Phy:
       _rigidbody: {fileID: 0}
@@ -15646,11 +15680,28 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1361994761}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 030745d36fb79d049bda13e77173fb02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Item_FSM:
+    CurrItemState: 0
+    AttrBoard:
+      Phy:
+        _rigidbody: {fileID: 0}
+        _collider: {fileID: 0}
+        GrabTimeFactor: 1
+        RubFactor: {x: 0, y: 0, z: 0}
+        RubStrength: 1
+      Sound:
+        MyAduioSource: {fileID: 0}
+        _OnHitSound: []
+        _OnGrabSound: []
+        _OnReleaseSound: []
+        _OnHitSound_Str: []
+        _OnGrabSound_Str: []
+        _OnReleaseSound_Str: []
   DefaultAttr:
     Phy:
       _rigidbody: {fileID: 0}
@@ -15665,8 +15716,9 @@ MonoBehaviour:
       - {fileID: 8300000, guid: c95ff4b5b993fdd44a89cd01f5f1d59a, type: 3}
       - {fileID: 8300000, guid: 8b538cef59ada454b88112ff30417e12, type: 3}
       _OnGrabSound:
-      - {fileID: 8300000, guid: 1e2731457fed25a41935b5b0977a96e9, type: 3}
-      _OnReleaseSound: []
+      - {fileID: 8300000, guid: 5921bdbb4c2d5674681b0f7d023d6172, type: 3}
+      _OnReleaseSound:
+      - {fileID: 8300000, guid: 8c37d27f45447a24ba32c200aa498c3f, type: 3}
       _OnHitSound_Str: []
       _OnGrabSound_Str: []
       _OnReleaseSound_Str: []
@@ -16638,6 +16690,9 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 8357eb37d665f524e81331bc9b6a58a9, type: 3}
   - {fileID: 8300000, guid: c95ff4b5b993fdd44a89cd01f5f1d59a, type: 3}
   - {fileID: 8300000, guid: 8b538cef59ada454b88112ff30417e12, type: 3}
+  - {fileID: 8300000, guid: 5921bdbb4c2d5674681b0f7d023d6172, type: 3}
+  - {fileID: 8300000, guid: 8c37d27f45447a24ba32c200aa498c3f, type: 3}
+  - {fileID: 8300000, guid: 3f3c1812e0a080e4baeae2688a645a8b, type: 3}
   bgm: {fileID: 8300000, guid: 725703828abc8a949a36a77279809f93, type: 3}
   UniversalAudioSoure: {fileID: 1412359498}
   _longSoundSource: {fileID: 0}
@@ -24607,6 +24662,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 030745d36fb79d049bda13e77173fb02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Item_FSM:
+    CurrItemState: 0
+    AttrBoard:
+      Phy:
+        _rigidbody: {fileID: 0}
+        _collider: {fileID: 0}
+        GrabTimeFactor: 1
+        RubFactor: {x: 0, y: 0, z: 0}
+        RubStrength: 1
+      Sound:
+        MyAduioSource: {fileID: 0}
+        _OnHitSound: []
+        _OnGrabSound: []
+        _OnReleaseSound: []
+        _OnHitSound_Str: []
+        _OnGrabSound_Str: []
+        _OnReleaseSound_Str: []
   DefaultAttr:
     Phy:
       _rigidbody: {fileID: 0}
@@ -25423,7 +25495,7 @@ PrefabInstance:
     - target: {fileID: 8344583324269481584, guid: 2dc1e7842f8bb224cba89728493dba49,
         type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8635218705352730247, guid: 2dc1e7842f8bb224cba89728493dba49,
         type: 3}
@@ -25432,11 +25504,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8874351148179951529, guid: 2dc1e7842f8bb224cba89728493dba49,
         type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 5004107373573499113, guid: 80eb83e26ed66f349a70ac3db16d3921,
+        type: 3}
+    - target: {fileID: 8874351148179951529, guid: 2dc1e7842f8bb224cba89728493dba49,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8874351148179951529, guid: 2dc1e7842f8bb224cba89728493dba49,
+        type: 3}
       propertyPath: m_ExcludeLayers.m_Bits
-      value: 512
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 398497392133764739, guid: 2dc1e7842f8bb224cba89728493dba49, type: 3}
+    - {fileID: 8874351148179951529, guid: 2dc1e7842f8bb224cba89728493dba49, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -25444,6 +25528,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 1889098407}
+    - targetCorrespondingSourceObject: {fileID: 91318443131275505, guid: 2dc1e7842f8bb224cba89728493dba49,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1889098413}
   m_SourcePrefab: {fileID: 100100000, guid: 2dc1e7842f8bb224cba89728493dba49, type: 3}
 --- !u!4 &1889098401 stripped
 Transform:
@@ -25463,16 +25551,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 030745d36fb79d049bda13e77173fb02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Item_FSM:
+    CurrItemState: 0
+    AttrBoard:
+      Phy:
+        _rigidbody: {fileID: 0}
+        _collider: {fileID: 0}
+        GrabTimeFactor: 1
+        RubFactor: {x: 0, y: 0, z: 0}
+        RubStrength: 1
+      Sound:
+        MyAduioSource: {fileID: 0}
+        _OnHitSound: []
+        _OnGrabSound: []
+        _OnReleaseSound: []
+        _OnHitSound_Str: []
+        _OnGrabSound_Str: []
+        _OnReleaseSound_Str: []
   DefaultAttr:
     Phy:
-      _rigidbody: {fileID: 0}
-      _collider: {fileID: 1889098409}
+      _rigidbody: {fileID: 1889098413}
+      _collider: {fileID: 1889098410}
       GrabTimeFactor: 1
       RubFactor: {x: 0, y: 0, z: 0}
       RubStrength: 1
     Sound:
       MyAduioSource: {fileID: 0}
-      _OnHitSound: []
+      _OnHitSound:
+      - {fileID: 8300000, guid: 3f3c1812e0a080e4baeae2688a645a8b, type: 3}
       _OnGrabSound: []
       _OnReleaseSound: []
       _OnHitSound_Str: []
@@ -25486,12 +25592,39 @@ MonoBehaviour:
       y: 0
       z: 0
       w: 1
---- !u!64 &1889098409 stripped
+--- !u!64 &1889098410 stripped
 MeshCollider:
-  m_CorrespondingSourceObject: {fileID: 8874351148179951529, guid: 2dc1e7842f8bb224cba89728493dba49,
+  m_CorrespondingSourceObject: {fileID: 8344583324269481584, guid: 2dc1e7842f8bb224cba89728493dba49,
     type: 3}
   m_PrefabInstance: {fileID: 1889098400}
   m_PrefabAsset: {fileID: 0}
+--- !u!54 &1889098413
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 939231814}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1891528505
 GameObject:
   m_ObjectHideFlags: 0
@@ -26822,6 +26955,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 030745d36fb79d049bda13e77173fb02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Item_FSM:
+    CurrItemState: 0
+    AttrBoard:
+      Phy:
+        _rigidbody: {fileID: 0}
+        _collider: {fileID: 0}
+        GrabTimeFactor: 1
+        RubFactor: {x: 0, y: 0, z: 0}
+        RubStrength: 1
+      Sound:
+        MyAduioSource: {fileID: 0}
+        _OnHitSound: []
+        _OnGrabSound: []
+        _OnReleaseSound: []
+        _OnHitSound_Str: []
+        _OnGrabSound_Str: []
+        _OnReleaseSound_Str: []
   DefaultAttr:
     Phy:
       _rigidbody: {fileID: 0}
@@ -29008,6 +29158,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 030745d36fb79d049bda13e77173fb02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Item_FSM:
+    CurrItemState: 0
+    AttrBoard:
+      Phy:
+        _rigidbody: {fileID: 0}
+        _collider: {fileID: 0}
+        GrabTimeFactor: 1
+        RubFactor: {x: 0, y: 0, z: 0}
+        RubStrength: 1
+      Sound:
+        MyAduioSource: {fileID: 0}
+        _OnHitSound: []
+        _OnGrabSound: []
+        _OnReleaseSound: []
+        _OnHitSound_Str: []
+        _OnGrabSound_Str: []
+        _OnReleaseSound_Str: []
   DefaultAttr:
     Phy:
       _rigidbody: {fileID: 0}
@@ -29257,6 +29424,46 @@ PrefabInstance:
       propertyPath: _potAttrBoard.CookFireOn.m_Bits
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 3650429629374267102, guid: e7c7d3804d56be846872023983225bba,
+        type: 3}
+      propertyPath: DefaultAttr.Sound._OnHitSound.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3650429629374267102, guid: e7c7d3804d56be846872023983225bba,
+        type: 3}
+      propertyPath: DefaultAttr.Sound._OnGrabSound.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3650429629374267102, guid: e7c7d3804d56be846872023983225bba,
+        type: 3}
+      propertyPath: DefaultAttr.Sound._OnHitSound.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 8357eb37d665f524e81331bc9b6a58a9, type: 3}
+    - target: {fileID: 3650429629374267102, guid: e7c7d3804d56be846872023983225bba,
+        type: 3}
+      propertyPath: DefaultAttr.Sound._OnHitSound.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: c95ff4b5b993fdd44a89cd01f5f1d59a, type: 3}
+    - target: {fileID: 3650429629374267102, guid: e7c7d3804d56be846872023983225bba,
+        type: 3}
+      propertyPath: DefaultAttr.Sound._OnHitSound.Array.data[2]
+      value: 
+      objectReference: {fileID: 8300000, guid: 8b538cef59ada454b88112ff30417e12, type: 3}
+    - target: {fileID: 3650429629374267102, guid: e7c7d3804d56be846872023983225bba,
+        type: 3}
+      propertyPath: DefaultAttr.Sound._OnGrabSound.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 5921bdbb4c2d5674681b0f7d023d6172, type: 3}
+    - target: {fileID: 3650429629374267102, guid: e7c7d3804d56be846872023983225bba,
+        type: 3}
+      propertyPath: DefaultAttr.Sound._OnReleaseSound.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3650429629374267102, guid: e7c7d3804d56be846872023983225bba,
+        type: 3}
+      propertyPath: DefaultAttr.Sound._OnReleaseSound.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 8c37d27f45447a24ba32c200aa498c3f, type: 3}
     - target: {fileID: 3761558448014141404, guid: e7c7d3804d56be846872023983225bba,
         type: 3}
       propertyPath: m_ExcludeLayers.m_Bits
