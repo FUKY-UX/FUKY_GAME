@@ -16741,6 +16741,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 5921bdbb4c2d5674681b0f7d023d6172, type: 3}
   - {fileID: 8300000, guid: 8c37d27f45447a24ba32c200aa498c3f, type: 3}
   - {fileID: 8300000, guid: 3f3c1812e0a080e4baeae2688a645a8b, type: 3}
+  - {fileID: 8300000, guid: feedad268a97ad64a9303e3a1f1acb2b, type: 3}
+  - {fileID: 8300000, guid: 948aa40357f9f454388283664af966b2, type: 3}
   bgm: {fileID: 8300000, guid: 725703828abc8a949a36a77279809f93, type: 3}
   UniversalAudioSoure: {fileID: 1412359498}
   _longSoundSource: {fileID: 0}
@@ -25641,7 +25643,9 @@ MonoBehaviour:
       MyAduioSource: {fileID: 0}
       _OnHitSound:
       - {fileID: 8300000, guid: 3f3c1812e0a080e4baeae2688a645a8b, type: 3}
-      _OnGrabSound: []
+      - {fileID: 8300000, guid: feedad268a97ad64a9303e3a1f1acb2b, type: 3}
+      _OnGrabSound:
+      - {fileID: 8300000, guid: 948aa40357f9f454388283664af966b2, type: 3}
       _OnReleaseSound: []
       _OnHitSound_Str: []
       _OnGrabSound_Str: []
