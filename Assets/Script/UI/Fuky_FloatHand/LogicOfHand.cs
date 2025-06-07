@@ -9,6 +9,7 @@
 using UnityEngine;
 using System;
 using Unity.VisualScripting;
+using Unity.Collections;
 [Serializable]
 public class HandAttributeBoard : AttributeBoard
 {
@@ -22,7 +23,7 @@ public class HandAttributeBoard : AttributeBoard
     public FUKY_RotateMtehod RotationManager;
     [Header("运行时手触摸到的物体")]
     public Collider TouchCollider;
-    public InteractedItemOrigin TouchItem;
+    public GrabInteractedItemOrigin TouchItem;
     public ItemFSM TouchItemFSM;
     public Rigidbody TouchItemRigidbody;//使用AddForce的方式控制物品的移动
     [Header("调试参数")]
@@ -72,6 +73,7 @@ public class DefaultHand : HandState
     public void OnEnter()
     {
         Idle = false;
+        _SBoard.TouchItemFSM = null;
     }
     public void OnExit()
     {
@@ -108,13 +110,13 @@ public class DefaultHand : HandState
             _SBoard.TouchCollider = Physics.OverlapSphere(_SBoard._HandRigidbody.transform.position, _SBoard.HandSize, _SBoard.HandCanDoLayerMask)[0];
         }
         else{_SBoard._HandCollider.isTrigger = false; _SBoard.TouchItem = null; _SBoard.TouchCollider = null;}
-        if (_SBoard.TouchCollider != null) { _SBoard.TouchItem = _SBoard.TouchCollider.GetComponentInParent<InteractedItemOrigin>(); }
+        if (_SBoard.TouchCollider != null) { _SBoard.TouchItem = _SBoard.TouchCollider.GetComponentInParent<GrabInteractedItemOrigin>(); }
 
 #if FUKYMOUSE
         if (Input.GetMouseButtonDown(0) || FUKYMouse.Instance.Left_Down && _SBoard.TouchItem != null && _SBoard.TouchItem.CurrCanPickAble)
         {
-            _SBoard.TouchItemFSM = _SBoard.TouchItem._MyFsm;
-            _SBoard.TouchItemRigidbody = _SBoard.TouchItem.Default.Phy._rigidbody;
+            _SBoard.TouchItemFSM = _SBoard.TouchItem.Item_FSM;
+            _SBoard.TouchItemRigidbody = _SBoard.TouchItem.DefaultAttr.Phy._rigidbody;
             _ShandFsm.SwitchState(HandState_Type.Grab);
         }
         if (!FUKYMouse.Instance.isMouseFloating)
@@ -126,8 +128,8 @@ public class DefaultHand : HandState
         //没有鼠标
         if (Input.GetMouseButtonDown(0) && _SBoard.TouchItem != null && _SBoard.TouchItem.CurrCanPickAble)
         {
-            _SBoard.TouchItemFSM = _SBoard.TouchItem._MyFsm;
-            _SBoard.TouchItemRigidbody = _SBoard.TouchItem.Default.Phy._rigidbody;
+            _SBoard.TouchItemFSM = _SBoard.TouchItem.Item_FSM;
+            _SBoard.TouchItemRigidbody = _SBoard.TouchItem.DefaultAttr.Phy._rigidbody;
             _ShandFsm.SwitchState(HandState_Type.Grab);
         }
         if (Input.GetKeyDown(KeyCode.E))//用于模仿鼠标浮起时的检测
@@ -164,16 +166,17 @@ public class GrabHand :MonoBehaviour, HandState
     }
     public void OnEnter()
     {
+        _SBoard.TouchItemFSM.OnGrab();
         Idle = false;
         _SBoard._HandRender.enabled = false;//关掉手的显示
         _SBoard._HandCollider.isTrigger = true;
 
         //处理抓住物体的逻辑
-        _SBoard.TouchItem.Default.Phy._rigidbody.velocity = Vector3.zero;
-        _SBoard.TouchItem.Default.Phy._rigidbody.useGravity = false;
-        _SBoard.TouchItem.Default.Phy._rigidbody.freezeRotation = true;
+        _SBoard.TouchItem.DefaultAttr.Phy._rigidbody.velocity = Vector3.zero;
+        _SBoard.TouchItem.DefaultAttr.Phy._rigidbody.useGravity = false;
+        _SBoard.TouchItem.DefaultAttr.Phy._rigidbody.freezeRotation = true;
         _SBoard.TouchItem.Change_GrabRigidbody(_SBoard._HandRigidbody);
-        _SBoard.TouchItem.Default.Phy._rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        _SBoard.TouchItem.DefaultAttr.Phy._rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         _SBoard.CurrBackHomeStrength = 0f;
 #if FUKYMOUSE
         InRotate = false;
@@ -184,13 +187,13 @@ public class GrabHand :MonoBehaviour, HandState
     {
         if(Idle== true) { return; }
         _SBoard._HandRigidbody.position = _SBoard.TouchItemRigidbody.position;
-        _SBoard.TouchItem.Default.Phy._rigidbody.freezeRotation = false;
+        _SBoard.TouchItem.DefaultAttr.Phy._rigidbody.freezeRotation = false;
         _SBoard._HandRender.enabled = true;
         _SBoard.IsCaught = false;
-        _SBoard.TouchItem.Default.Phy._rigidbody.isKinematic = false;
-        _SBoard.TouchItem.Default.Phy._rigidbody.useGravity = true;
+        _SBoard.TouchItem.DefaultAttr.Phy._rigidbody.isKinematic = false;
+        _SBoard.TouchItem.DefaultAttr.Phy._rigidbody.useGravity = true;
         _SBoard.TouchItem.ReSet_GrabRigidbody();
-        _SBoard.TouchItem.Default.Phy._rigidbody.velocity = _SBoard._HandRigidbody.velocity;
+        _SBoard.TouchItem.DefaultAttr.Phy._rigidbody.velocity = _SBoard._HandRigidbody.velocity;
         _SBoard.TouchItemFSM.OnRelease();
         _SBoard.TouchItemFSM = null;
         _SBoard.TouchItemRigidbody = null;
@@ -200,7 +203,7 @@ public class GrabHand :MonoBehaviour, HandState
     {
         Vector3 ForceDir;
         Quaternion CurrRotate;
-        float ItemGrabFactor = _SBoard.TouchItem.Default.Phy.GrabTimeFactor;
+        float ItemGrabFactor = _SBoard.TouchItem.DefaultAttr.Phy.GrabTimeFactor;
 #if FUKYMOUSE
         if (FUKYMouse.Instance.Left_pressed && FUKYMouse.Instance.enabled == true)
         {
@@ -227,7 +230,6 @@ public class GrabHand :MonoBehaviour, HandState
             if ((_SBoard._HandPos.position - _SBoard.TouchItemRigidbody.transform.position).magnitude < 0.1f && Quaternion.Angle(CurrRotate, _SBoard.TouchItemRigidbody.gameObject.transform.rotation) < 0.1f)
             {
                 _SBoard.CurrBackHomeStrength = 0f;
-                _SBoard.TouchItemFSM.OnGrab();
                 _SBoard._TranslateUsingTime = 0;
                 _SBoard.IsCaught = true;
             }
@@ -402,7 +404,6 @@ public class GrabHand :MonoBehaviour, HandState
 public class IdleHand :MonoBehaviour, HandState
 {
     private HandFSM _ShandFsm;
-    [SerializeField]
     public HandAttributeBoard _SBoard;
     public bool IsThrowing;
     private float _targetFov;
@@ -423,16 +424,16 @@ public class IdleHand :MonoBehaviour, HandState
     {
         if (IsThrowing)
         {
-            if(_SBoard.TouchItemFSM != null)
+            if(_SBoard.TouchItem != null)
             {
                 _SBoard._HandRigidbody.position = _SBoard.TouchItemRigidbody.position;
-                _SBoard.TouchItem.Default.Phy._rigidbody.freezeRotation = false;
+                _SBoard.TouchItem.DefaultAttr.Phy._rigidbody.freezeRotation = false;
                 _SBoard._HandRender.enabled = true;
                 _SBoard.IsCaught = false;
-                _SBoard.TouchItem.Default.Phy._rigidbody.isKinematic = false;
-                _SBoard.TouchItem.Default.Phy._rigidbody.useGravity = true;
+                _SBoard.TouchItem.DefaultAttr.Phy._rigidbody.isKinematic = false;
+                _SBoard.TouchItem.DefaultAttr.Phy._rigidbody.useGravity = true;
                 _SBoard.TouchItem.ReSet_GrabRigidbody();
-                _SBoard.TouchItem.Default.Phy._rigidbody.velocity = _SBoard._HandRigidbody.velocity;
+                _SBoard.TouchItem.DefaultAttr.Phy._rigidbody.velocity = _SBoard._HandRigidbody.velocity;
                 _SBoard.TouchItemFSM.OnRelease();
                 _SBoard.TouchItemFSM = null;
                 _SBoard.TouchItemRigidbody = null;
@@ -477,7 +478,7 @@ public class IdleHand :MonoBehaviour, HandState
         }
 #else
 
-        if (_SBoard.TouchItemFSM != null && (_SBoard.TouchItemRigidbody.position - _SBoard.DefaultHandPos.position).magnitude > 0.1f)
+        if (_SBoard.TouchItemRigidbody != null && (_SBoard.TouchItemRigidbody.position - _SBoard.DefaultHandPos.position).magnitude > 0.1f)
         {
             Vector3 ForceDir = _SBoard.DefaultHandPos.position - _SBoard.TouchItemRigidbody.transform.position;
             _SBoard.CurrBackHomeStrength += _SBoard.BackHomeStrength;
@@ -509,18 +510,18 @@ public class IdleHand :MonoBehaviour, HandState
         if (Physics.Raycast(centerRay, out hitInfo, _SBoard.ReachRange, _SBoard.HandCanDoLayerMask))
         {
             // 成功命中目标层级的碰撞器
-            Debug.Log($"命中物体: {hitInfo.collider.gameObject.name}", hitInfo.collider.gameObject);
-            InteractedItemOrigin item = hitInfo.collider.GetComponentInParent<InteractedItemOrigin>();
+            //Debug.Log($"命中物体: {hitInfo.collider.gameObject.name}", hitInfo.collider.gameObject);
+            GrabInteractedItemOrigin item = hitInfo.collider.GetComponentInParent<GrabInteractedItemOrigin>();
 
             if (item != null)
             {
-                if (Input.GetMouseButtonDown(0) && _SBoard.TouchItemFSM == null && item.CurrCanPickAble)
+                if (Input.GetMouseButtonDown(0) && _SBoard.TouchItem == null && item.CurrCanPickAble)
                 {
                     _SBoard._HandPos.position = item.transform.position;
                     _SBoard._HandRigidbody.position = item.transform.position;
-                    _SBoard.TouchItemFSM = item._MyFsm;
+                    _SBoard.TouchItemFSM = item.Item_FSM;
                     _SBoard.TouchItem = item;
-                    _SBoard.TouchItemRigidbody = _SBoard.TouchItem.Default.Phy._rigidbody;
+                    _SBoard.TouchItemRigidbody = _SBoard.TouchItem.DefaultAttr.Phy._rigidbody;
                     Debug.Log("尝试转换状态");
                     _ShandFsm.SwitchState(HandState_Type.Grab);
                 }
@@ -550,7 +551,7 @@ public class IdleHand :MonoBehaviour, HandState
 #else
         if (Input.GetKeyDown(KeyCode.E))
         {
-            if (_SBoard.TouchItemFSM != null)
+            if (_SBoard.TouchItem != null)
             {
                 _ShandFsm.SwitchState(HandState_Type.Grab);
             }
@@ -584,36 +585,37 @@ public class IdleHand :MonoBehaviour, HandState
 
 public class LogicOfHand : MonoBehaviour
 {
-    private HandFSM _handfsm;
-    public HandAttributeBoard _board;
-
+    [Header("当前手的状态")]
+    public HandFSM _HandFSM;
+    [Header("手的相关属性")]
+    public HandAttributeBoard _HandAttr;
     private void Start()
     {
-        _board._originalFov = _board.RefCamera.fieldOfView;
-        _handfsm = new HandFSM(_board);
+        _HandAttr._originalFov = _HandAttr.RefCamera.fieldOfView;
+        _HandFSM = new HandFSM(_HandAttr);
         //_board._HandPos.position = _board.DefaultHandPos.position; 
-        _handfsm.AddState(HandState_Type.Default,new DefaultHand(_handfsm,_board));
-        _handfsm.AddState(HandState_Type.Grab, new GrabHand(_handfsm, _board));
-        _handfsm.AddState(HandState_Type.Idle, new IdleHand(_handfsm, _board));
-        _handfsm.SwitchState(HandState_Type.Default);
+        _HandFSM.AddState(HandState_Type.Default,new DefaultHand(_HandFSM,_HandAttr));
+        _HandFSM.AddState(HandState_Type.Grab, new GrabHand(_HandFSM, _HandAttr));
+        _HandFSM.AddState(HandState_Type.Idle, new IdleHand(_HandFSM, _HandAttr));
+        _HandFSM.SwitchState(HandState_Type.Default);
 
     }
 
     private void Update()
     {
 
-        _handfsm.OnUpdate();
+        _HandFSM.OnUpdate();
     }
 
     private void FixedUpdate()
     {
-        _handfsm.OnFixUpdate();
+        _HandFSM.OnFixUpdate();
     }
 
     private void OnDrawGizmos()
     {
-        if(_board.ShowGizmo) Gizmos.DrawSphere(_board._HandRigidbody.transform.position, _board.HandSize);
+        if(_HandAttr.ShowGizmo) Gizmos.DrawSphere(_HandAttr._HandRigidbody.transform.position, _HandAttr.HandSize);
     }
-
+    
 
 }

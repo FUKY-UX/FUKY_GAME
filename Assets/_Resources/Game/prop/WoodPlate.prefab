@@ -166,7 +166,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0.15427129, y: -0.86270314, z: 0.4692667, w: 0.108316705}
   m_LocalPosition: {x: -1.137, y: -0.559, z: -2.285}
-  m_LocalScale: {x: 69.89, y: 69.89, z: 69.89}
+  m_LocalScale: {x: 81.25, y: 81.25, z: 81.25}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 8913869448086307365}
@@ -211,21 +211,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 030745d36fb79d049bda13e77173fb02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Default:
+  DefaultAttr:
     Phy:
       _rigidbody: {fileID: 3301436096539850557}
-      _collider: {fileID: 0}
+      _collider: {fileID: 1424965945993485788}
       GrabTimeFactor: 1
       RubFactor: {x: 0, y: 0, z: 0}
       RubStrength: 1
     Sound:
-      Sounds:
-        list: []
-      AudioSource: {fileID: 481154374789485398}
-      Volume: 1
-      NoiseCd: 1
-      NoiseCdOffset: 1
-      V_LastSoundPlay: 0
-      V_Playable: 1
+      MyAduioSource: {fileID: 0}
+      _OnHitSound: []
+      _OnGrabSound: []
+      _OnReleaseSound: []
+      _OnHitSound_Str: []
+      _OnGrabSound_Str: []
+      _OnReleaseSound_Str: []
   CurrCanPickAble: 1
   PickUpCoolDown: 2
+  ItemAdjRotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 1

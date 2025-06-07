@@ -36,34 +36,33 @@ public class PotDefaultState : ItemState
         _DefAttrBoard = _defattrboard as DefaultItemAttrBoard;
         _PotAttrBoard = Extend_Board as PotAttrBoard;
     }
+
     public override void OnTriggerStay(Collider collider)
     {
-        _PotAttrBoard.Fires = collider.GetComponentsInChildren<FireEffect>();
-        if (_PotAttrBoard.Fires.Length > 0) { _PotAttrBoard.Heating = true; _MyFsm.SwitchState(ItemState_Type.State1); }
+        base.OnTriggerEnter(collider);
+        FireEffect fire;
+        fire = collider.gameObject.GetComponentInParent<FireEffect>();
+        if (fire)
+        {
+            _MyFsm.SwitchState(ItemState_Type.State1);
+        }
     }
+
+    public override void OnEnter()
+    {
+        base.OnEnter();
+        _PotAttrBoard.Heating = false;
+    }
+
     public override void OnGrab()
     {
-        _DefAttrBoard.Phy._collider.isTrigger=true;
+        _DefAttrBoard.Phy._collider.enabled = false;
         _PotAttrBoard.CookCollider.enabled = true;
     }
     public override void OnRelease()
     {
-        _DefAttrBoard.Phy._collider.isTrigger = false;
+        _DefAttrBoard.Phy._collider.enabled = true;
         _PotAttrBoard.CookCollider.enabled = false;
-    }
-    public override void OnRidigibodyEnter(Collision collision)
-    {
-    }
-    public override void OnRidigibodyStay(Collision collision)
-    {
-        //食物逻辑
-        FoodItemBase Food = collision.collider.GetComponentInParent<FoodItemBase>();
-        if (Food != null) 
-        {
-            Food.CookAttr.Cook._CookMePot = _PotAttrBoard.Me;
-            Food.CookAttr.Cook._CookedPart = collision.collider;
-            Food._MyFsm.SwitchState(ItemState_Type.State1); 
-        }//执行在锅上食物的烹饪行为
     }
 
 }
@@ -78,78 +77,76 @@ public class PotHeatingState : ItemState
         _DefAttrBoard = _defattrboard as DefaultItemAttrBoard;
         _PotAttrBoard = Extend_Board as PotAttrBoard;
     }
-
-    public override void OnUpdate()
+    public override void OnEnter()
     {
-        Transform EffectParent = _PotAttrBoard.Fires[0].transform.parent;
-        float Y = Mathf.Clamp((_DefAttrBoard.Phy._rigidbody.position - EffectParent.position).y, 0, 1);
-        Y *= _PotAttrBoard.PotVsFire;
-        foreach (FireEffect fire in _PotAttrBoard.Fires)
+        base.OnEnter();
+        _PotAttrBoard.Heating = true;
+    }
+
+    public override void OnRidigibodyEnter(Collision collision)
+    {
+        //通过重写的方式尝试去除掉碰撞的音效，但不知道行不行
+        MeatBase Food = collision.collider.GetComponentInParent<MeatBase>();
+        if (Food != null)
         {
-            fire.Opacity = Y;
+            //更新食物与锅的接触面
+            Food.Cal_CookedMeatFace(_PotAttrBoard.Me);
+            CookingMech.Instance.ImBeCooking(_PotAttrBoard.Me, Food);
         }
 
-        Collider[] colliders = Physics.OverlapSphere(_DefAttrBoard.Phy._rigidbody.position, _PotAttrBoard.HeatingRange, _PotAttrBoard.CookFireOn);
-        if(colliders.Length ==0)
-        {
-            _PotAttrBoard.Fires = null;
-            _PotAttrBoard.Heating = false;
-            _MyFsm.SwitchState(ItemState_Type.Default);
-        }
     }
+
+    public override void OnFixUpdate()
+    {
+        FireEffect fire;
+        fire = collider.gameObject.GetComponentInParent<FireEffect>();
+        if (fire)
+        {
+            _MyFsm.SwitchState(ItemState_Type.State1);
+        }
+
+    }
+
     public override void OnGrab()
     {
-        _DefAttrBoard.Phy._collider.isTrigger = true;
+        base.OnGrab();
+        _DefAttrBoard.Phy._collider.enabled = false;
         _PotAttrBoard.CookCollider.enabled = true;
     }
     public override void OnRelease()
     {
-        _DefAttrBoard.Phy._collider.isTrigger = false;
+        
+        _DefAttrBoard.Phy._collider.enabled = true;
         _PotAttrBoard.CookCollider.enabled = false;
     }
-    public override void OnRidigibodyEnter(Collision collision)
-    {
-    }
-    public override void OnRidigibodyStay(Collision collision)
-    {
-        //食物逻辑
-        FoodItemBase Food = collision.collider.GetComponentInParent<FoodItemBase>();
-        if (Food != null)
-        {
-            Food.CookAttr.Cook._CookMePot = _PotAttrBoard.Me;
-            Food.CookAttr.Cook._CookedPart = collision.collider;
-            Food._MyFsm.SwitchState(ItemState_Type.State1);
-        }//执行在锅上食物的烹饪行为
-    }
-    public override void OnTriggerStay(Collider collider)
-    {
-        //食物逻辑
-        FoodItemBase Food = collider.GetComponentInParent<FoodItemBase>();
-        if (Food != null)
-        {
-            Food.CookAttr.Cook._CookMePot = _PotAttrBoard.Me;
-            Food.CookAttr.Cook._CookedPart = collider;
-            Food._MyFsm.SwitchState(ItemState_Type.State1);
-        }//执行在锅上食物的烹饪行为
-    }
 
-
+    bool IsPointInTrigger(Collider trigger, Vector3 point)
+    {
+        // 创建一个极小的球体检测点
+        Collider[] colliders = Physics.OverlapSphere(point, 0.001f);
+        
+        foreach (Collider col in colliders)
+        {
+            if (col == trigger)
+                return true;
+        }
+        return false;
+    }
 }
 
-public class Pot : InteractedItemOrigin
+public class Pot : GrabInteractedItemOrigin
 {
     public PotAttrBoard _potAttrBoard; 
     private void Start()
     {
-        base.Start();
         _potAttrBoard.Me = this;
-        _MyFsm.AddState(ItemState_Type.Default,new PotDefaultState(_MyFsm, Default, _potAttrBoard));
-        _MyFsm.AddState(ItemState_Type.State1, new PotHeatingState(_MyFsm, Default, _potAttrBoard));
-        _MyFsm.SwitchState(ItemState_Type.Default);
+        Item_FSM.AddState(ItemState_Type.Default,new PotDefaultState(Item_FSM, DefaultAttr, _potAttrBoard));
+        Item_FSM.AddState(ItemState_Type.State1, new PotHeatingState(Item_FSM, DefaultAttr, _potAttrBoard));
+        Item_FSM.SwitchState(ItemState_Type.Default);
     }
     public void OnDrawGizmos()
     {
-        if (_potAttrBoard.ShowGizmo) Gizmos.DrawSphere(Default.Phy._rigidbody.transform.position, _potAttrBoard.HeatingRange);
+        if (_potAttrBoard.ShowGizmo) Gizmos.DrawSphere(DefaultAttr.Phy._rigidbody.transform.position, _potAttrBoard.HeatingRange);
     }
 
 }

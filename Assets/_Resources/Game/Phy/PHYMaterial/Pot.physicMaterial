@@ -7,7 +7,7 @@ PhysicMaterial:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Pot
-  dynamicFriction: 0.2
+  dynamicFriction: 0.01
   staticFriction: 0
   bounciness: 0.02
   frictionCombine: 0

@@ -14,19 +14,26 @@ public class AudioManager2025 : MonoBehaviour
 {
     public static AudioManager2025 Instance { get; private set; }
 
-    [Header("音效设置")]
+    [Header("短音效设置")]
     [Range(0, 1)] public float globalVolume = 1f;
     [SerializeField] private AudioClip[] soundEffects;
     [SerializeField] private AudioClip bgm;
     [SerializeField] public AudioSource UniversalAudioSoure;
 
-    public SerializableDictionary<string, AudioClip> soundLibrary = new SerializableDictionary<string, AudioClip>();
-    private AudioSource CamAudioSoure;
 
+    // 长音效专用音频源
+    [Header("长音效设置")]
+    private SerializableDictionary<string, AudioClip> soundLibrary = new SerializableDictionary<string, AudioClip>();
+
+    [SerializeField] private AudioSource _longSoundSource; // 专门用于播放长音效的音频源
+    private string _currentLongSound; // 当前播放的长音效名称
+    private bool _isLongSoundPlaying; // 标记是否有长音效正在播放
+
+    [Header("通用设置")]
+    private AudioSource CamAudioSoure;
+    public float soundCooldown = 0.5f; // 防止连续播放的最小间隔
     private float lastPlayTime;
     private string lastplayName;
-
-    private float soundCooldown = 0.1f; // 防止连续播放的最小间隔
 
     private void Awake()
     {
@@ -46,13 +53,113 @@ public class AudioManager2025 : MonoBehaviour
             soundLibrary.Add(clip.name, clip);
         }
 
+        // 确保有专用的长音效音频源
+        if (_longSoundSource == null)
+        {
+            _longSoundSource = gameObject.AddComponent<AudioSource>();
+            _longSoundSource.loop = false; // 默认不循环
+            _longSoundSource.playOnAwake = false;
+        }
 
     }
     private void Start()
     {
         CamAudioSoure = Camera.main.gameObject.GetComponent<AudioSource>();
-       // UniversalAudioSoure.PlayOneShot(bgm, globalVolume);
 
+    }
+
+    /// <summary>
+    /// 播放长音效（不会被打断或重复播放）
+    /// </summary>
+    /// <param name="soundName">音效名称</param>
+    /// <param name="loop">是否循环播放</param>
+    /// <param name="interruptible">是否允许被新音效中断</param>
+    /// <returns>是否成功开始播放</returns>
+    public bool PlayLongSound(string soundName, bool loop = false, bool interruptible = false)
+    {
+        // 如果已经有长音效在播放且不允许中断
+        if (_isLongSoundPlaying && !interruptible && _currentLongSound == soundName)
+        {
+            Debug.Log($"长音效 {soundName} 已经在播放中，忽略请求");
+            return false;
+        }
+        
+        // 如果音效不存在
+        if (!soundLibrary.TryGetValue(soundName, out AudioClip clip))
+        {
+            Debug.LogWarning($"长音效不存在: {soundName}");
+            return false;
+        }
+        
+        // 停止当前播放的长音效
+        if (_isLongSoundPlaying)
+        {
+            _longSoundSource.Stop();
+        }
+        
+        // 设置并播放新音效
+        _longSoundSource.clip = clip;
+        _longSoundSource.loop = loop;
+        _longSoundSource.volume = globalVolume;
+        _longSoundSource.Play();
+        
+        _currentLongSound = soundName;
+        _isLongSoundPlaying = true;
+        
+        Debug.Log($"开始播放长音效: {soundName} (循环: {loop}, 可中断: {interruptible})");
+        return true;
+    }
+    
+    /// <summary>
+    /// 停止当前播放的长音效
+    /// </summary>
+    public void StopLongSound()
+    {
+        if (_isLongSoundPlaying)
+        {
+            _longSoundSource.Stop();
+            _isLongSoundPlaying = false;
+            Debug.Log($"已停止长音效: {_currentLongSound}");
+        }
+    }
+    
+    /// <summary>
+    /// 淡出当前长音效
+    /// </summary>
+    /// <param name="duration">淡出时间（秒）</param>
+    public void FadeOutLongSound(float duration = 1.0f)
+    {
+        if (_isLongSoundPlaying)
+        {
+            StartCoroutine(FadeOutCoroutine(duration));
+        }
+    }
+    
+    private IEnumerator FadeOutCoroutine(float duration)
+    {
+        float startVolume = _longSoundSource.volume;
+        float timer = 0f;
+        
+        while (timer < duration)
+        {
+            timer += Time.deltaTime;
+            _longSoundSource.volume = Mathf.Lerp(startVolume, 0f, timer / duration);
+            yield return null;
+        }
+        
+        StopLongSound();
+        _longSoundSource.volume = globalVolume; // 重置音量
+    }
+    
+    /// <summary>
+    /// 检查指定长音效是否正在播放
+    /// </summary>
+    public bool IsLongSoundPlaying(string soundName = null)
+    {
+        if (string.IsNullOrEmpty(soundName))
+            return _isLongSoundPlaying;
+        
+        return _isLongSoundPlaying && _currentLongSound == soundName;
     }
 
     /// <summary>
@@ -86,10 +193,11 @@ public class AudioManager2025 : MonoBehaviour
 
         if (soundLibrary.TryGetValue(soundName, out AudioClip clip) && SoundSource!=null)
         {
-            Debug.LogWarning($"找到了: {soundName}");
+            //Debug.LogWarning($"找到了: {soundName}");
 
             SoundSource.PlayOneShot(clip, globalVolume);
             lastPlayTime = Time.time;
+            lastplayName = soundName;
         }
         else
         {

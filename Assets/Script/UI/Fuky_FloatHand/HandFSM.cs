@@ -22,12 +22,19 @@ using System;
     {
 
     }
-
+    [Serializable]
     public class HandFSM
     {
+        public HandState_Type CurrentStateType;
+
+        [HideInInspector]
         public HandState CurrentState { get; private set; }
+
+        [HideInInspector]
         public Dictionary<HandState_Type, HandState> States;
-        public AttributeBoard Board;
+
+        [HideInInspector]
+         public AttributeBoard Board;
         public HandFSM(AttributeBoard _Board) 
         { 
             this.States = new Dictionary<HandState_Type, HandState>();
@@ -46,6 +53,7 @@ using System;
                 CurrentState.OnExit();
             }
             CurrentState = States[NewState_Type];
+            CurrentStateType = NewState_Type;
             CurrentState.OnEnter();
         }
         public void OnUpdate()
@@ -70,7 +78,7 @@ using System;
 //{
 //    //this.transform.position = FUKY_GAME.FukyHandPos;
 //    //this.transform.rotation = Camera.main.transform.rotation * FUKY_GAME.FukyHandRotate;
-//    // ¸ù¾Ýµ±Ç°×´Ì¬Ö´ÐÐÏàÓ¦µÄ¸üÐÂÂß¼­
+//    // ï¿½ï¿½ï¿½Ýµï¿½Ç°×´Ì¬Ö´ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½Ä¸ï¿½ï¿½ï¿½ï¿½ß¼ï¿½
 //}
 
 //private void TransitionToState(HandState newState)
@@ -82,4 +90,4 @@ using System;
 //        EnterState(CurrentState);
 //    }
 //}
-// ÇÐ»»×´Ì¬µÄ·½·¨
+// ï¿½Ð»ï¿½×´Ì¬ï¿½Ä·ï¿½ï¿½ï¿½
