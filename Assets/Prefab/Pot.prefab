@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 2846839932403580}
   - component: {fileID: 8378347326278242274}
   - component: {fileID: 8961405815390925175}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: "\u7ACB\u65B9\u4F53.012"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -130,7 +130,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1783
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -150,7 +150,7 @@ GameObject:
   - component: {fileID: 8715458824346486765}
   - component: {fileID: 1181213630939231351}
   - component: {fileID: 8986697407034506492}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: "\u7ACB\u65B9\u4F53.013"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -235,7 +235,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1783
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -255,7 +255,7 @@ GameObject:
   - component: {fileID: 5806528773928922652}
   - component: {fileID: 9091154424727615759}
   - component: {fileID: 5523634123329414685}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: "\u7ACB\u65B9\u4F53.003"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -340,7 +340,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1783
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -360,7 +360,7 @@ GameObject:
   - component: {fileID: 8177776051488682090}
   - component: {fileID: 686920762775184390}
   - component: {fileID: 902027287506720935}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: "\u7ACB\u65B9\u4F53.014"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -445,7 +445,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1783
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -531,6 +531,7 @@ MonoBehaviour:
   - {fileID: 1584140634171437266}
   - {fileID: 8523436010735644060}
   - {fileID: 9106896305699530899}
+  tilt: -60
 --- !u!1 &2227675429104933771
 GameObject:
   m_ObjectHideFlags: 0
@@ -543,7 +544,7 @@ GameObject:
   - component: {fileID: 4921836730935571641}
   - component: {fileID: 8834672205309734681}
   - component: {fileID: 6980856684187310518}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: "\u7ACB\u65B9\u4F53.004"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -628,7 +629,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1783
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -733,7 +734,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 759
+    m_Bits: 757
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
@@ -864,7 +865,7 @@ GameObject:
   - component: {fileID: 5775603055461242146}
   - component: {fileID: 2845504163894238402}
   - component: {fileID: 3301522887117489156}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: "\u7ACB\u65B9\u4F53.010"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -949,7 +950,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1783
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -969,7 +970,7 @@ GameObject:
   - component: {fileID: 3080075040894401474}
   - component: {fileID: 185235596413753462}
   - component: {fileID: 9070375029518304989}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: "\u7ACB\u65B9\u4F53"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1054,7 +1055,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1783
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -1074,7 +1075,7 @@ GameObject:
   - component: {fileID: 7982582873248633080}
   - component: {fileID: 8844700959072256280}
   - component: {fileID: 1672348124359662715}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: "\u7ACB\u65B9\u4F53.006"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1159,7 +1160,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1783
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -1179,7 +1180,7 @@ GameObject:
   - component: {fileID: 8791708006450329240}
   - component: {fileID: 2541607536300050007}
   - component: {fileID: 1570769403963225131}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: "\u7ACB\u65B9\u4F53.011"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1264,7 +1265,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1783
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -1284,7 +1285,7 @@ GameObject:
   - component: {fileID: 4979323145660174557}
   - component: {fileID: 8915097335155098542}
   - component: {fileID: 7820200182660640686}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: "\u7ACB\u65B9\u4F53.001"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1369,7 +1370,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1783
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -1386,7 +1387,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8128549407434789043}
-  - component: {fileID: 8434010216905922503}
   m_Layer: 10
   m_Name: CookCenter
   m_TagString: Untagged
@@ -1409,27 +1409,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2957591388018668858}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &8434010216905922503
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5519221576195559213}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 767
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.0065
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &5857374005069649047
 GameObject:
   m_ObjectHideFlags: 0
@@ -1442,7 +1421,7 @@ GameObject:
   - component: {fileID: 2591421784024093177}
   - component: {fileID: 3600636406511918548}
   - component: {fileID: 5553639120683658309}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: "\u7ACB\u65B9\u4F53.002"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1527,7 +1506,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1783
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -1581,6 +1560,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c19166561595b114db27190f70f24743, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Item_FSM:
+    CurrItemState: 0
+    AttrBoard:
+      Phy:
+        _rigidbody: {fileID: 0}
+        _collider: {fileID: 0}
+        GrabTimeFactor: 1
+        RubFactor: {x: 0, y: 0, z: 0}
+        RubStrength: 1
+      Sound:
+        MyAduioSource: {fileID: 0}
+        _OnHitSound: []
+        _OnGrabSound: []
+        _OnReleaseSound: []
+        _OnHitSound_Str: []
+        _OnGrabSound_Str: []
+        _OnReleaseSound_Str: []
   DefaultAttr:
     Phy:
       _rigidbody: {fileID: 8338350553273206469}
@@ -1590,9 +1586,14 @@ MonoBehaviour:
       RubStrength: 1
     Sound:
       MyAduioSource: {fileID: 0}
-      _OnHitSound: []
-      _OnGrabSound: []
-      _OnReleaseSound: []
+      _OnHitSound:
+      - {fileID: 8300000, guid: 8357eb37d665f524e81331bc9b6a58a9, type: 3}
+      - {fileID: 8300000, guid: c95ff4b5b993fdd44a89cd01f5f1d59a, type: 3}
+      - {fileID: 8300000, guid: 8b538cef59ada454b88112ff30417e12, type: 3}
+      _OnGrabSound:
+      - {fileID: 8300000, guid: 5921bdbb4c2d5674681b0f7d023d6172, type: 3}
+      _OnReleaseSound:
+      - {fileID: 8300000, guid: 8c37d27f45447a24ba32c200aa498c3f, type: 3}
       _OnHitSound_Str: []
       _OnGrabSound_Str: []
       _OnReleaseSound_Str: []
@@ -1610,14 +1611,10 @@ MonoBehaviour:
     CookFireOn:
       serializedVersion: 2
       m_Bits: 2
-    Fires: {fileID: 0}
     HeatingRange: 1
-    CookTrigger: {fileID: 0}
-    CookCollider: {fileID: 8434010216905922503}
+    CookCollider: {fileID: 7832869360821208842}
     PotCenter: {fileID: 8128549407434789043}
     ShowGizmo: 0
-    LastHeatInf: 0
-    CurrHeatInf: 0
 --- !u!54 &8338350553273206469
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1657,7 +1654,7 @@ GameObject:
   - component: {fileID: 4063861937984215242}
   - component: {fileID: 2033996805404135315}
   - component: {fileID: 7669419074807059825}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: "\u7ACB\u65B9\u4F53.008"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1742,7 +1739,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1783
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -1794,7 +1791,7 @@ GameObject:
   - component: {fileID: 3094668695120686029}
   - component: {fileID: 7749302503125584097}
   - component: {fileID: 8876246807577097287}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: "\u7ACB\u65B9\u4F53.005"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1879,7 +1876,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1783
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -1899,7 +1896,7 @@ GameObject:
   - component: {fileID: 700754857454463712}
   - component: {fileID: 8769126988541051225}
   - component: {fileID: 4037447271063346797}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: "\u7ACB\u65B9\u4F53.007"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1984,7 +1981,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1783
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -2004,7 +2001,7 @@ GameObject:
   - component: {fileID: 7958538856926201459}
   - component: {fileID: 1920874891563047665}
   - component: {fileID: 3761558448014141404}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: "\u7ACB\u65B9\u4F53.015"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2089,7 +2086,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1783
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -2109,7 +2106,7 @@ GameObject:
   - component: {fileID: 7635911163587179057}
   - component: {fileID: 8546971023730949986}
   - component: {fileID: 4487261710014319247}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: "\u7ACB\u65B9\u4F53.016"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2194,7 +2191,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1783
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -2214,7 +2211,7 @@ GameObject:
   - component: {fileID: 496235380040463881}
   - component: {fileID: 779348751204243804}
   - component: {fileID: 2620309024476659068}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: "\u7ACB\u65B9\u4F53.009"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2299,7 +2296,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1783
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0

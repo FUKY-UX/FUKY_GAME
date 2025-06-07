@@ -103,12 +103,10 @@ public class PotHeatingState : ItemState
     public override void OnGrab()
     {
         base.OnGrab();
-        _DefAttrBoard.Phy._collider.enabled = false;
         _PotAttrBoard.CookCollider.SetActive(true);
     }
     public override void OnRelease()
     {
-        _DefAttrBoard.Phy._collider.enabled = true;
         _PotAttrBoard.CookCollider.SetActive(false);
     }
 
