@@ -35,7 +35,7 @@ public class AudioManager2025 : MonoBehaviour
     private float lastPlayTime;
     private string lastplayName;
 
-    private void Awake()
+    public void Awake()
     {
 
         // 单例初始化
@@ -62,9 +62,10 @@ public class AudioManager2025 : MonoBehaviour
         }
 
     }
-    private void Start()
+    public void Start()
     {
         CamAudioSoure = Camera.main.gameObject.GetComponent<AudioSource>();
+        PlaySound(bgm.name);
 
     }
 

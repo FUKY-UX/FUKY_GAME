@@ -15633,6 +15633,51 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: 5a343b795caf65543938b4aa431d5919, type: 2}
+--- !u!1 &1361994761 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7573159611044609454, guid: e7c7d3804d56be846872023983225bba,
+    type: 3}
+  m_PrefabInstance: {fileID: 2808371687443488343}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1361994764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1361994761}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 030745d36fb79d049bda13e77173fb02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DefaultAttr:
+    Phy:
+      _rigidbody: {fileID: 0}
+      _collider: {fileID: 0}
+      GrabTimeFactor: 1
+      RubFactor: {x: 0, y: 0, z: 0}
+      RubStrength: 1
+    Sound:
+      MyAduioSource: {fileID: 0}
+      _OnHitSound:
+      - {fileID: 8300000, guid: 8357eb37d665f524e81331bc9b6a58a9, type: 3}
+      - {fileID: 8300000, guid: c95ff4b5b993fdd44a89cd01f5f1d59a, type: 3}
+      - {fileID: 8300000, guid: 8b538cef59ada454b88112ff30417e12, type: 3}
+      _OnGrabSound:
+      - {fileID: 8300000, guid: 1e2731457fed25a41935b5b0977a96e9, type: 3}
+      _OnReleaseSound: []
+      _OnHitSound_Str: []
+      _OnGrabSound_Str: []
+      _OnReleaseSound_Str: []
+  CurrCanPickAble: 1
+  PickUpCoolDown: 2
+  ItemAdjRotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 1
 --- !u!1 &1365260810
 GameObject:
   m_ObjectHideFlags: 0
@@ -16590,10 +16635,11 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 27bcb38de9f291d468219eaa015b78c4, type: 3}
   - {fileID: 8300000, guid: 4b3f82e8ad818d14d91a58fc0f7ab994, type: 3}
   - {fileID: 8300000, guid: 76e8ba2ce03e6b346b4b88d9ca224bb3, type: 3}
+  - {fileID: 8300000, guid: 8357eb37d665f524e81331bc9b6a58a9, type: 3}
+  - {fileID: 8300000, guid: c95ff4b5b993fdd44a89cd01f5f1d59a, type: 3}
+  - {fileID: 8300000, guid: 8b538cef59ada454b88112ff30417e12, type: 3}
   bgm: {fileID: 8300000, guid: 725703828abc8a949a36a77279809f93, type: 3}
   UniversalAudioSoure: {fileID: 1412359498}
-  soundLibrary:
-    list: []
   _longSoundSource: {fileID: 0}
   soundCooldown: 0.5
 --- !u!82 &1412359498
@@ -16797,14 +16843,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1420615890}
-  - component: {fileID: 1420615891}
   m_Layer: 0
   m_Name: CookingMech
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1420615890
 Transform:
   m_ObjectHideFlags: 0
@@ -16820,33 +16865,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1731669372}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1420615891
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1420615889}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3029f70680a55804797e7cdbd8369cb7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  defaultCookRate: 0.1
-  defaultSuperMomentRange: {x: 0.2, y: 0.8}
-  superMomentDuration: 0.1
-  CookMoment_PLUS:
-    list:
-    - Key: 1
-      Value: 1.6
-    - Key: 2
-      Value: 3.2
-    - Key: 3
-      Value: 1.2
-    - Key: 4
-      Value: 0.5
-  activeCookingPairs:
-    list: []
 --- !u!1 &1443039749
 GameObject:
   m_ObjectHideFlags: 0
@@ -23714,6 +23732,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Meet
       objectReference: {fileID: 0}
+    - target: {fileID: 537731223042439317, guid: 4e5a367ca7a19204794b51dd94c48b07,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
         type: 3}
       propertyPath: CookAttr.Sound.Sounds.list.Array.size
@@ -29294,6 +29317,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Pot
       objectReference: {fileID: 0}
+    - target: {fileID: 7573159611044609454, guid: e7c7d3804d56be846872023983225bba,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7656852465806407970, guid: e7c7d3804d56be846872023983225bba,
         type: 3}
       propertyPath: m_Layer
@@ -29379,7 +29407,11 @@ PrefabInstance:
     - {fileID: 8434010216905922503, guid: e7c7d3804d56be846872023983225bba, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7573159611044609454, guid: e7c7d3804d56be846872023983225bba,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1361994764}
   m_SourcePrefab: {fileID: 100100000, guid: e7c7d3804d56be846872023983225bba, type: 3}
 --- !u!1 &2981476648064140549
 GameObject:

@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-
 public enum CookingMoment
 {
     UnCook,
@@ -232,5 +231,3 @@ public class MeatBase : GrabInteractedItemOrigin
         DefaultAttr.Phy._rigidbody.AddForce(Vector3.up * _CookMePot.DefaultAttr.Phy.RubFactor.y * CookAttr.Phy.Meat_JumpStren / 2);
     }
 }
-
-
