@@ -23856,6 +23856,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2028742100204673329, guid: 4e5a367ca7a19204794b51dd94c48b07,
+        type: 3}
+      propertyPath: m_IsKinematic
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2080598245259297427, guid: 4e5a367ca7a19204794b51dd94c48b07,
         type: 3}
       propertyPath: CookAttr.Sound.Sounds.list.Array.size
@@ -29395,6 +29400,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2362427473614213383, guid: e7c7d3804d56be846872023983225bba,
+        type: 3}
+      propertyPath: m_Name
+      value: PotHeatArea
+      objectReference: {fileID: 0}
+    - target: {fileID: 3650429629374267102, guid: e7c7d3804d56be846872023983225bba,
+        type: 3}
+      propertyPath: _potAttrBoard.ShowGizmo
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3650429629374267102, guid: e7c7d3804d56be846872023983225bba,
         type: 3}
       propertyPath: DefaultAttr.Sound.MyAduioSource
@@ -29410,6 +29425,31 @@ PrefabInstance:
       propertyPath: m_ExcludeLayers.m_Bits
       value: 1790
       objectReference: {fileID: 0}
+    - target: {fileID: 5048962806883866611, guid: e7c7d3804d56be846872023983225bba,
+        type: 3}
+      propertyPath: m_Size.x
+      value: 0.018
+      objectReference: {fileID: 0}
+    - target: {fileID: 5048962806883866611, guid: e7c7d3804d56be846872023983225bba,
+        type: 3}
+      propertyPath: m_Size.y
+      value: 0.018
+      objectReference: {fileID: 0}
+    - target: {fileID: 5048962806883866611, guid: e7c7d3804d56be846872023983225bba,
+        type: 3}
+      propertyPath: m_Size.z
+      value: 0.03
+      objectReference: {fileID: 0}
+    - target: {fileID: 5048962806883866611, guid: e7c7d3804d56be846872023983225bba,
+        type: 3}
+      propertyPath: m_Center.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5048962806883866611, guid: e7c7d3804d56be846872023983225bba,
+        type: 3}
+      propertyPath: m_Center.z
+      value: 0.01
+      objectReference: {fileID: 0}
     - target: {fileID: 7573159611044609454, guid: e7c7d3804d56be846872023983225bba,
         type: 3}
       propertyPath: m_Name
@@ -29419,6 +29459,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8128549407434789043, guid: e7c7d3804d56be846872023983225bba,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.0003
+      objectReference: {fileID: 0}
+    - target: {fileID: 8338350553273206469, guid: e7c7d3804d56be846872023983225bba,
+        type: 3}
+      propertyPath: m_IsKinematic
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
