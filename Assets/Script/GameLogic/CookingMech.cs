@@ -3,27 +3,27 @@ using System.Linq;
 using UnityEngine;
 public class CookingMech : MonoBehaviour
 {
-    // µ¥ÀýÄ£Ê½
+    // ï¿½ï¿½ï¿½ï¿½Ä£Ê½
     public static CookingMech Instance { get; private set; }
 
-    // Åëâ¿²ÎÊýÅäÖÃ
-    [Header("Åëâ¿ÏµÍ³²ÎÊý")]
-    [Tooltip("Õý³£Åëâ¿µÄ»¨Ñù¶È»ýÀÛËÙ¶È")]
+    // ï¿½ï¿½â¿²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    [Header("ï¿½ï¿½ï¿½ÏµÍ³ï¿½ï¿½ï¿½ï¿½")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½â¿µÄ»ï¿½ï¿½ï¿½ï¿½È»ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½")]
     public float defaultCookRate = 0.1f;
-    [Tooltip("³¬¼¶Ê±¿Ì£¬»áÔÚ¼åÈâµÄ¿ªÊ¼µ½½áÊøµÄÊ²Ã´Ê±¼ä¶ÎÄÚ³öÏÖ")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½Ê±ï¿½Ì£ï¿½ï¿½ï¿½ï¿½Ú¼ï¿½ï¿½ï¿½Ä¿ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê²Ã´Ê±ï¿½ï¿½ï¿½ï¿½Ú³ï¿½ï¿½ï¿½")]
     public Vector2 defaultSuperMomentRange = new Vector2(0.2f, 0.8f);
-    [Tooltip("Ê±¼ä´°¿Ú´ó¸Å¶à¾Ã£¬²¢²»ÊÇËµ0.1¾ÍÊÇ0.1S£¬Ó°Ïì¸ÃÖµµÃÓÐÊ³²ÄµÄTCRÖµºÍdefaultcookrate")]
+    [Tooltip("Ê±ï¿½ä´°ï¿½Ú´ï¿½Å¶ï¿½Ã£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëµ0.1ï¿½ï¿½ï¿½ï¿½0.1Sï¿½ï¿½Ó°ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½Ê³ï¿½Äµï¿½TCRÖµï¿½ï¿½defaultcookrate")]
     public float superMomentDuration = 0.1f;
-    [Tooltip("×ó±ßÊÇÊ³²ÄµÄÅëâ¿×´Ì¬£¬ÓÒ±ßÊÇ¸Ã×´Ì¬ÏÂ·­Ãæ³É¹¦ºóµÄ»¨Ñù¶È¼Ó³É±¶ÂÊ,×¢:UNCOOKÊÇÎÞÐ§µÄ£¬²»¿ÉÄÜ²»Õ³¹ø¾ÍËã·­Ãæ")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½ï¿½Ê³ï¿½Äµï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ò±ï¿½ï¿½Ç¸ï¿½×´Ì¬ï¿½Â·ï¿½ï¿½ï¿½É¹ï¿½ï¿½ï¿½Ä»ï¿½ï¿½ï¿½ï¿½È¼Ó³É±ï¿½ï¿½ï¿½,×¢:UNCOOKï¿½ï¿½ï¿½ï¿½Ð§ï¿½Ä£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü²ï¿½Õ³ï¿½ï¿½ï¿½ï¿½ï¿½ã·­ï¿½ï¿½")]
     public SerializableDictionary<CookingMoment, float> CookMoment_PLUS = new SerializableDictionary<CookingMoment, float>();
-    // ÊÂ¼þÏµÍ³
-    public delegate void CookingMomentFinish(CookingMoment moment,Pot pot,MeatBase meat);
-    public delegate void CookingStateChangeHandler(CookingMoment moment,MeatBase meat);
+    // ï¿½Â¼ï¿½ÏµÍ³
+    public delegate void CookingMomentFinish(CookingMoment moment,Pot pot,FoodBase meat);
+    public delegate void CookingStateChangeHandler(CookingMoment moment,FoodBase meat);
     public event CookingMomentFinish OnCookingMomentFinish;
     public event CookingStateChangeHandler OnCookingStateChange;
-    // »îÔ¾µÄÅëâ¿¹øºÍÊ³Îï
-    public SerializableDictionary<Pot, List<MeatBase>> MeatCooking_FacePair
-                                = new SerializableDictionary<Pot, List<MeatBase>>();
+    // ï¿½ï¿½Ô¾ï¿½ï¿½ï¿½ï¿½â¿¹ï¿½ï¿½ï¿½Ê³ï¿½ï¿½
+    public SerializableDictionary<Pot, List<FoodBase>> MeatCooking_FacePair
+                                = new SerializableDictionary<Pot, List<FoodBase>>();
 
     private void Awake()
     {
@@ -37,38 +37,38 @@ public class CookingMech : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    // ×¢²áÅëâ¿¹ØÏµ
-    public void ImBeCooking(Pot pot, MeatBase food)
+    // ×¢ï¿½ï¿½ï¿½ï¿½â¿¹ï¿½Ïµ
+    public void ImBeCooking(Pot pot, FoodBase food)
     {
-        // 1. ²ÎÊý°²È«¼ì²é
+        // 1. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½ï¿½
         if (pot == null || pot._potAttrBoard == null || food == null)
         {
-            Debug.LogWarning("ÎÞÐ§µÄ¹ø»òÊ³Îï²ÎÊý");
+            Debug.LogWarning("ï¿½ï¿½Ð§ï¿½Ä¹ï¿½ï¿½ï¿½Ê³ï¿½ï¿½ï¿½ï¿½ï¿½");
             return;
         }
 
-        // 2. »ñÈ¡»ò´´½¨¸Ã¹ø¶ÔÓ¦µÄÊ³ÎïÁÐ±í
+        // 2. ï¿½ï¿½È¡ï¿½ò´´½ï¿½ï¿½Ã¹ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½Ê³ï¿½ï¿½ï¿½Ð±ï¿½
         if (!Instance.MeatCooking_FacePair.TryGetValue(pot._potAttrBoard.Me, out var foodList))
         {
-            // Èç¹û¹ø²»´æÔÚÓÚ×ÖµäÖÐ£¬´´½¨ÐÂÌõÄ¿
-            foodList = new List<MeatBase>();
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿
+            foodList = new List<FoodBase>();
             Instance.MeatCooking_FacePair[pot._potAttrBoard.Me] = foodList;
         }
 
-        // 3. ¼ì²éÊÇ·ñÒÑ´æÔÚ¸ÃÊ³Îï
+        // 3. ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½Ñ´ï¿½ï¿½Ú¸ï¿½Ê³ï¿½ï¿½
         if (!foodList.Contains(food))
         {
             foodList.Add(food);
-            Debug.Log($"ÒÑ×¢²áÊ³Îï {food.name} µ½¹ø {pot.name}");
+            Debug.Log($"ï¿½ï¿½×¢ï¿½ï¿½Ê³ï¿½ï¿½ {food.name} ï¿½ï¿½ï¿½ï¿½ {pot.name}");
         }
         else
         {
-            Debug.Log($"Ê³Îï {food.name} ÒÑÔÚ¹ø {pot.name} µÄÅëâ¿ÁÐ±íÖÐ");
+            Debug.Log($"Ê³ï¿½ï¿½ {food.name} ï¿½ï¿½ï¿½Ú¹ï¿½ {pot.name} ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ï¿½ï¿½");
         }
     }
 
-    // È¡ÏûÅëâ¿¹ØÏµ
-    public void ImNotBeCooking(Pot pot, MeatBase food, Collider FoodPart)
+    // È¡ï¿½ï¿½ï¿½ï¿½â¿¹ï¿½Ïµ
+    public void ImNotBeCooking(Pot pot, FoodBase food, Collider FoodPart)
     {
         if (MeatCooking_FacePair.ContainsKey(pot))
         {
@@ -77,7 +77,7 @@ public class CookingMech : MonoBehaviour
         }
     }
 
-    // ¸üÐÂËùÓÐÅëâ¿½ø¶È
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½â¿½ï¿½ï¿½ï¿½
     private void Update()
     {
         foreach (var pair in MeatCooking_FacePair)
@@ -85,7 +85,7 @@ public class CookingMech : MonoBehaviour
             Pot pot = pair.Key;
             if (pot._potAttrBoard.Heating)
             {
-                foreach (MeatBase food in pair.Value.ToList())
+                foreach (FoodBase food in pair.Value.ToList())
                 {
                     UpdateFoodCooking(pot, food);
                     food.AttachToPot(pot);
@@ -94,17 +94,17 @@ public class CookingMech : MonoBehaviour
         }
     }
 
-    // ¸üÐÂµ¥¸öÊ³ÎïµÄÅëâ¿½ø¶È
-    private void UpdateFoodCooking(Pot pot, MeatBase food)
+    // ï¿½ï¿½ï¿½Âµï¿½ï¿½ï¿½Ê³ï¿½ï¿½ï¿½ï¿½ï¿½â¿½ï¿½ï¿½ï¿½
+    private void UpdateFoodCooking(Pot pot, FoodBase food)
     {
-        // ¼ì²éµ±Ç°Åëâ¿²¿·ÖÊÇ²»ÊÇ¿ÕµÄ
-        if (food.CookAttr.Cook._CurrCookedPart == null) { Debug.Log("µ±Ç°Åëâ¿²¿·ÖÊÇ¿ÕµÄ"); return; }
-        // ¼ì²éÊÇ²»ÊÇ·­ÃæÁË
+        // ï¿½ï¿½éµ±Ç°ï¿½ï¿½â¿²ï¿½ï¿½ï¿½ï¿½Ç²ï¿½ï¿½Ç¿Õµï¿½
+        if (food.CookAttr.Cook._CurrCookedPart == null) { Debug.Log("ï¿½ï¿½Ç°ï¿½ï¿½â¿²ï¿½ï¿½ï¿½ï¿½Ç¿Õµï¿½"); return; }
+        // ï¿½ï¿½ï¿½ï¿½Ç²ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½
         if (food.CookAttr.Cook._CurrCookedPart != food.CookAttr.Cook._LastCookedPart)
         {
             var LastPartState = food.CookAttr.Cook._LastCookedPart;
             food.CookAttr.Cook._LastCookedPart ??= food.CookAttr.Cook._CurrCookedPart;
-            Debug.Log($"ÉÏÒ»Ãæ'{food.CookAttr.Cook._LastCookedPart}'·­×ªÁË£¬½áËãÇé¿ö:{food.CookAttr.Cook._LastCookedPart.CurrPartCookMoment}");
+            Debug.Log($"ï¿½ï¿½Ò»ï¿½ï¿½'{food.CookAttr.Cook._LastCookedPart}'ï¿½ï¿½×ªï¿½Ë£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:{food.CookAttr.Cook._LastCookedPart.CurrPartCookMoment}");
             OnCookingMomentFinish?.Invoke(food.CookAttr.Cook._LastCookedPart.CurrPartCookMoment,pot,food);
             switch (LastPartState.CurrPartCookMoment)
             {
@@ -130,21 +130,21 @@ public class CookingMech : MonoBehaviour
             food.CookAttr.Cook._LastCookedPart = food.CookAttr.Cook._CurrCookedPart;
         }
         FoodPartInf_Def partState = food.CookAttr.Cook._CurrCookedPart;
-        //¼ÆËã×Ü»¨Ñù¶È
+        //ï¿½ï¿½ï¿½ï¿½ï¿½Ü»ï¿½ï¿½ï¿½ï¿½ï¿½
 
         food.CookAttr.Cook.Food_TotalCook += food.CookAttr.Cook.UpFace.CookValue + food.CookAttr.Cook.DownFace.CookValue;
 
         food.CookAttr.Cook.Food_TotalCook = food.CookAttr.Cook.Food_TotalCook * food.CookAttr.Phy.Food_TCR / 2;
-        // ¼ÆËãÅëâ¿ÔöÁ¿
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         float cookIncrement = Time.deltaTime * defaultCookRate * food.CookAttr.Phy.Food_TCR;
-        // ¸üÐÂÊ±¿ÌÖµ
+        // ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Öµ
         partState.MomentInWhere += cookIncrement;
-        // ¸ù¾ÝÅëâ¿Öµ¸üÐÂ×´Ì¬
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½×´Ì¬
         UpdateCookingState(partState, partState.SuperMoment_V2,food);
     }
 
-    // ¸üÐÂÅëâ¿×´Ì¬
-    private void UpdateCookingState(FoodPartInf_Def partState, Vector2 superMomentRange,MeatBase meat)
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
+    private void UpdateCookingState(FoodPartInf_Def partState, Vector2 superMomentRange,FoodBase meat)
     {
         switch (partState.CurrPartCookMoment)
         {
@@ -185,7 +185,7 @@ public class CookingMech : MonoBehaviour
         }
     }
 
-    // ¼ÆËã"¾ªÏ²Ê±¿Ì"·¶Î§
+    // ï¿½ï¿½ï¿½ï¿½"ï¿½ï¿½Ï²Ê±ï¿½ï¿½"ï¿½ï¿½Î§
     public Vector2 CalculateSuperMomentRange(float baseMoment, float timeWindow)
     {
         return new Vector2(
@@ -198,7 +198,7 @@ public class CookingMech : MonoBehaviour
     {
         FoodPart.CurrPartCookMoment = CookingMoment.UnCook;
         FoodPart.MomentInWhere = 0;
-        // ³õÊ¼»¯"¾ªÏ²Ê±¿Ì"
+        // ï¿½ï¿½Ê¼ï¿½ï¿½"ï¿½ï¿½Ï²Ê±ï¿½ï¿½"
         FoodPart.SuperMoment = UnityEngine.Random.Range(
             defaultSuperMomentRange.x,
             defaultSuperMomentRange.y

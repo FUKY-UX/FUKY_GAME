@@ -24,12 +24,10 @@ public class PotAttrBoard : AttrBoard
 public class PotDefaultState : GrabPhyItem_DefaultState
 {
     protected ItemFSM _MyFsm;
-    public DefaultItemAttrBoard _DefAttrBoard;
     public PotAttrBoard _PotAttrBoard;
     public PotDefaultState(ItemFSM in_Fsm, DefaultItemAttrBoard _defattrboard, PotAttrBoard Extend_Board): base(in_Fsm,_defattrboard,Extend_Board)
     {
         _MyFsm = in_Fsm;
-        _DefAttrBoard = _defattrboard as DefaultItemAttrBoard;
         _PotAttrBoard = Extend_Board as PotAttrBoard;
     }
 
@@ -53,11 +51,14 @@ public class PotDefaultState : GrabPhyItem_DefaultState
     {
         base.OnGrab();
         _PotAttrBoard.CookCollider.SetActive(true);
+        _DefAttrBoard.Phy._collider.enabled = false;
     }
     public override void OnRelease()
     {
         base.OnRelease();
         _PotAttrBoard.CookCollider.SetActive(false);
+        _DefAttrBoard.Phy._collider.enabled = true;
+
     }
 
 }
@@ -79,7 +80,7 @@ public class PotHeatingState : GrabPhyItem_DefaultState
     {
         Debug.Log("表哥，我进来力");
         //通过重写的方式尝试去除掉碰撞的音效，但不知道行不行
-        MeatBase Food = collider.GetComponentInParent<MeatBase>();
+        FoodBase Food = collider.GetComponentInParent<FoodBase>();
         if (Food != null)
         {
             //更新食物与锅的接触面
@@ -102,11 +103,13 @@ public class PotHeatingState : GrabPhyItem_DefaultState
     {
         base.OnGrab();
         _PotAttrBoard.CookCollider.SetActive(true);
+        _DefAttrBoard.Phy._collider.enabled = false;
     }
     public override void OnRelease()
     {
         base.OnRelease();
         _PotAttrBoard.CookCollider.SetActive(false);
+        _DefAttrBoard.Phy._collider.enabled = true;
     }
 
 }

@@ -77,7 +77,7 @@ public class FoodSounds : AttrBoard
 [Serializable]
 public class FoodAttr : AttrBoard
 {
-    public MeatBase ME;
+    public FoodBase ME;
 
     [Header("烹饪机制")]
     public FoodCooking Cook;
@@ -114,7 +114,7 @@ public class FoodCookingState : ItemState
         CookingMech.Instance.OnCookingStateChange += HandleCookingSound;
     }
         // 处理烹饪结算效果
-    private void HandleCookingMomentFinish(CookingMoment FinishMoment,Pot pot,MeatBase meat)
+    private void HandleCookingMomentFinish(CookingMoment FinishMoment,Pot pot,FoodBase meat)
     {
         Debug.Log($"尝试播放音效{FinishMoment},烹饪系统储存的与事件返回值相同状态:{meat == _FoodAttr.ME}");
 
@@ -136,7 +136,7 @@ public class FoodCookingState : ItemState
     }
 
     // 处理烹饪时的音效
-    private void HandleCookingSound(CookingMoment Moment,MeatBase meat)
+    private void HandleCookingSound(CookingMoment Moment,FoodBase meat)
     {
         Debug.Log($"尝试播放音效{Moment},烹饪系统储存的与事件返回值相同状态:{meat == _FoodAttr.ME}");
         if (meat == _FoodAttr.ME)
@@ -163,7 +163,7 @@ public class FoodCookingState : ItemState
     }
 }
 
-public class MeatBase : GrabInteractedItemOrigin
+public class FoodBase : GrabInteractedItemOrigin
 {
     [Header("烹饪基础属性")]
     public FoodAttr CookAttr;

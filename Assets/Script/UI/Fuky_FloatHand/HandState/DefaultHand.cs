@@ -81,6 +81,9 @@ public class DefaultHand : HandState
         if (Input.GetKeyDown(KeyCode.E))//用于模仿鼠标浮起时的检测
         {
             Idle = true;
+            _SBoard.TouchCollider = null;
+            _SBoard.TouchItemFSM = null;
+            _SBoard.TouchItem = null;
             _ShandFsm.SwitchState(HandState_Type.Idle);
         }
 #endif
