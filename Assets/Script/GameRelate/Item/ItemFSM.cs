@@ -12,7 +12,7 @@ public enum ItemState_Type
     State5,
     State6
 }
-public interface InteractedItem
+public interface InteractedItemState
 {
     public void OnEnter();
     public void OnExit();
@@ -36,7 +36,7 @@ public interface InteractedItem
 
 }
 [Serializable]
-public class AttrBoard
+public abstract class AttrBoard
 {
 
 }
@@ -45,17 +45,17 @@ public class ItemFSM
 {
     public ItemState_Type CurrItemState;
     [HideInInspector]
-    public InteractedItem CurrentState { get; private set; }
+    public InteractedItemState CurrentState { get; private set; }
     [HideInInspector] 
-    public Dictionary<ItemState_Type, InteractedItem> States;
+    public Dictionary<ItemState_Type, InteractedItemState> States;
     [HideInInspector] 
     public DefaultItemAttrBoard AttrBoard;
     public ItemFSM(DefaultItemAttrBoard _Board)
     {
-        this.States = new Dictionary<ItemState_Type, InteractedItem>();
+        this.States = new Dictionary<ItemState_Type, InteractedItemState>();
         this.AttrBoard = _Board;
     }
-    public void AddState(ItemState_Type StateType, InteractedItem State)
+    public void AddState(ItemState_Type StateType, InteractedItemState State)
     {
         if (States.ContainsKey(StateType)) 
         {

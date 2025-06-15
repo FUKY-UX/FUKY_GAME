@@ -62,7 +62,7 @@ public class DefaultItemAttrBoard : AttrBoard
     public ItemDefaultSound Sound;
     
 }
-public abstract class ItemState : InteractedItem
+public abstract class ItemState : InteractedItemState
 {
     public virtual void OnEnter()
     {
